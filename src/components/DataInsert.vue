@@ -1,7 +1,11 @@
 <script setup>
 	import { ref } from 'vue'
-	
-	const clip = ref()
+
+	const textareavalue = ref()
+
+	function clear() {
+		textareavalue.value = ''
+	}
 
 	async function paste(e) {
 		const permission = await navigator.permissions.query({ name: "clipboard-read" })
@@ -10,10 +14,13 @@
 			return
 		}
 		const clipboardData = await navigator.clipboard.readText().catch(reason=>console.error(reason))
-		clip.value = clipboardData
-		console.log(permission);
-		console.log(clipboardData);
+		textareavalue.value += clipboardData
+
+		log()
 	}
+
+
+	function log() {console.log(`changed`)}
 
 </script>
 
@@ -24,11 +31,10 @@
 	<p></p>
 
 	<!-- <form action=""> -->
-		<textarea id="datainsert" name="datainsert" rows="10" :value="clip"></textarea>
+		<textarea id="datainsert" name="datainsert" rows="10" v-model="textareavalue" @input="log"></textarea>
 		<button @click="paste">Wklej ze schowka</button>
-		<button type="reset" for="datainsert">Wyczyść</button>
+		<button @click="clear">Wyczyść</button>
 	<!-- </form> -->
-	<!-- <button @click="counter++">You clicked T1 {{ counter }} times.</button> -->
 </template>
 
 <style scoped>
