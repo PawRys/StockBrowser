@@ -1,26 +1,78 @@
 <script setup>
 	import { ref } from 'vue'
 
-	const textareavalue = ref()
+	const rawData = ref()
+	const dataType = ref(null)
+	const isValid = ref(false)
+	const message = ref('')
 
-	function clear() {
-		textareavalue.value = ''
+	function fnClear() {
+		rawData.value = ''
+		validateRawData()
 	}
 
-	async function paste(e) {
+	async function fnPaste(e) {
 		const permission = await navigator.permissions.query({ name: "clipboard-read" })
 		if (permission.state == 'denied') {
 			alert(`Uprawnienia do schowka dla tej witryny zostały wyłączone. Ask Google for help.`)
 			return
 		}
 		const clipboardData = await navigator.clipboard.readText().catch(reason=>console.error(reason))
-		textareavalue.value += clipboardData
-
-		log()
+		rawData.value += clipboardData
+		validateRawData()
 	}
 
+	function validateRawData() {
 
-	function log() {console.log(`changed`)}
+		const input = rawData.value
+
+		if (!input) {
+			dataType.value = null
+			message.value = ``
+		} else {
+			dataType.value = false
+			message.value = `Nie rozpoznano danych. ❌`
+		}
+
+		const isStocks = /Stany i rezerwacje towarów/i.test(input)
+		const isCorrectStockColumns = /Kod towaru		nazwa towaru		jm		stan handlowy	rezerwacje R	rezerwacje A		stan  całkowity	/i.test(input)
+		if (isStocks && isCorrectStockColumns) {
+			dataType.value = 'stocks'
+			message.value = `📦 Rozpoznano stany i rezerwacje towarów.`
+		}
+
+		const isPrices = /Stany magazynowe towarów/i.test(input)
+		const isCorrectPriceColumns = /Kod towaru		nazwa towaru		jm		stan	cena	wartość		/i.test(input)
+		if (isPrices && isCorrectPriceColumns) {
+			dataType.value = 'prices'
+			message.value = `💵 Rozpoznano ceny zakupowe towarów.`
+		}
+
+		const isProdutsList = (/Kod	Nazwa/i.test(input))
+		const isProdutsItem = (/\d+s\d+\/\d+/i.test(input))
+		if (isProdutsList && isProdutsItem) {
+			dataType.value = 'products'
+			message.value = `📜 Rozpoznano listę produktów.`
+		}
+
+		const isFullExchangeCode = (/^\d{4}$/i.test(input))
+		if (isFullExchangeCode) {
+			dataType.value = 'code'
+			message.value = `🔢 Rozpoznano kod wymiany danych.`
+		}
+
+		const isPartExchangeCode = (/^\d{1,3}$/i.test(input))
+		if (isPartExchangeCode) {
+			dataType.value = null
+			message.value = ``
+		}
+
+	}
+
+	function fnAccept() {
+		message.value = `No function yet`
+	}
+
 
 </script>
 
@@ -31,9 +83,14 @@
 	<p></p>
 
 	<!-- <form action=""> -->
-		<textarea id="datainsert" name="datainsert" rows="10" v-model="textareavalue" @input="log"></textarea>
-		<button @click="paste">Wklej ze schowka</button>
-		<button @click="clear">Wyczyść</button>
+		<textarea id="datainsert" name="datainsert" rows="10" v-model="rawData" @input="validateRawData"></textarea>
+		<button @click="fnClear">Wyczyść</button>
+		<button @click="fnPaste">Schowek</button>
+		<button @click="fnAccept" :class="{valid: dataType }">Zatwierdź</button>
+
+		<p><b>Text value:</b> {{rawData}}</p>
+		<p><b>Data type:</b> {{dataType}}</p>
+		<p><b>Message:</b> {{message}}</p>
 	<!-- </form> -->
 </template>
 
@@ -41,4 +98,13 @@
 	#datainsert {
 		width: 100%;
 	}
+
+	p {
+		overflow: hidden;
+		max-height: 8ch;
+	}
+
+	/* .valid {
+		color:blue
+	} */
 </style>

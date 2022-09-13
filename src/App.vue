@@ -8,5 +8,8 @@
   <!-- <TestTwo /> -->
 </template>
 
-<style scoped>
+<style>
+  .valid {
+    color: blueviolet;
+  }
 </style>
