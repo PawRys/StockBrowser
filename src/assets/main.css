@@ -9,3 +9,26 @@
 
   font-weight: normal;
 }
+
+.button {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.8rem;
+  margin: 0.1ex;
+  padding: 1ex 2ex;
+  border: solid 2px gold;
+  background-color: sandybrown;
+}
+
+.button:hover {
+  cursor: pointer;
+}
+
+.button > svg {
+  /* margin-left: 0.8rem; */
+  --iconSize: 1.2rem;
+  width: var(--iconSize);
+  height: var(--iconSize);
+  /* translate: 0 0.15rem; */
+}
+

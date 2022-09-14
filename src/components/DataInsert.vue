@@ -1,14 +1,16 @@
 <script setup>
 	import { ref } from 'vue'
+	import  IconBroom  from './icons/IconBroom.vue'
+	import  IconCheck  from './icons/IconCheck.vue'
+	import  IconDisk  from './icons/IconDisk.vue'
 
 	const rawData = ref()
 	const dataType = ref(null)
-	const isValid = ref(false)
 	const message = ref('')
 
 	function fnClear() {
 		rawData.value = ''
-		validateRawData()
+		fnValidate()
 	}
 
 	async function fnPaste(e) {
@@ -18,11 +20,11 @@
 			return
 		}
 		const clipboardData = await navigator.clipboard.readText().catch(reason=>console.error(reason))
-		rawData.value += clipboardData
-		validateRawData()
+		rawData.value = clipboardData
+		fnValidate()
 	}
 
-	function validateRawData() {
+	function fnValidate() {
 
 		const input = rawData.value
 
@@ -83,10 +85,12 @@
 	<p></p>
 
 	<!-- <form action=""> -->
-		<textarea id="datainsert" name="datainsert" rows="10" v-model="rawData" @input="validateRawData"></textarea>
-		<button @click="fnClear">Wyczyść</button>
-		<button @click="fnPaste">Schowek</button>
-		<button @click="fnAccept" :class="{valid: dataType }">Zatwierdź</button>
+		<div class="grid">
+			<textarea id="datainsert" name="datainsert" rows="10" v-model="rawData" @input="fnValidate"></textarea>
+			<button class="button" @click="fnClear">Wyczyść <IconBroom /></button>
+			<button class="button" @click="fnPaste">Schowek <IconDisk /></button>
+			<button class="button" @click="fnAccept" :class="{invalid: !dataType }" v-if="dataType">Zatwierdź <IconCheck /></button>
+		</div>
 
 		<p><b>Text value:</b> {{rawData}}</p>
 		<p><b>Data type:</b> {{dataType}}</p>
@@ -95,7 +99,14 @@
 </template>
 
 <style scoped>
+	.grid {
+		display: grid;
+		gap: 0.5ex;
+		grid-template-columns: repeat(3, max-content) 1fr;
+	}
+
 	#datainsert {
+		grid-column: 1 / span 4;
 		width: 100%;
 	}
 
@@ -104,7 +115,8 @@
 		max-height: 8ch;
 	}
 
-	/* .valid {
-		color:blue
-	} */
+	.invalid {
+		filter: grayscale(90%);
+		/* filter: saturate(10%); */
+	}
 </style>
