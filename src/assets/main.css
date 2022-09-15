@@ -1,27 +1,107 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght,GRAD,YOPQ@8..144,25..151,100..1000,-200..150,25..135&display=swap');
 @import "normalize.css";
-@import "./base.css";
+
+/* https://mycolor.space/?hex=%236495ED&sub=1 */
+
+/* Squash Palette */
+/* #6495ED */
+/* #E27A2D */
+/* #00B1B4 */
+
+
+:root {
+  --font-color: hsl(226, 14%, 30%); /* #414656 */
+	--bg-color: #F4F9FF;
+	--bg-shade: #FFF7E7;
+
+	--accent-color: hsl(219, 79%, 66%); /* #6495ED */
+	--accent-shade: hsl(219, 79%, 86%);
+	--accent2-color: hsl(26, 76%, 53%); /* #E27A2D */
+	--accent2-shade: hsl(26, 76%, 73%); 
+
+	--link-color: #BF8620;
+	--link-shade: #DEB887;
+
+  --transition-duration: 300ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --font-color: #402E32;
+    --bg-color: #ffffff;
+    --bg-shade: #FFF7E7;
+  
+    --accent-color: #BF8620;
+    --accent-shade: #DEB887;
+  
+    --link-color: #BF8620;
+    --link-shade: #DEB887;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  position: relative;
+  font-weight: normal;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--font-color);
+  background: var(--bg-color);
+  line-height: 1.6;
+  font-family: 'Roboto Flex', sans-serif;
+	font-size: calc(18px + (28 - 18) * ( (100vw - 320px) / (3840 - 320) ) );
+	line-height: 1.5em;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 #app {
   max-width: 1280px;
   margin: 0 auto;
   padding: clamp(1ex, 5vmin, 2rem);
-
-  font-weight: normal;
 }
 
 .button {
+  --button-bg: var(--accent-color);
   display: grid;
   grid-template-columns: max-content 1fr;
   gap: 0.8rem;
+
   margin: 0.1ex;
+  border: solid 2px var(--bg-color);
   padding: 1ex 2ex;
-  border: solid 2px gold;
-  background-color: sandybrown;
+  background-color: var(--button-bg);
 }
 
-.button:hover {
-  cursor: pointer;
+.button.accent {
+  --button-bg: var(--accent2-color);
+}
+
+.button::after { 
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0px;
+  border: solid 1px white;
+  background-color: var(--button-bg);
+  opacity: 0;
+
+  /* transition-property: inset, opacity; */
+  /* transition-duration: var(--transition-duration); */
+}
+
+
+@media (hover: hover) {
+  .button:hover { cursor: pointer; }
+  .button:hover::after { 
+    opacity: 1;
+    inset: -5px;
+  }
 }
 
 .button > svg {

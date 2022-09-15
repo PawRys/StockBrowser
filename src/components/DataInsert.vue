@@ -87,9 +87,14 @@
 	<!-- <form action=""> -->
 		<div class="grid">
 			<textarea id="datainsert" name="datainsert" rows="10" v-model="rawData" @input="fnValidate"></textarea>
+			<p class="message"
+			  :class="{visible: message, hidden: !message}">{{message}}</p>
 			<button class="button" @click="fnClear">Wyczyść <IconBroom /></button>
 			<button class="button" @click="fnPaste">Schowek <IconDisk /></button>
-			<button class="button" @click="fnAccept" :class="{invalid: !dataType }" v-if="dataType">Zatwierdź <IconCheck /></button>
+			<button class="button accent" @click="fnAccept"
+			 v-if="dataType">Zatwierdź <IconCheck /></button>
+			<!-- <button class="button accent" @click="fnAccept"
+			 :class="{visible: dataType, hidden: !dataType }">Zatwierdź <IconCheck /></button> -->
 		</div>
 
 		<p><b>Text value:</b> {{rawData}}</p>
@@ -105,18 +110,41 @@
 		grid-template-columns: repeat(3, max-content) 1fr;
 	}
 
-	#datainsert {
+	#datainsert,
+	.message {
 		grid-column: 1 / span 4;
 		width: 100%;
 	}
+
+	.message {
+		margin: 0;
+		transition-property: height, scale;
+		transition-duration: var(--transition-duration);
+	}
+
+	.message.hidden {height: 0ch; scale: 1 0;}
+	.message.visible {height: 3ch; scale: 1 1;}
 
 	p {
 		overflow: hidden;
 		max-height: 8ch;
 	}
 
-	.invalid {
-		filter: grayscale(90%);
-		/* filter: saturate(10%); */
+	.button {
+		transition-property: translate, opacity, scale;
+		transition-duration: var(--transition-duration);
+	}
+	.button.hidden {
+		translate: -50% 0;
+		opacity: 0;
+		scale: 0 1;
+		z-index: -1;
+	}
+	.button.visible {
+		/* position: absolute; */
+		translate: 0% 0;
+		opacity: 1;
+		scale: 1 1;
+		z-index: -1;
 	}
 </style>
