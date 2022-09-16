@@ -1,5 +1,6 @@
 <script setup>
 	import { ref } from 'vue'
+	import { db } from '../assets/dexiedb.js';
 	import  IconBroom  from './icons/IconBroom.vue'
 	import  IconCheck  from './icons/IconCheck.vue'
 	import  IconDisk  from './icons/IconDisk.vue'
@@ -79,28 +80,40 @@
 </script>
 
 <template>
+	<!-- <fieldset>
+    <legend>Add new friend</legend>
+    <label>
+      Name:
+      <input v-model="friendName" type="text" />
+    </label>
+    <br />
+    <label>
+      Age:
+      <input v-model="friendAge" type="number" />
+    </label>
+    <br />
+    <button @click="addFriend">Add Friend</button>
+    <p>{{ status }}</p>
+  </fieldset> -->
+
 	<h1>Data Insert Template</h1>
-	<hr>
+	<div class="grid">
+		<textarea id="datainsert" name="datainsert" rows="10" v-model="rawData" @input="fnValidate"></textarea>
+		<p class="message"
+			:class="{visible: message, hidden: !message}">{{message}}</p>
+		<button class="button" @click="fnClear">Wyczyść <IconBroom /></button>
+		<button class="button" @click="fnPaste">Schowek <IconDisk /></button>
+		<button class="button accent" @click="fnAccept"
+			v-if="dataType">Zatwierdź <IconCheck /></button>
+		<!-- <button class="button accent" @click="fnAccept"
+			:class="{visible: dataType, hidden: !dataType }">Zatwierdź <IconCheck /></button> -->
+	</div>
 
-	<p></p>
-
-	<!-- <form action=""> -->
-		<div class="grid">
-			<textarea id="datainsert" name="datainsert" rows="10" v-model="rawData" @input="fnValidate"></textarea>
-			<p class="message"
-			  :class="{visible: message, hidden: !message}">{{message}}</p>
-			<button class="button" @click="fnClear">Wyczyść <IconBroom /></button>
-			<button class="button" @click="fnPaste">Schowek <IconDisk /></button>
-			<button class="button accent" @click="fnAccept"
-			 v-if="dataType">Zatwierdź <IconCheck /></button>
-			<!-- <button class="button accent" @click="fnAccept"
-			 :class="{visible: dataType, hidden: !dataType }">Zatwierdź <IconCheck /></button> -->
-		</div>
-
+	<div id="debug">
 		<p><b>Text value:</b> {{rawData}}</p>
 		<p><b>Data type:</b> {{dataType}}</p>
 		<p><b>Message:</b> {{message}}</p>
-	<!-- </form> -->
+	</div>
 </template>
 
 <style scoped>
@@ -128,23 +141,5 @@
 	p {
 		overflow: hidden;
 		max-height: 8ch;
-	}
-
-	.button {
-		transition-property: translate, opacity, scale;
-		transition-duration: var(--transition-duration);
-	}
-	.button.hidden {
-		translate: -50% 0;
-		opacity: 0;
-		scale: 0 1;
-		z-index: -1;
-	}
-	.button.visible {
-		/* position: absolute; */
-		translate: 0% 0;
-		opacity: 1;
-		scale: 1 1;
-		z-index: -1;
 	}
 </style>

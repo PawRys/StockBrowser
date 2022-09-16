@@ -1,11 +1,11 @@
 <script setup>
   import DataInsert from './components/DataInsert.vue'
-  // import TestTwo from './components/Test2.vue'
+  import DexieTest from './components/DexieTest.vue'
 </script>
 
 <template>
+  <DexieTest />
   <DataInsert />
-  <!-- <TestTwo /> -->
 </template>
 
 <style>

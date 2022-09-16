@@ -22,7 +22,7 @@
 	--link-color: #BF8620;
 	--link-shade: #DEB887;
 
-  --transition-duration: 300ms;
+  --transition-duration: 200ms;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -53,11 +53,33 @@ body {
   background: var(--bg-color);
   line-height: 1.6;
   font-family: 'Roboto Flex', sans-serif;
-	font-size: calc(18px + (28 - 18) * ( (100vw - 320px) / (3840 - 320) ) );
+	font-size: calc(18px + (24 - 18) * ( (100vw - 320px) / (3840 - 320) ) );
 	line-height: 1.5em;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1,h2,h3,h4,h5,h6 {
+  margin-block: 1.5em;
+  line-height: 1.1;
+  font-variation-settings: "YOPQ" 135, "GRAD" 50;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.6rem;
+}
+
+h3 {
+  font-size: 1.3rem;
+}
+
+h4,h5,h6 {
+  font-size: 1.1rem;
 }
 
 #app {
@@ -67,40 +89,27 @@ body {
 }
 
 .button {
-  --button-bg: var(--accent-color);
   display: grid;
   grid-template-columns: max-content 1fr;
   gap: 0.8rem;
 
   margin: 0.1ex;
-  border: solid 2px var(--bg-color);
   padding: 1ex 2ex;
-  background-color: var(--button-bg);
+  border: solid 2px var(--accent-color);
+  background-color: var(--bg-color);
+
+  transition-property: background-color;
+  transition-duration: var(--transition-duration);
 }
 
 .button.accent {
-  --button-bg: var(--accent2-color);
+  background-color: var(--accent-color);
 }
-
-.button::after { 
-  content: '';
-  position: absolute;
-  z-index: -1;
-  inset: 0px;
-  border: solid 1px white;
-  background-color: var(--button-bg);
-  opacity: 0;
-
-  /* transition-property: inset, opacity; */
-  /* transition-duration: var(--transition-duration); */
-}
-
 
 @media (hover: hover) {
-  .button:hover { cursor: pointer; }
-  .button:hover::after { 
-    opacity: 1;
-    inset: -5px;
+  .button:hover {
+    cursor: pointer;
+    background-color: var(--accent-shade);
   }
 }
 
