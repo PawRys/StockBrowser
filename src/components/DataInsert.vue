@@ -112,21 +112,66 @@ function fnValidate() {
 	}
 }
 
-function fnAccept() {
-	message.value = `fnAccept(): See console log`
+async function fnAccept() {
 	if (!rawData.value) return
+	console.time('t')
 	const linesArray = rawData.value.match(/[^\r\n]+/g)
-	for (let line in linesArray) {
-		const lineSegments = linesArray[line].match(/[^\t]+/g)
-		console.log(lineSegments)
+
+	if (dataType.value === 'prices') await db.prices.clear()
+	if (dataType.value === 'stocks') await db.stocks.clear()
+	for (let lineId in linesArray) {
+		message.value = `Ładowanie danych ${Math.round((lineId * 100) / linesArray.length)}%`
+
+		const line = linesArray[lineId]
+		const lineSegments = line.match(/[^\t]+/g)
+
+		if (dataType.value === 'prices' && lineSegments.length !== 6) continue
+		if (dataType.value === 'stocks' && lineSegments.length !== 7) continue
+
+		db.products.put({
+			id: lineSegments[0],
+			name: lineSegments[1],
+			size: getProductSize(line),
+		})
+
+		if (dataType.value === 'prices') {
+			const price = lineSegments[4].replace(',', '.') * 1
+			if (price === 0) continue
+			db.prices.add({
+				id: lineSegments[0],
+				unit: lineSegments[2],
+				price: price,
+			})
+		}
+
+		if (dataType.value === 'stocks') {
+			const total = lineSegments[6].replace(',', '.') * 1
+			const aviable = lineSegments[3].replace(',', '.') * 1
+			if (total === 0) continue
+			db.stocks.add({
+				id: lineSegments[0],
+				unit: lineSegments[2],
+				total: total,
+				aviable: aviable,
+			})
+		}
 	}
+	if (dataType.value === 'prices') message.value = '💵 Zaktualizowano ceny ✔'
+	if (dataType.value === 'stocks') message.value = '📦 Zaktualizowano ilości ✔'
+
+	console.log(`Done.`)
+	console.timeEnd('t')
 }
+
+function getProductSize(line) {}
 </script>
 
 <template>
-	<button class="button" @click="clipData('raw_stocks')">Stocki</button>
-	<button class="button" @click="clipData('raw_prices')">Ceny</button>
-	<button class="button" @click="clipData('raw_products')">Baza kodów</button>
+	<div class="grid">
+		<button class="button" @click="clipData('raw_stocks')">Do schowka: Ilości</button>
+		<button class="button" @click="clipData('raw_prices')">Do schowka: Ceny</button>
+		<button class="button" @click="clipData('raw_products')">Do schowka: Baza kodów</button>
+	</div>
 	<h1>Data Insert Template</h1>
 	<div class="grid">
 		<textarea
@@ -156,9 +201,9 @@ function fnAccept() {
 	</div>
 
 	<div id="debug">
-		<p><b>Text value:</b> {{ rawData }}</p>
+		<!-- <p><b>Text value:</b> {{ rawData }}</p> -->
 		<p><b>Data type:</b> {{ dataType }}</p>
-		<p><b>Message:</b> {{ message }}</p>
+		<!-- <p><b>Message:</b> {{ message }}</p> -->
 	</div>
 </template>
 
