@@ -1,7 +1,9 @@
-import Dexie from 'dexie';
+import Dexie from 'dexie'
 
-export const db = new Dexie('StockBrowserDB');
+export const db = new Dexie('StockBrowserDB')
+
 db.version(1).stores({
-  friends: '++id, name, age', // Primary key and indexed props
-  products: 'id, name, flags',
-});
+	products: 'id, name, flags',
+	stocks: 'id, unit, total, aviable',
+	prices: 'id, unit, price',
+})

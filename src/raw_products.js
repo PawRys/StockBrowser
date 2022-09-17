@@ -1,4 +1,4 @@
-Kod	Nazwa
+export const raw_products = `Kod	Nazwa
 027S04/02	Sklejka liściasta suchotrwała 2,7x1525x1525 BB/BB
 03S01/02	Sklejka liściasta suchotrwała 3x1525x1525 B/B
 03S02/02	Sklejka liściasta suchotrwała 3x1525x1525 B/BB
@@ -4029,3 +4029,4 @@ WS 12 2810/2070	Wiórowa surowa 12mm 1200x800 mm
 WS 16 2070/2800	Wiórowa surowa 16mm 2800x2070
 WS 18 2800/2070	Wiórowa surowa 18mm 2800x2070
 Zamówienie	Zamówienie
+`

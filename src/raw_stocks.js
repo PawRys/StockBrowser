@@ -1,4 +1,4 @@
-Stany i rezerwacje towarów: magazyn WA	
+export const raw_stocks = `Stany i rezerwacje towarów: magazyn WA	
 Kod towaru		nazwa towaru		jm		stan handlowy	rezerwacje R	rezerwacje A		stan  całkowity	
 03S01/02		Sklejka liściasta suchotrwała 3x1525x1525 B/B		m2		0	0	0		0	
 03S02/02		Sklejka liściasta suchotrwała 3x1525x1525 B/BB		m2		0	0	302,3333		302,3333	
@@ -1497,4 +1497,4 @@ Kod towaru		nazwa towaru		jm		stan handlowy	rezerwacje R	rezerwacje A		stan  ca�
 DESKA "CALÓWKA"		TARCICA OBRZYNANA 25mm		m3		0	0	0		0	
 sklajka liściasta WD, gr.9 mm		sklajka liściasta WD, gr.9 mm		m2		0	0	0		0	
 WL 18 2800/2070		Wiórowa lam biała 18mm 2800x2070		m2		0	0	0		0	
-PODSUMOWANIE						99944,6402	0	127050,4505		226995,0907	
+PODSUMOWANIE						99944,6402	0	127050,4505		226995,0907	`

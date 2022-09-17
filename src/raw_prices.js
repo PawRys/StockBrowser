@@ -1,4 +1,4 @@
-Stany magazynowe towarów: na dzień 2021-05-27	
+export const raw_prices = `Stany magazynowe towarów: na dzień 2021-05-27	
 Kod towaru		nazwa towaru		jm		stan	cena	wartość		
 03S01/02		Sklejka liściasta suchotrwała 3x1525x1525 B/B		m2		0	0,00	0,00		
 03S02/02		Sklejka liściasta suchotrwała 3x1525x1525 B/BB		m2		302,3333	11,24	3397,78		
@@ -1497,4 +1497,4 @@ Kod towaru		nazwa towaru		jm		stan	cena	wartość
 DESKA "CALÓWKA"		TARCICA OBRZYNANA 25mm		m3		0	0,00	0,00		
 sklajka liściasta WD, gr.9 mm		sklajka liściasta WD, gr.9 mm		m2		0	0,00	0,00		
 WL 18 2800/2070		Wiórowa lam biała 18mm 2800x2070		m2		0	0,00	0,00		
-PODSUMOWANIE						226995,0907	32,19	7307449,82		
+PODSUMOWANIE						226995,0907	32,19	7307449,82		`

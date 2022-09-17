@@ -1,15 +1,15 @@
 <script setup>
-  import DataInsert from './components/DataInsert.vue'
-  import DexieTest from './components/DexieTest.vue'
+import DataInsert from './components/DataInsert.vue'
+import DexieTest from './components/DexieTest.vue'
 </script>
 
 <template>
-  <DexieTest />
-  <DataInsert />
+	<!-- <DexieTest /> -->
+	<DataInsert />
 </template>
 
 <style>
-  .valid {
-    color: blueviolet;
-  }
+.valid {
+	color: blueviolet;
+}
 </style>
