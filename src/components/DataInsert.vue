@@ -112,32 +112,34 @@ function fnValidate() {
 	}
 }
 
-async function fnAccept() {
-	if (!rawData.value) return
-	console.time('t')
+async function fnSaveToDB() {
+	const timeName = 'save to database'
+	console.time(timeName)
+
 	const linesArray = rawData.value.match(/[^\r\n]+/g)
+	let productsArray = []
+	let pricesArray = []
+	let stocksArray = []
 
-	if (dataType.value === 'prices') await db.prices.clear()
-	if (dataType.value === 'stocks') await db.stocks.clear()
 	for (let lineId in linesArray) {
-		message.value = `Ładowanie danych ${Math.round((lineId * 100) / linesArray.length)}%`
-
 		const line = linesArray[lineId]
 		const lineSegments = line.match(/[^\t]+/g)
 
+		if (dataType.value === 'products' && lineSegments.length !== 2) continue
 		if (dataType.value === 'prices' && lineSegments.length !== 6) continue
 		if (dataType.value === 'stocks' && lineSegments.length !== 7) continue
+		if (/\b(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/i.test(lineSegments[0])) continue
 
-		db.products.put({
+		productsArray.push({
 			id: lineSegments[0],
 			name: lineSegments[1],
 			size: getProductSize(line),
 		})
 
 		if (dataType.value === 'prices') {
-			const price = lineSegments[4].replace(',', '.') * 1
+			const price = lineSegments[4].replace(',', '.') * 1 || 0 // Must be 0, not falsies
 			if (price === 0) continue
-			db.prices.add({
+			pricesArray.push({
 				id: lineSegments[0],
 				unit: lineSegments[2],
 				price: price,
@@ -145,10 +147,10 @@ async function fnAccept() {
 		}
 
 		if (dataType.value === 'stocks') {
-			const total = lineSegments[6].replace(',', '.') * 1
-			const aviable = lineSegments[3].replace(',', '.') * 1
+			const total = lineSegments[6].replace(',', '.') * 1 || 0 // Must be 0, not falsies
+			const aviable = lineSegments[3].replace(',', '.') * 1 || 0 // Must be 0, not falsies
 			if (total === 0) continue
-			db.stocks.add({
+			stocksArray.push({
 				id: lineSegments[0],
 				unit: lineSegments[2],
 				total: total,
@@ -156,14 +158,37 @@ async function fnAccept() {
 			})
 		}
 	}
+
+	if (dataType.value === 'prices') db.prices.clear()
+	if (dataType.value === 'stocks') db.stocks.clear()
+	db.products.bulkPut(productsArray)
+	db.prices.bulkAdd(pricesArray)
+	db.stocks.bulkAdd(stocksArray)
+	if (dataType.value === 'products') message.value = '📜 Zaktualizowano produkty ✔'
 	if (dataType.value === 'prices') message.value = '💵 Zaktualizowano ceny ✔'
 	if (dataType.value === 'stocks') message.value = '📦 Zaktualizowano ilości ✔'
 
 	console.log(`Done.`)
-	console.timeEnd('t')
+	console.timeEnd(timeName)
 }
 
-function getProductSize(line) {}
+function getProductSize(line) {
+	const sizeCode = line.match(/\d+S\d+\/([\d\w]+)\b/i)
+	const fullSizeB = line.match(/\d+[,\.]?\d*x(\d+x\d+)/i)
+
+	// console.log(sizeCode)
+
+	// if (sizeCode && fullSizeB) {
+	// 	let codeSizes = {}
+	// 	codeSizes[fullSizeB[1]] = 1
+	// 	db.sizeCodes.put({
+	// 		id: sizeCode[1],
+	// 		sizes: codeSizes,
+	// 	})
+	// }
+
+	if (fullSizeB) return fullSizeB[1]
+}
 </script>
 
 <template>
@@ -192,7 +217,7 @@ function getProductSize(line) {}
 			Schowek
 			<IconDisk />
 		</button>
-		<button class="button accent" @click="fnAccept" v-if="dataType">
+		<button class="button accent" @click="fnSaveToDB" v-if="dataType">
 			Zatwierdź
 			<IconCheck />
 		</button>

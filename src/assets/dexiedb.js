@@ -20,3 +20,11 @@ db.version(3).stores({
 	stocks: 'id',
 	sizes: 'id',
 })
+
+db.version(4).stores({
+	products: 'id',
+	prices: 'id',
+	stocks: 'id',
+	sizes: null,
+	sizeCodes: 'id',
+})
