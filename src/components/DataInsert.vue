@@ -12,12 +12,12 @@ const rawData = ref()
 const dataType = ref(null)
 const message = ref('')
 
-function fnClear() {
+function clearTextarea() {
 	rawData.value = ''
-	fnValidate()
+	validate()
 }
 
-async function fnPaste(e) {
+async function pasteTextarea(e) {
 	const permission = await navigator.permissions.query({
 		name: 'clipboard-read',
 	})
@@ -32,10 +32,10 @@ async function fnPaste(e) {
 		.catch((reason) => console.error(reason))
 	rawData.value = clipboardData
 
-	fnValidate()
+	validate()
 }
 
-async function clipData(type) {
+async function clipboardPut(type) {
 	const permission = await navigator.permissions.query({
 		name: 'clipboard-read',
 	})
@@ -46,27 +46,14 @@ async function clipData(type) {
 	}
 
 	let data = 'No data submitted'
-	switch (type) {
-		case 'raw_stocks':
-			data = raw_stocks
-			break
-
-		case 'raw_prices':
-			data = raw_prices
-			break
-
-		case 'raw_products':
-			data = raw_products
-			break
-
-		default:
-			break
-	}
+	if (type === 'raw_stocks') data = raw_stocks
+	if (type === 'raw_prices') data = raw_prices
+	if (type === 'raw_products') data = raw_products
 
 	navigator.clipboard.writeText(data).catch((reason) => console.error(reason))
 }
 
-function fnValidate() {
+function validate() {
 	const input = rawData.value
 
 	if (!input) {
@@ -112,7 +99,7 @@ function fnValidate() {
 	}
 }
 
-async function fnSaveToDB() {
+async function saveInDB() {
 	const timeName = 'save to database'
 	console.time(timeName)
 
@@ -121,14 +108,13 @@ async function fnSaveToDB() {
 	let pricesArray = []
 	let stocksArray = []
 
-	for (let lineId in linesArray) {
-		const line = linesArray[lineId]
+	for (let line of linesArray) {
 		const lineSegments = line.match(/[^\t]+/g)
 
+		if (/\b(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/i.test(lineSegments[0])) continue
 		if (dataType.value === 'products' && lineSegments.length !== 2) continue
 		if (dataType.value === 'prices' && lineSegments.length !== 6) continue
 		if (dataType.value === 'stocks' && lineSegments.length !== 7) continue
-		if (/\b(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/i.test(lineSegments[0])) continue
 
 		productsArray.push({
 			id: lineSegments[0],
@@ -159,14 +145,34 @@ async function fnSaveToDB() {
 		}
 	}
 
-	if (dataType.value === 'prices') db.prices.clear()
-	if (dataType.value === 'stocks') db.stocks.clear()
-	db.products.bulkPut(productsArray)
-	db.prices.bulkAdd(pricesArray)
-	db.stocks.bulkAdd(stocksArray)
-	if (dataType.value === 'products') message.value = '📜 Zaktualizowano produkty ✔'
-	if (dataType.value === 'prices') message.value = '💵 Zaktualizowano ceny ✔'
-	if (dataType.value === 'stocks') message.value = '📦 Zaktualizowano ilości ✔'
+	message.value = 'Loading...'
+	await db.products.bulkPut(productsArray)
+	message.value = '📜 Zaktualizowano produkty ✔'
+
+	if (dataType.value === 'prices') {
+		await db.prices.clear()
+		await db.prices.bulkAdd(pricesArray)
+		message.value = '💵 Zaktualizowano ceny ✔'
+	}
+
+	if (dataType.value === 'stocks') {
+		await db.stocks.clear()
+		await db.stocks.bulkAdd(stocksArray)
+		message.value = '📦 Zaktualizowano ilości ✔'
+	}
+
+	// localStorage['products'] = JSON.stringify(productsArray)
+	// message.value = '📜 Zaktualizowano produkty ✔'
+
+	// if (dataType.value === 'prices') {
+	// 	localStorage.prices = JSON.stringify(pricesArray)
+	// 	message.value = '💵 Zaktualizowano ceny ✔'
+	// }
+
+	// if (dataType.value === 'stocks') {
+	// 	localStorage.stocks = JSON.stringify(stocksArray)
+	// 	message.value = '📦 Zaktualizowano ilości ✔'
+	// }
 
 	console.log(`Done.`)
 	console.timeEnd(timeName)
@@ -192,10 +198,11 @@ function getProductSize(line) {
 </script>
 
 <template>
+	<h3>Dev things</h3>
 	<div class="grid">
-		<button class="button" @click="clipData('raw_stocks')">Do schowka: Ilości</button>
-		<button class="button" @click="clipData('raw_prices')">Do schowka: Ceny</button>
-		<button class="button" @click="clipData('raw_products')">Do schowka: Baza kodów</button>
+		<button class="button" @click="clipboardPut('raw_stocks')">Do schowka: 📦 Ilości</button>
+		<button class="button" @click="clipboardPut('raw_prices')">Do schowka: 💵 Ceny</button>
+		<button class="button" @click="clipboardPut('raw_products')">Do schowka: 📜 Baza kodów</button>
 	</div>
 	<h1>Data Insert Template</h1>
 	<div class="grid">
@@ -204,20 +211,20 @@ function getProductSize(line) {
 			name="datainsert"
 			rows="10"
 			v-model="rawData"
-			@input="fnValidate"
+			@input="validate"
 		></textarea>
 		<p class="message" :class="{ visible: message, hidden: !message }">
 			{{ message }}
 		</p>
-		<button class="button" @click="fnClear">
+		<button class="button" @click="clearTextarea">
 			Wyczyść
 			<IconBroom />
 		</button>
-		<button class="button" @click="fnPaste">
+		<button class="button" @click="pasteTextarea">
 			Schowek
 			<IconDisk />
 		</button>
-		<button class="button accent" @click="fnSaveToDB" v-if="dataType">
+		<button class="button accent" @click="saveInDB" v-if="dataType">
 			Zatwierdź
 			<IconCheck />
 		</button>
@@ -226,6 +233,7 @@ function getProductSize(line) {
 	</div>
 
 	<div id="debug">
+		<h3>Debug</h3>
 		<!-- <p><b>Text value:</b> {{ rawData }}</p> -->
 		<p><b>Data type:</b> {{ dataType }}</p>
 		<!-- <p><b>Message:</b> {{ message }}</p> -->
