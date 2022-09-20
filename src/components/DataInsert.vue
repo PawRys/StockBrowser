@@ -198,13 +198,8 @@ function getProductSize(line) {
 </script>
 
 <template>
-	<h3>Dev things</h3>
-	<div class="grid">
-		<button class="button" @click="clipboardPut('raw_stocks')">Do schowka: 📦 Ilości</button>
-		<button class="button" @click="clipboardPut('raw_prices')">Do schowka: 💵 Ceny</button>
-		<button class="button" @click="clipboardPut('raw_products')">Do schowka: 📜 Baza kodów</button>
-	</div>
-	<h1>Data Insert Template</h1>
+	<h2>Załaduj dane</h2>
+	<p>[Tu instrukcja]</p>
 	<div class="grid">
 		<textarea
 			id="datainsert"
@@ -232,10 +227,18 @@ function getProductSize(line) {
 			:class="{visible: dataType, hidden: !dataType }">Zatwierdź <IconCheck /></button> -->
 	</div>
 
+	<hr />
+	<h3>Dev things</h3>
+	<div class="grid">
+		<button class="button" @click="clipboardPut('raw_stocks')">Do schowka: 📦 Ilości</button>
+		<button class="button" @click="clipboardPut('raw_prices')">Do schowka: 💵 Ceny</button>
+		<button class="button" @click="clipboardPut('raw_products')">Do schowka: 📜 Baza kodów</button>
+	</div>
+	<hr />
 	<div id="debug">
 		<h3>Debug</h3>
 		<!-- <p><b>Text value:</b> {{ rawData }}</p> -->
-		<p><b>Data type:</b> {{ dataType }}</p>
+		<!-- <p><b>Data type:</b> {{ dataType }}</p> -->
 		<!-- <p><b>Message:</b> {{ message }}</p> -->
 	</div>
 </template>
