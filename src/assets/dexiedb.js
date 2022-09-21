@@ -28,3 +28,10 @@ db.version(4).stores({
 	sizes: null,
 	sizeCodes: 'id',
 })
+
+db.version(5).stores({
+	products: 'id',
+	prices: 'id',
+	stocks: 'id, aviable',
+	sizeCodes: 'id',
+})
