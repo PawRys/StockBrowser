@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { db } from '../assets/dexiedb.js'
+import { db as idb } from '../assets/dexiedb.js'
 import IconBroom from './icons/IconBroom.vue'
 import IconCheck from './icons/IconCheck.vue'
 import IconDisk from './icons/IconDisk.vue'
@@ -109,36 +109,37 @@ async function saveInDB() {
 	let stocksArray = []
 
 	for (let line of linesArray) {
-		const lineSegments = line.match(/[^\t]+/g)
+		const lineFragments = line.match(/[^\t]+/g)
 
-		if (/\b(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/i.test(lineSegments[0])) continue
-		if (dataType.value === 'products' && lineSegments.length !== 2) continue
-		if (dataType.value === 'prices' && lineSegments.length !== 6) continue
-		if (dataType.value === 'stocks' && lineSegments.length !== 7) continue
+		// Ommit garbage
+		if (/\b(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/i.test(lineFragments[0])) continue
+		if (dataType.value === 'products' && lineFragments.length !== 2) continue
+		if (dataType.value === 'prices' && lineFragments.length !== 6) continue
+		if (dataType.value === 'stocks' && lineFragments.length !== 7) continue
 
 		productsArray.push({
-			id: lineSegments[0],
-			name: lineSegments[1],
+			id: lineFragments[0],
+			name: lineFragments[1],
 			size: getProductSize(line),
 		})
 
 		if (dataType.value === 'prices') {
-			const price = lineSegments[4].replace(',', '.') * 1 || 0 // Must be 0, not falsies
+			const price = lineFragments[4].replace(',', '.') * 1 || 0 // Must be 0, not falsies
 			if (price === 0) continue
 			pricesArray.push({
-				id: lineSegments[0],
-				unit: lineSegments[2],
+				id: lineFragments[0],
+				unit: lineFragments[2],
 				price: price,
 			})
 		}
 
 		if (dataType.value === 'stocks') {
-			const total = lineSegments[6].replace(',', '.') * 1 || 0 // Must be 0, not falsies
-			const aviable = lineSegments[3].replace(',', '.') * 1 || 0 // Must be 0, not falsies
+			const total = lineFragments[6].replace(',', '.') * 1 || 0 // Must be 0, not falsies
+			const aviable = lineFragments[3].replace(',', '.') * 1 || 0 // Must be 0, not falsies
 			if (total === 0) continue
 			stocksArray.push({
-				id: lineSegments[0],
-				unit: lineSegments[2],
+				id: lineFragments[0],
+				unit: lineFragments[2],
 				total: total,
 				aviable: aviable,
 			})
@@ -146,54 +147,109 @@ async function saveInDB() {
 	}
 
 	message.value = 'Loading...'
-	await db.products.bulkPut(productsArray)
+	await idb.products.bulkPut(productsArray)
 	message.value = '📜 Zaktualizowano produkty ✔'
 
 	if (dataType.value === 'prices') {
-		await db.prices.clear()
-		await db.prices.bulkAdd(pricesArray)
+		await idb.prices.clear()
+		await idb.prices.bulkAdd(pricesArray)
 		message.value = '💵 Zaktualizowano ceny ✔'
 	}
 
 	if (dataType.value === 'stocks') {
-		await db.stocks.clear()
-		await db.stocks.bulkAdd(stocksArray)
+		await idb.stocks.clear()
+		await idb.stocks.bulkAdd(stocksArray)
 		message.value = '📦 Zaktualizowano ilości ✔'
 	}
-
-	// localStorage['products'] = JSON.stringify(productsArray)
-	// message.value = '📜 Zaktualizowano produkty ✔'
-
-	// if (dataType.value === 'prices') {
-	// 	localStorage.prices = JSON.stringify(pricesArray)
-	// 	message.value = '💵 Zaktualizowano ceny ✔'
-	// }
-
-	// if (dataType.value === 'stocks') {
-	// 	localStorage.stocks = JSON.stringify(stocksArray)
-	// 	message.value = '📦 Zaktualizowano ilości ✔'
-	// }
 
 	console.log(`Done.`)
 	console.timeEnd(timeName)
 }
 
+async function saveInDB2() {
+	console.time('saveInDB2')
+
+	const products = await idb.products.toArray()
+	const linesArray = rawData.value.match(/[^\r\n]+/g)
+
+	for (let line of linesArray) {
+		const lineFragments = line.match(/[^\t]+/g)
+
+		// Ommit garbage
+		if (/\b(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/i.test(lineFragments[0])) continue
+		if (dataType.value === 'products' && lineFragments.length !== 2) continue
+		if (dataType.value === 'prices' && lineFragments.length !== 6) continue
+		if (dataType.value === 'stocks' && lineFragments.length !== 7) continue
+
+		const id = lineFragments[0]
+		const name = lineFragments[1]
+		const idx = products.findIndex((row) => row.id === id)
+		const data = idx < 0 ? {} : products[idx]
+
+		Object.assign(data, {
+			id: id,
+			name: name,
+		})
+
+		if (idx < 0) {
+			Object.assign(data, {
+				price: 0,
+				total: 0,
+				aviable: 0,
+				priceUnit: 'm3',
+				stockUnit: 'm3',
+			})
+		}
+
+		if (dataType.value === 'prices') {
+			Object.assign(data, {
+				price: lineFragments[4].replace(',', '.') * 1 || 0,
+				priceUnit: lineFragments[2],
+			})
+		}
+
+		if (dataType.value === 'stocks') {
+			Object.assign(data, {
+				total: lineFragments[6].replace(',', '.') * 1 || 0,
+				aviable: lineFragments[3].replace(',', '.') * 1 || 0,
+				stockUnit: lineFragments[2],
+			})
+		}
+
+		const cursor = idx < 0 ? products.length : idx
+		const update = idx < 0 ? 0 : 1
+		products.splice(cursor, update, data)
+	}
+
+	message.value = 'Loading... ⏳'
+	await idb.products.clear()
+	await idb.products.bulkAdd(products).catch((err) => {
+		message.value = 'Coś poszło nie tak ❗'
+		console.log(err)
+	})
+	message.value = '📜 Zaktualizowano produkty ✔'
+	if (dataType.value === 'prices') message.value = '💵 Zaktualizowano ceny ✔'
+	if (dataType.value === 'stocks') message.value = '📦 Zaktualizowano ilości ✔'
+	console.timeEnd('saveInDB2')
+	await timeout(2000)
+	clearTextarea()
+}
+
 function getProductSize(line) {
 	const sizeCode = line.match(/\d+S\d+\/([\d\w]+)\b/i)
 	const fullSizeB = line.match(/\d+[,\.]?\d*x(\d+x\d+)/i)
+	if (fullSizeB) return fullSizeB[0]
+}
 
-	// console.log(sizeCode)
+function timeout(ms) {
+	return new Promise((resolve) => setTimeout(resolve, ms))
+}
 
-	// if (sizeCode && fullSizeB) {
-	// 	let codeSizes = {}
-	// 	codeSizes[fullSizeB[1]] = 1
-	// 	db.sizeCodes.put({
-	// 		id: sizeCode[1],
-	// 		sizes: codeSizes,
-	// 	})
-	// }
-
-	if (fullSizeB) return fullSizeB[1]
+async function dropTable() {
+	await idb.products
+		.clear()
+		.then((res) => console.log(`Table dropped. Response: ${res}`))
+		.catch((err) => console.log(err))
 }
 </script>
 
@@ -219,7 +275,7 @@ function getProductSize(line) {
 			Schowek
 			<IconDisk />
 		</button>
-		<button class="button accent" @click="saveInDB" v-if="dataType">
+		<button class="button accent" @click="saveInDB2" v-if="dataType">
 			Zatwierdź
 			<IconCheck />
 		</button>
@@ -233,6 +289,7 @@ function getProductSize(line) {
 		<button class="button" @click="clipboardPut('raw_stocks')">Do schowka: 📦 Ilości</button>
 		<button class="button" @click="clipboardPut('raw_prices')">Do schowka: 💵 Ceny</button>
 		<button class="button" @click="clipboardPut('raw_products')">Do schowka: 📜 Baza kodów</button>
+		<button class="button" @click="dropTable()">Drop Table</button>
 	</div>
 	<hr />
 	<div id="debug">

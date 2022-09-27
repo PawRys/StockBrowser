@@ -1,59 +1,79 @@
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { db as idb } from '../assets/dexiedb.js'
 
 const timeName = 'DataTable'
 console.time(timeName)
 
-const db = ref({
-	// stocks: null,
-	// proces: null,
-	// products: null,
+const data = ref({
+	stocks: [],
+	prices: [],
+	products: [],
 })
 
 async function loadFromDB() {
-	const ss = await idb.stocks.where('aviable').notEqual(0).sortBy('id')
-	const s = await idb.stocks.toArray()
-	const p = await idb.prices.toArray()
-	const pr = await idb.products.toArray()
-	console.log(ss)
+	const stocks = await idb.stocks.toArray()
+	const stocksA = await idb.stocks.where('aviable').notEqual(0).sortBy('id')
+	const prices = await idb.prices.toArray()
+	const products = await idb.products.toArray()
 	return {
-		stocks: ss,
-		prices: p,
-		products: pr,
+		stocks: stocks,
+		stocksA: stocksA,
+		prices: prices,
+		products: products,
 	}
-	// const stocks = await db.stocks.toArray()
-	// const products = await db.products.toArray()
+}
+// loadFromDB()
+// try {
+// console.time(`trycatch`)
+// const stocks = await idb.stocks.toArray()
+// const stocksA = await idb.stocks.where('aviable').notEqual(0).sortBy('id')
+// const prices = await idb.prices.toArray()
+// const products = await idb.products.toArray()
+// console.log(data.value)
+// data.value = {
+// 	stocks: stocks,
+// 	stocksA: stocksA,
+// 	prices: prices,
+// 	products: products,
+// }
+// console.log(data.value.stocks)
+// console.timeEnd(`trycatch`)
+// } catch (error) {
+// 	console.error(error)
+// }
+// loadFromDB()
 
-	// for (const item of stocks) {
-	// const product = await db.products.get(item.id)
-	// const product = products.find((pro) => pro.id == item.id)
-	// console.log(product.name)
-	// }
+console.time('dbload')
+loadFromDB().then((result) => {
+	data.value = result
+	console.timeEnd('dbload')
+})
+
+function findAviable(id) {
+	const row = data.value.stocks.find((row) => row.id === id)
+	if (row) return row.aviable
+	else return `not found: ${id}`
 }
 
-loadFromDB().then((result) => {
-	db.value = result
-})
+// const findAviable = computed((id) => {
+// 	const x = db.stocks.find((i) => i[id] === id)
+// 	return x ? x.aviable : 0
+// })
 
 console.timeEnd(timeName)
 </script>
 
 <template>
 	<h2>Main Table</h2>
-	<!-- <p>{{ data }}</p> -->
+	<!-- <p>{{ data.stocks }}</p> -->
 	<table>
 		<tbody>
-			<tr v-for="plywood in db.stocks">
+			<tr v-for="plywood in data.products">
 				<td>
 					{{ plywood.id }}
 				</td>
-				<td>
-					{{ plywood.aviable }}
-				</td>
-				<td>
-					{{ db.products.find((i) => i.id === plywood.id).name }}
-				</td>
+				<td>{{ findAviable(plywood.id) }}</td>
 			</tr>
 		</tbody>
 	</table>

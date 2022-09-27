@@ -35,3 +35,14 @@ db.version(5).stores({
 	stocks: 'id, aviable',
 	sizeCodes: 'id',
 })
+
+db.version(6).stores({
+	products: 'id',
+	prices: null,
+	stocks: null,
+	sizeCodes: null,
+})
+
+db.version(7).stores({
+	products: 'id, total, aviable',
+})
