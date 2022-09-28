@@ -45,4 +45,7 @@ db.version(6).stores({
 
 db.version(7).stores({
 	products: 'id, total, aviable',
+	prices: 'id',
+	stocks: 'id, aviable',
+	sizeCodes: 'id',
 })

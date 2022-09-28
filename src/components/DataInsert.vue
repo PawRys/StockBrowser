@@ -4,9 +4,7 @@ import { db as idb } from '../assets/dexiedb.js'
 import IconBroom from './icons/IconBroom.vue'
 import IconCheck from './icons/IconCheck.vue'
 import IconDisk from './icons/IconDisk.vue'
-import { raw_stocks } from '../raw_stocks.js'
-import { raw_prices } from '../raw_prices.js'
-import { raw_products } from '../raw_products.js'
+import ExampleData from './DataInsert_ExampleData.vue'
 
 const rawData = ref()
 const dataType = ref(null)
@@ -30,27 +28,9 @@ async function pasteTextarea(e) {
 	const clipboardData = await navigator.clipboard
 		.readText()
 		.catch((reason) => console.error(reason))
+
 	rawData.value = clipboardData
-
 	validate()
-}
-
-async function clipboardPut(type) {
-	const permission = await navigator.permissions.query({
-		name: 'clipboard-read',
-	})
-
-	if (permission.state == 'denied') {
-		alert(`Uprawnienia do schowka dla tej witryny zostały wyłączone. Ask Google for help.`)
-		return
-	}
-
-	let data = 'No data submitted'
-	if (type === 'raw_stocks') data = raw_stocks
-	if (type === 'raw_prices') data = raw_prices
-	if (type === 'raw_products') data = raw_products
-
-	navigator.clipboard.writeText(data).catch((reason) => console.error(reason))
 }
 
 function validate() {
@@ -162,7 +142,6 @@ async function saveInDB() {
 		message.value = '📦 Zaktualizowano ilości ✔'
 	}
 
-	console.log(`Done.`)
 	console.timeEnd(timeName)
 }
 
@@ -189,10 +168,12 @@ async function saveInDB2() {
 		Object.assign(data, {
 			id: id,
 			name: name,
+			size: getProductSize(line),
 		})
 
 		if (idx < 0) {
 			Object.assign(data, {
+				size: 0,
 				price: 0,
 				total: 0,
 				aviable: 0,
@@ -223,33 +204,29 @@ async function saveInDB2() {
 
 	message.value = 'Loading... ⏳'
 	await idb.products.clear()
-	await idb.products.bulkAdd(products).catch((err) => {
-		message.value = 'Coś poszło nie tak ❗'
-		console.log(err)
-	})
-	message.value = '📜 Zaktualizowano produkty ✔'
-	if (dataType.value === 'prices') message.value = '💵 Zaktualizowano ceny ✔'
-	if (dataType.value === 'stocks') message.value = '📦 Zaktualizowano ilości ✔'
-	console.timeEnd('saveInDB2')
-	await timeout(2000)
-	clearTextarea()
+	await idb.products
+		.bulkAdd(products)
+		.then(async () => {
+			message.value = '📜 Zaktualizowano produkty ✔'
+			if (dataType.value === 'prices') message.value = '💵 Zaktualizowano ceny ✔'
+			if (dataType.value === 'stocks') message.value = '📦 Zaktualizowano ilości ✔'
+			console.timeEnd('saveInDB2')
+			// await timeout(2000)
+			// clearTextarea()
+		})
+		.catch((err) => {
+			message.value = 'Coś poszło nie tak ❗'
+			console.log(err)
+		})
 }
 
 function getProductSize(line) {
-	const sizeCode = line.match(/\d+S\d+\/([\d\w]+)\b/i)
-	const fullSizeB = line.match(/\d+[,\.]?\d*x(\d+x\d+)/i)
-	if (fullSizeB) return fullSizeB[0]
+	const fullSizeB = line.match(/\d+[,\.]?\d*x\d+x\d+/i)
+	return fullSizeB ? fullSizeB[0] : 0
 }
 
 function timeout(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-async function dropTable() {
-	await idb.products
-		.clear()
-		.then((res) => console.log(`Table dropped. Response: ${res}`))
-		.catch((err) => console.log(err))
 }
 </script>
 
@@ -279,25 +256,10 @@ async function dropTable() {
 			Zatwierdź
 			<IconCheck />
 		</button>
-		<!-- <button class="button accent" @click="fnAccept"
-			:class="{visible: dataType, hidden: !dataType }">Zatwierdź <IconCheck /></button> -->
 	</div>
 
 	<hr />
-	<h3>Dev things</h3>
-	<div class="grid">
-		<button class="button" @click="clipboardPut('raw_stocks')">Do schowka: 📦 Ilości</button>
-		<button class="button" @click="clipboardPut('raw_prices')">Do schowka: 💵 Ceny</button>
-		<button class="button" @click="clipboardPut('raw_products')">Do schowka: 📜 Baza kodów</button>
-		<button class="button" @click="dropTable()">Drop Table</button>
-	</div>
-	<hr />
-	<div id="debug">
-		<h3>Debug</h3>
-		<!-- <p><b>Text value:</b> {{ rawData }}</p> -->
-		<!-- <p><b>Data type:</b> {{ dataType }}</p> -->
-		<!-- <p><b>Message:</b> {{ message }}</p> -->
-	</div>
+	<ExampleData />
 </template>
 
 <style scoped>
