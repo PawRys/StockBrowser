@@ -2,9 +2,7 @@
 import { ref, reactive, computed } from 'vue'
 import { db as idb } from '../assets/dexiedb.js'
 
-const timeName = 'DataTable'
-console.time(timeName)
-
+console.time('DataTable')
 const products = ref()
 
 async function init() {
@@ -20,7 +18,7 @@ function recalc(data) {
 	return (data = data * 2)
 }
 
-console.timeEnd(timeName)
+console.timeEnd('DataTable')
 </script>
 
 <template>

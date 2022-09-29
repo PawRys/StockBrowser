@@ -1,18 +1,21 @@
 <script setup>
 import { ref } from 'vue'
 import { db as idb } from '../assets/dexiedb.js'
+import { message_ref, dataType_ref, validate } from '../assets/DataInsertScripts.js'
 import IconBroom from './icons/IconBroom.vue'
 import IconCheck from './icons/IconCheck.vue'
 import IconDisk from './icons/IconDisk.vue'
 import ExampleData from './DataInsert_ExampleData.vue'
 
-const rawData = ref()
-const dataType = ref(null)
-const message = ref('')
+const textareaVal_ref = ref()
+
+function checkValidation() {
+	validate(textareaVal_ref.value)
+}
 
 function clearTextarea() {
-	rawData.value = ''
-	validate()
+	textareaVal_ref.value = ''
+	validate(textareaVal_ref.value)
 }
 
 async function pasteTextarea(e) {
@@ -29,136 +32,24 @@ async function pasteTextarea(e) {
 		.readText()
 		.catch((reason) => console.error(reason))
 
-	rawData.value = clipboardData
-	validate()
-}
-
-function validate() {
-	const input = rawData.value
-
-	if (!input) {
-		dataType.value = null
-		message.value = ``
-	} else {
-		dataType.value = false
-		message.value = `Nie rozpoznano danych. ❌`
-	}
-
-	const isStocks = /Stany i rezerwacje towarów/i.test(input)
-	const isCorrectStockColumns =
-		/Kod towaru		nazwa towaru		jm		stan handlowy	rezerwacje R	rezerwacje A		stan  całkowity	/i.test(input)
-	if (isStocks && isCorrectStockColumns) {
-		dataType.value = 'stocks'
-		message.value = `📦 Rozpoznano stany i rezerwacje towarów.`
-	}
-
-	const isPrices = /Stany magazynowe towarów/i.test(input)
-	const isCorrectPriceColumns = /Kod towaru		nazwa towaru		jm		stan	cena	wartość		/i.test(input)
-	if (isPrices && isCorrectPriceColumns) {
-		dataType.value = 'prices'
-		message.value = `💵 Rozpoznano ceny zakupowe towarów.`
-	}
-
-	const isProdutsList = /Kod	Nazwa/i.test(input)
-	const isProdutsItem = /\d+s\d+\/\d+/i.test(input)
-	if (isProdutsList && isProdutsItem) {
-		dataType.value = 'products'
-		message.value = `📜 Rozpoznano listę produktów.`
-	}
-
-	const isFullExchangeCode = /^\d{4}$/i.test(input)
-	if (isFullExchangeCode) {
-		dataType.value = 'code'
-		message.value = `🔢 Rozpoznano kod wymiany danych.`
-	}
-
-	const isPartExchangeCode = /^\d{1,3}$/i.test(input)
-	if (isPartExchangeCode) {
-		dataType.value = null
-		message.value = ``
-	}
-}
-
-async function saveInDB() {
-	const timeName = 'save to database'
-	console.time(timeName)
-
-	const linesArray = rawData.value.match(/[^\r\n]+/g)
-	let productsArray = []
-	let pricesArray = []
-	let stocksArray = []
-
-	for (let line of linesArray) {
-		const lineFragments = line.match(/[^\t]+/g)
-
-		// Ommit garbage
-		if (/\b(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/i.test(lineFragments[0])) continue
-		if (dataType.value === 'products' && lineFragments.length !== 2) continue
-		if (dataType.value === 'prices' && lineFragments.length !== 6) continue
-		if (dataType.value === 'stocks' && lineFragments.length !== 7) continue
-
-		productsArray.push({
-			id: lineFragments[0],
-			name: lineFragments[1],
-			size: getProductSize(line),
-		})
-
-		if (dataType.value === 'prices') {
-			const price = lineFragments[4].replace(',', '.') * 1 || 0 // Must be 0, not falsies
-			if (price === 0) continue
-			pricesArray.push({
-				id: lineFragments[0],
-				unit: lineFragments[2],
-				price: price,
-			})
-		}
-
-		if (dataType.value === 'stocks') {
-			const total = lineFragments[6].replace(',', '.') * 1 || 0 // Must be 0, not falsies
-			const aviable = lineFragments[3].replace(',', '.') * 1 || 0 // Must be 0, not falsies
-			if (total === 0) continue
-			stocksArray.push({
-				id: lineFragments[0],
-				unit: lineFragments[2],
-				total: total,
-				aviable: aviable,
-			})
-		}
-	}
-
-	message.value = 'Loading...'
-	await idb.products.bulkPut(productsArray)
-	message.value = '📜 Zaktualizowano produkty ✔'
-
-	if (dataType.value === 'prices') {
-		await idb.prices.clear()
-		await idb.prices.bulkAdd(pricesArray)
-		message.value = '💵 Zaktualizowano ceny ✔'
-	}
-
-	if (dataType.value === 'stocks') {
-		await idb.stocks.clear()
-		await idb.stocks.bulkAdd(stocksArray)
-		message.value = '📦 Zaktualizowano ilości ✔'
-	}
-
-	console.timeEnd(timeName)
+	textareaVal_ref.value = clipboardData
+	validate(textareaVal_ref.value)
 }
 
 async function saveInDB2() {
 	console.time('saveInDB2')
 
 	const products = await idb.products.toArray()
-	const linesArray = rawData.value.match(/[^\r\n]+/g)
+	const linesArray = textareaVal_ref.value.match(/[^\r\n]+/g)
 
 	for (let line of linesArray) {
 		const lineFragments = line.match(/[^\t]+/g)
 
 		// Ommit garbage
 		if (/\b(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/i.test(lineFragments[0])) continue
-		if (dataType.value === 'products' && lineFragments.length !== 2) continue
-		if (dataType.value === 'prices' && lineFragments.length !== 6) continue
-		if (dataType.value === 'stocks' && lineFragments.length !== 7) continue
+		if (dataType_ref.value === 'products' && lineFragments.length !== 2) continue
+		if (dataType_ref.value === 'prices' && lineFragments.length !== 6) continue
+		if (dataType_ref.value === 'stocks' && lineFragments.length !== 7) continue
 
 		const id = lineFragments[0]
 		const name = lineFragments[1]
@@ -168,12 +59,12 @@ async function saveInDB2() {
 		Object.assign(data, {
 			id: id,
 			name: name,
-			size: getProductSize(line),
+			size: getProductSize(`${id} ${name}`),
 		})
 
 		if (idx < 0) {
 			Object.assign(data, {
-				size: 0,
+				// size: 0,
 				price: 0,
 				total: 0,
 				aviable: 0,
@@ -182,14 +73,14 @@ async function saveInDB2() {
 			})
 		}
 
-		if (dataType.value === 'prices') {
+		if (dataType_ref.value === 'prices') {
 			Object.assign(data, {
 				price: lineFragments[4].replace(',', '.') * 1 || 0,
 				priceUnit: lineFragments[2],
 			})
 		}
 
-		if (dataType.value === 'stocks') {
+		if (dataType_ref.value === 'stocks') {
 			Object.assign(data, {
 				total: lineFragments[6].replace(',', '.') * 1 || 0,
 				aviable: lineFragments[3].replace(',', '.') * 1 || 0,
@@ -202,20 +93,20 @@ async function saveInDB2() {
 		products.splice(cursor, update, data)
 	}
 
-	message.value = 'Loading... ⏳'
+	message_ref.value = 'Loading... ⏳'
 	await idb.products.clear()
 	await idb.products
 		.bulkAdd(products)
 		.then(async () => {
-			message.value = '📜 Zaktualizowano produkty ✔'
-			if (dataType.value === 'prices') message.value = '💵 Zaktualizowano ceny ✔'
-			if (dataType.value === 'stocks') message.value = '📦 Zaktualizowano ilości ✔'
+			message_ref.value = '📜 Zaktualizowano produkty ✔'
+			if (dataType_ref.value === 'prices') message_ref.value = '💵 Zaktualizowano ceny ✔'
+			if (dataType_ref.value === 'stocks') message_ref.value = '📦 Zaktualizowano ilości ✔'
 			console.timeEnd('saveInDB2')
 			// await timeout(2000)
 			// clearTextarea()
 		})
 		.catch((err) => {
-			message.value = 'Coś poszło nie tak ❗'
+			message_ref.value = 'Coś poszło nie tak ❗'
 			console.log(err)
 		})
 }
@@ -228,6 +119,15 @@ function getProductSize(line) {
 function timeout(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms))
 }
+
+function test(input) {
+	return input.split(' ')
+}
+// const test = { pik: 'pik', pok: 'pok' }
+let [a, b] = test('AAA BBB')
+
+console.log(a)
+console.log(b)
 </script>
 
 <template>
@@ -238,11 +138,11 @@ function timeout(ms) {
 			id="datainsert"
 			name="datainsert"
 			rows="10"
-			v-model="rawData"
-			@input="validate"
+			v-model="textareaVal_ref"
+			@input="checkValidation"
 		></textarea>
-		<p class="message" :class="{ visible: message, hidden: !message }">
-			{{ message }}
+		<p class="message" :class="{ visible: message_ref, hidden: !message_ref }">
+			{{ message_ref }}
 		</p>
 		<button class="button" @click="clearTextarea">
 			Wyczyść
@@ -252,7 +152,7 @@ function timeout(ms) {
 			Schowek
 			<IconDisk />
 		</button>
-		<button class="button accent" @click="saveInDB2" v-if="dataType">
+		<button class="button accent" @click="saveInDB2" v-if="dataType_ref">
 			Zatwierdź
 			<IconCheck />
 		</button>
