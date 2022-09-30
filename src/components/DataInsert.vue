@@ -1,70 +1,53 @@
 <script setup>
 import { ref } from 'vue'
 import { db as idb } from '../assets/dexiedb.js'
-import { message_ref, dataType_ref, validate } from '../assets/DataInsertScripts.js'
+import { textareaValue_ref, message_ref, dataType_ref } from '../assets/DataInsertScripts.js'
+import { validate, prepareData } from '../assets/DataInsertScripts.js'
 import IconBroom from './icons/IconBroom.vue'
 import IconCheck from './icons/IconCheck.vue'
 import IconDisk from './icons/IconDisk.vue'
 import ExampleData from './DataInsert_ExampleData.vue'
 
-const textareaVal_ref = ref()
-
 function checkValidation() {
-	validate(textareaVal_ref.value)
+	validate(textareaValue_ref.value)
 }
 
-function clearTextarea() {
-	textareaVal_ref.value = ''
-	validate(textareaVal_ref.value)
+function textareaClear() {
+	textareaValue_ref.value = ''
+	validate(textareaValue_ref.value)
 }
 
-async function pasteTextarea(e) {
+async function textareaPaste(e) {
 	const permission = await navigator.permissions.query({
 		name: 'clipboard-read',
 	})
-
 	if (permission.state == 'denied') {
 		alert(`Uprawnienia do schowka dla tej witryny zostały wyłączone. Ask Google for help.`)
 		return
 	}
-
 	const clipboardData = await navigator.clipboard
 		.readText()
 		.catch((reason) => console.error(reason))
-
-	textareaVal_ref.value = clipboardData
-	validate(textareaVal_ref.value)
+	textareaValue_ref.value = clipboardData
+	validate(textareaValue_ref.value)
 }
 
-async function saveInDB2() {
-	console.time('saveInDB2')
-
-	const products = await idb.products.toArray()
-	const linesArray = textareaVal_ref.value.match(/[^\r\n]+/g)
-
-	for (let line of linesArray) {
-		const lineFragments = line.match(/[^\t]+/g)
-
-		// Ommit garbage
-		if (/\b(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/i.test(lineFragments[0])) continue
-		if (dataType_ref.value === 'products' && lineFragments.length !== 2) continue
-		if (dataType_ref.value === 'prices' && lineFragments.length !== 6) continue
-		if (dataType_ref.value === 'stocks' && lineFragments.length !== 7) continue
-
-		const id = lineFragments[0]
-		const name = lineFragments[1]
-		const idx = products.findIndex((row) => row.id === id)
-		const data = idx < 0 ? {} : products[idx]
-
-		Object.assign(data, {
-			id: id,
-			name: name,
-			size: getProductSize(`${id} ${name}`),
+async function bulkAddIndexedDB() {
+	console.time('bulkAddIndexedDB')
+	const productsTable = await idb.products.toArray()
+	const productsNewData = prepareData(textareaValue_ref.value)
+	for (let product of productsNewData) {
+		const productId = product[0]
+		const productName = product[1]
+		const productIndex = productsTable.findIndex((row) => row.id === productId)
+		const currentProduct = productIndex < 0 ? {} : productsTable[productIndex]
+		Object.assign(currentProduct, {
+			id: productId,
+			name: productName,
+			size: getProductSize(`${productId} ${productName}`).replace(',', '.'),
 		})
-
-		if (idx < 0) {
-			Object.assign(data, {
-				// size: 0,
+		if (productIndex < 0) {
+			Object.assign(currentProduct, {
 				price: 0,
 				total: 0,
 				aviable: 0,
@@ -72,62 +55,40 @@ async function saveInDB2() {
 				stockUnit: 'm3',
 			})
 		}
-
 		if (dataType_ref.value === 'prices') {
-			Object.assign(data, {
-				price: lineFragments[4].replace(',', '.') * 1 || 0,
-				priceUnit: lineFragments[2],
+			Object.assign(currentProduct, {
+				price: product[4],
+				priceUnit: product[2],
 			})
 		}
-
 		if (dataType_ref.value === 'stocks') {
-			Object.assign(data, {
-				total: lineFragments[6].replace(',', '.') * 1 || 0,
-				aviable: lineFragments[3].replace(',', '.') * 1 || 0,
-				stockUnit: lineFragments[2],
+			Object.assign(currentProduct, {
+				total: product[6],
+				aviable: product[3],
+				stockUnit: product[2],
 			})
 		}
-
-		const cursor = idx < 0 ? products.length : idx
-		const update = idx < 0 ? 0 : 1
-		products.splice(cursor, update, data)
+		const cursor = productIndex < 0 ? productsTable.length : productIndex
+		const update = productIndex < 0 ? 0 : 1
+		productsTable.splice(cursor, update, currentProduct)
 	}
-
 	message_ref.value = 'Loading... ⏳'
 	await idb.products.clear()
-	await idb.products
-		.bulkAdd(products)
-		.then(async () => {
-			message_ref.value = '📜 Zaktualizowano produkty ✔'
-			if (dataType_ref.value === 'prices') message_ref.value = '💵 Zaktualizowano ceny ✔'
-			if (dataType_ref.value === 'stocks') message_ref.value = '📦 Zaktualizowano ilości ✔'
-			console.timeEnd('saveInDB2')
-			// await timeout(2000)
-			// clearTextarea()
-		})
-		.catch((err) => {
-			message_ref.value = 'Coś poszło nie tak ❗'
-			console.log(err)
-		})
+	await idb.products.bulkAdd(productsTable).catch((err) => {
+		message_ref.value = 'Coś poszło nie tak ❗'
+		console.log(err)
+		return
+	})
+	message_ref.value = '📜 Zaktualizowano produkty ✔'
+	if (dataType_ref.value === 'prices') message_ref.value = '💵 Zaktualizowano ceny ✔'
+	if (dataType_ref.value === 'stocks') message_ref.value = '📦 Zaktualizowano ilości ✔'
+	console.timeEnd('bulkAddIndexedDB')
 }
 
 function getProductSize(line) {
 	const fullSizeB = line.match(/\d+[,\.]?\d*x\d+x\d+/i)
-	return fullSizeB ? fullSizeB[0] : 0
+	return fullSizeB ? fullSizeB[0] : '0'
 }
-
-function timeout(ms) {
-	return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-function test(input) {
-	return input.split(' ')
-}
-// const test = { pik: 'pik', pok: 'pok' }
-let [a, b] = test('AAA BBB')
-
-console.log(a)
-console.log(b)
 </script>
 
 <template>
@@ -138,21 +99,21 @@ console.log(b)
 			id="datainsert"
 			name="datainsert"
 			rows="10"
-			v-model="textareaVal_ref"
+			v-model="textareaValue_ref"
 			@input="checkValidation"
 		></textarea>
 		<p class="message" :class="{ visible: message_ref, hidden: !message_ref }">
 			{{ message_ref }}
 		</p>
-		<button class="button" @click="clearTextarea">
+		<button class="button" @click="textareaClear">
 			Wyczyść
 			<IconBroom />
 		</button>
-		<button class="button" @click="pasteTextarea">
+		<button class="button" @click="textareaPaste">
 			Schowek
 			<IconDisk />
 		</button>
-		<button class="button accent" @click="saveInDB2" v-if="dataType_ref">
+		<button class="button accent" @click="bulkAddIndexedDB" v-if="dataType_ref">
 			Zatwierdź
 			<IconCheck />
 		</button>
