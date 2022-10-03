@@ -1,21 +1,12 @@
 <script setup>
 import { ref } from 'vue'
 import { db as idb } from '../assets/dexiedb.js'
-import { textareaValue_ref, message_ref, dataType_ref } from '../assets/DataInsertScripts.js'
-import { validate, prepareData } from '../assets/DataInsertScripts.js'
+import { textareaValue_ref, message_ref, dataType_ref } from './DataInsertScripts.js'
+import { validate, prepareData } from './DataInsertScripts.js'
 import IconBroom from './icons/IconBroom.vue'
 import IconCheck from './icons/IconCheck.vue'
 import IconDisk from './icons/IconDisk.vue'
 import ExampleData from './DataInsert_ExampleData.vue'
-
-function checkValidation() {
-	validate(textareaValue_ref.value)
-}
-
-function textareaClear() {
-	textareaValue_ref.value = ''
-	validate(textareaValue_ref.value)
-}
 
 async function textareaPaste(e) {
 	const permission = await navigator.permissions.query({
@@ -32,13 +23,22 @@ async function textareaPaste(e) {
 	validate(textareaValue_ref.value)
 }
 
+function checkValidation() {
+	validate(textareaValue_ref.value)
+}
+
+function textareaClear() {
+	textareaValue_ref.value = ''
+	validate(textareaValue_ref.value)
+}
+
 async function bulkAddIndexedDB() {
 	console.time('bulkAddIndexedDB')
 	const productsTable = await idb.products.toArray()
 	const productsNewData = prepareData(textareaValue_ref.value)
-	for (let product of productsNewData) {
-		const productId = product[0]
-		const productName = product[1]
+	for (let newProduct of productsNewData) {
+		const productId = newProduct[0]
+		const productName = newProduct[1]
 		const productIndex = productsTable.findIndex((row) => row.id === productId)
 		const currentProduct = productIndex < 0 ? {} : productsTable[productIndex]
 		Object.assign(currentProduct, {
@@ -57,20 +57,20 @@ async function bulkAddIndexedDB() {
 		}
 		if (dataType_ref.value === 'prices') {
 			Object.assign(currentProduct, {
-				price: product[4],
-				priceUnit: product[2],
+				price: newProduct[4],
+				priceUnit: newProduct[2],
 			})
 		}
 		if (dataType_ref.value === 'stocks') {
 			Object.assign(currentProduct, {
-				total: product[6],
-				aviable: product[3],
-				stockUnit: product[2],
+				total: newProduct[6],
+				aviable: newProduct[3],
+				stockUnit: newProduct[2],
 			})
 		}
 		const cursor = productIndex < 0 ? productsTable.length : productIndex
-		const update = productIndex < 0 ? 0 : 1
-		productsTable.splice(cursor, update, currentProduct)
+		const replace = productIndex < 0 ? 0 : 1
+		productsTable.splice(cursor, replace, currentProduct)
 	}
 	message_ref.value = 'Loading... ⏳'
 	await idb.products.clear()
