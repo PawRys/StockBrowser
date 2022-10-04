@@ -26,7 +26,10 @@ function panelSwitch(name) {
 		<button class="button" @click="panelSwitch('settings')">Ustawienia</button> -->
 	</div>
 
-	<DataTable v-if="panelName === 'tablePanel'" />
+	<Suspense>
+		<DataTable v-if="panelName === 'tablePanel'" />
+	</Suspense>
+
 	<DataInsert v-if="panelName === 'loadPanel'" />
 	<p>The End</p>
 </template>
