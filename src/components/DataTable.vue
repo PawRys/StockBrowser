@@ -1,15 +1,34 @@
 <script setup>
-import { ref, reactive, computed, watch, watchEffect, watchPostEffect } from 'vue'
+import {
+	ref,
+	reactive,
+	computed,
+	watch,
+	watchEffect,
+	watchPostEffect,
+} from 'vue'
 import { db as idb } from '../assets/dexiedb.js'
 console.time('DataTable')
 
 const filter = ref()
+const dataSet = ref('dataset-total')
 const pageSize = ref(10)
 const pageNumber = ref(1)
-const products = await idb.products.toArray()
+const products = ref(await idb.products.where('total').above(0).sortBy('id'))
+
+watch(dataSet, async () => {
+	if (dataSet.value === 'dataset-full')
+		products.value = await idb.products.toArray()
+	if (dataSet.value === 'dataset-total')
+		products.value = await idb.products.where('total').above(0).sortBy('id')
+	if (dataSet.value === 'dataset-aviable')
+		products.value = await idb.products.where('aviable').above(0).sortBy('id')
+})
 
 const filteredProducts = computed(() => {
-	return products.filter(row => `${row.id} ${row.name}`.match(filter.value))
+	return products.value.filter(row =>
+		`${row.id} ${row.name}`.match(filter.value)
+	)
 })
 
 const paginatedProducts = computed(() => {
@@ -27,14 +46,37 @@ console.timeEnd('DataTable')
 
 <template>
 	<h2>Main Table</h2>
-	<p>Rekordów:{{ filteredProducts.length }}</p>
-	<p>Ilość stron: {{ pageCount }}</p>
-	<p>
-		<label for="pagesize">
-			Wielkość strony:
-			<input type="number" name="pagesize" id="pagesize" v-model="pageSize" min="1" />
+	<div class="flex-column">
+		<label for="dataset-full">
+			Full:
+			<input
+				type="radio"
+				name="dataset"
+				id="dataset-full"
+				value="dataset-full"
+				v-model="dataSet" />
 		</label>
-	</p>
+		<label for="dataset-total">
+			Total:
+			<input
+				type="radio"
+				name="dataset"
+				id="dataset-total"
+				value="dataset-total"
+				v-model="dataSet"
+				checked />
+		</label>
+		<label for="dataset-aviable">
+			Aviable:
+			<input
+				type="radio"
+				name="dataset"
+				id="dataset-aviable"
+				value="dataset-aviable"
+				v-model="dataSet" />
+		</label>
+	</div>
+	<p>Rekordów: {{ filteredProducts.length }} z {{ products.length }}</p>
 	<p>
 		<label for="pagenum">
 			Numer strony:
@@ -43,17 +85,27 @@ console.timeEnd('DataTable')
 					<option :value="n || 1">{{ n }}</option>
 				</template>
 			</select>
+			z {{ pageCount }}
+		</label>
+		<label for="pagesize">
+			<input
+				type="number"
+				name="pagesize"
+				id="pagesize"
+				v-model="pageSize"
+				min="1" />
 		</label>
 	</p>
 
 	<p>
 		<label for="filter">
-			Szukaj:<input type="text" name="filter" id="filter" v-model="filter"
-		/></label>
+			Szukaj:<input type="text" name="filter" id="filter" v-model="filter" />
+		</label>
 	</p>
 
 	<table>
 		<tbody>
+			<!-- <tr v-for="ply in filteredProducts"> -->
 			<tr v-for="ply in paginatedProducts">
 				<td>{{ ply.id }}</td>
 				<td>{{ ply.name }}</td>
@@ -67,4 +119,9 @@ console.timeEnd('DataTable')
 	</table>
 </template>
 
-<style scoped></style>
+<style scoped>
+.flex-column {
+	display: flex;
+	flex-direction: column;
+}
+</style>
