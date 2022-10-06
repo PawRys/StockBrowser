@@ -1,16 +1,10 @@
 <script setup>
-import {
-	ref,
-	reactive,
-	computed,
-	watch,
-	watchEffect,
-	watchPostEffect,
-} from 'vue'
+import { ref, computed, watch, provide } from 'vue'
 import { db as idb } from '../assets/dexiedb.js'
 console.time('DataTable')
 
 const filter = ref()
+const filterCount = ref(1)
 const dataSet = ref('dataset-total')
 const pageSize = ref(10)
 const pageNumber = ref(1)
@@ -26,19 +20,19 @@ watch(dataSet, async () => {
 })
 
 const filteredProducts = computed(() => {
-	return products.value.filter(row =>
-		`${row.id} ${row.name}`.match(filter.value)
-	)
-})
-
-const paginatedProducts = computed(() => {
 	const start = pageNumber.value * pageSize.value - pageSize.value
 	const end = pageNumber.value * pageSize.value
-	return filteredProducts.value.slice(start, end)
+	let data = products.value
+
+	filterCount.value = data.filter(row =>
+		`${row.id} ${row.name}`.match(filter.value)
+	)
+	data = filterCount.value.slice(start, end)
+	return data
 })
 
 const pageCount = computed(() => {
-	return Math.ceil(filteredProducts.value.length / pageSize.value)
+	return Math.ceil(filterCount.value / pageSize.value)
 })
 
 console.timeEnd('DataTable')
@@ -76,7 +70,7 @@ console.timeEnd('DataTable')
 				v-model="dataSet" />
 		</label>
 	</div>
-	<p>Rekordów: {{ filteredProducts.length }} z {{ products.length }}</p>
+	<p>Rekordów: {{ filterCount }} z {{ products.length }}</p>
 	<p>
 		<label for="pagenum">
 			Numer strony:
@@ -105,8 +99,8 @@ console.timeEnd('DataTable')
 
 	<table>
 		<tbody>
-			<!-- <tr v-for="ply in filteredProducts"> -->
-			<tr v-for="ply in paginatedProducts">
+			<!-- <tr v-for="ply in paginatedProducts"> -->
+			<tr v-for="ply in filteredProducts">
 				<td>{{ ply.id }}</td>
 				<td>{{ ply.name }}</td>
 				<td>{{ ply.size }}</td>
