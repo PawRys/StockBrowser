@@ -11,8 +11,7 @@ const pageNumber = ref(1)
 const products = ref(await idb.products.where('total').above(0).sortBy('id'))
 
 watch(dataSet, async () => {
-	if (dataSet.value === 'dataset-full')
-		products.value = await idb.products.toArray()
+	if (dataSet.value === 'dataset-full') products.value = await idb.products.toArray()
 	if (dataSet.value === 'dataset-total')
 		products.value = await idb.products.where('total').above(0).sortBy('id')
 	if (dataSet.value === 'dataset-aviable')
@@ -20,19 +19,23 @@ watch(dataSet, async () => {
 })
 
 const filteredProducts = computed(() => {
-	const start = pageNumber.value * pageSize.value - pageSize.value
-	const end = pageNumber.value * pageSize.value
 	let data = products.value
-
-	filterCount.value = data.filter(row =>
-		`${row.id} ${row.name}`.match(filter.value)
-	)
-	data = filterCount.value.slice(start, end)
-	return data
+	data = data.filter(row => `${row.id} ${row.name}`.match(filter.value))
+	filterCount.value = data.length
+	const pageNumberInRange =
+		pageNumber.value > pageCount.value ? pageCount.value : pageNumber.value || 1
+	const pageSizeInRange = pageSize.value > 0 ? pageSize.value : 1
+	const start = pageNumberInRange * pageSizeInRange - pageSizeInRange
+	const end = pageNumberInRange * pageSizeInRange
+	// Update UI with in-range values
+	pageNumber.value = pageNumberInRange
+	return data.slice(start, end)
 })
 
 const pageCount = computed(() => {
-	return Math.ceil(filterCount.value / pageSize.value)
+	// Keep value in range to calculation purposes but leave user input intact
+	const pageSizeInRange = pageSize.value > 0 ? pageSize.value : 1
+	return Math.ceil(filterCount.value / pageSizeInRange)
 })
 
 console.timeEnd('DataTable')
@@ -41,7 +44,7 @@ console.timeEnd('DataTable')
 <template>
 	<h2>Main Table</h2>
 	<div class="flex-column">
-		<label for="dataset-full">
+		<!-- <label for="dataset-full">
 			Full:
 			<input
 				type="radio"
@@ -68,7 +71,7 @@ console.timeEnd('DataTable')
 				id="dataset-aviable"
 				value="dataset-aviable"
 				v-model="dataSet" />
-		</label>
+		</label> -->
 	</div>
 	<p>Rekordów: {{ filterCount }} z {{ products.length }}</p>
 	<p>
@@ -82,12 +85,7 @@ console.timeEnd('DataTable')
 			z {{ pageCount }}
 		</label>
 		<label for="pagesize">
-			<input
-				type="number"
-				name="pagesize"
-				id="pagesize"
-				v-model="pageSize"
-				min="1" />
+			<input type="number" name="pagesize" id="pagesize" min="1" v-model="pageSize" />
 		</label>
 	</p>
 
@@ -97,7 +95,7 @@ console.timeEnd('DataTable')
 		</label>
 	</p>
 
-	<table>
+	<table v-if="filteredProducts.length">
 		<tbody>
 			<!-- <tr v-for="ply in paginatedProducts"> -->
 			<tr v-for="ply in filteredProducts">
@@ -111,6 +109,7 @@ console.timeEnd('DataTable')
 			</tr>
 		</tbody>
 	</table>
+	<p v-else>Nie znaleziono produktów.</p>
 </template>
 
 <style scoped>
