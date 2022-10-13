@@ -10,14 +10,14 @@ const pageSize_ref = ref(10)
 const pageCount_ref = ref(1)
 const pageNumber_ref = ref(1)
 const dataSet_ref = ref('dataset-total')
-const products_ref = ref(await idb.products.where('total').above(0).sortBy('id'))
+const products_ref = ref(await idb.products.where('total_m3').above(0).sortBy('id'))
 
 watch(dataSet_ref, async () => {
 	if (dataSet_ref.value === 'dataset-full') products_ref.value = await idb.products.toArray()
 	if (dataSet_ref.value === 'dataset-total')
-		products_ref.value = await idb.products.where('total').above(0).sortBy('id')
+		products_ref.value = await idb.products.where('total_m3').above(0).sortBy('id')
 	if (dataSet_ref.value === 'dataset-aviable')
-		products_ref.value = await idb.products.where('aviable').above(0).sortBy('id')
+		products_ref.value = await idb.products.where('aviable_m3').above(0).sortBy('id')
 })
 
 const filteredProducts = computed(() => {
@@ -55,13 +55,6 @@ const filteredProducts = computed(() => {
 
 	return data
 })
-
-// const pageCount = computed(() => {
-// 	// Keep value in range to calculation purposes but leave user input intact
-// 	const pageSizeInRange = pageSize.value > 0 ? pageSize.value : 1
-
-// 	return Math.ceil(filterCount.value / pageSizeInRange)
-// })
 
 console.timeEnd('DataTable')
 </script>
@@ -125,13 +118,27 @@ console.timeEnd('DataTable')
 		<tbody>
 			<!-- <tr v-for="ply in paginatedProducts"> -->
 			<tr v-for="ply in filteredProducts">
-				<td>{{ ply.id }}</td>
-				<td>{{ ply.name }}</td>
-				<!-- <td>{{ ply.size }}</td> -->
-				<td>{{ ply.total.toFixed(2) }} {{ ply.stockUnit }}</td>
-				<!-- <td>{{ recalc(ply.total) }} {{ ply.stockUnit }}</td> -->
-				<td>{{ ply.aviable.toFixed(2) }} {{ ply.stockUnit }}</td>
-				<td>{{ ply.price.toFixed(2) }} zł/{{ ply.priceUnit }}</td>
+				<td class="id">{{ ply.id }}</td>
+				<td class="name">{{ ply.name }}</td>
+				<td class="tags">search tags</td>
+				<td class="text-align_right total_m3">{{ ply.total_m3.toFixed(3) }} m3</td>
+				<td class="text-align_right total_m2">{{ ply.total_m2.toFixed(2) }} m2</td>
+				<td class="text-align_right total_szt">{{ ply.total_szt.toFixed(1) }} szt</td>
+				<td class="text-align_right aviable_m3">{{ ply.aviable_m3.toFixed(3) }} m3</td>
+				<td class="text-align_right aviable_m2">{{ ply.aviable_m2.toFixed(2) }} m2</td>
+				<td class="text-align_right aviable_szt">{{ ply.aviable_szt.toFixed(1) }} szt</td>
+				<td class="text-align_right price_m3">
+					<input type="number" name="" id="" :value="ply.price" />
+				</td>
+				<td class="text-align_right price_m2">
+					<input type="number" name="" id="" :value="ply.price" />
+				</td>
+				<td class="text-align_right price_szt">
+					<input type="number" name="" id="" :value="ply.price" />
+				</td>
+				<td class="text-align_right buy_price">{{ ply.price.toFixed(2) }} zł/m3</td>
+				<td class="text-align_right marg_perc">[Narzut %]</td>
+				<td class="text-align_right marg_rel">[Narzut zł]</td>
 			</tr>
 		</tbody>
 	</table>
@@ -140,8 +147,9 @@ console.timeEnd('DataTable')
 
 <style scoped>
 table,
-td {
-	border: solid 1px;
+tr {
+	padding: 0.6ex 1ex;
+	border: solid 1px silver;
 }
 
 table {
@@ -149,10 +157,83 @@ table {
 }
 
 td {
-	padding: 0.6ex 1ex;
+	/* padding: 0.6ex 1ex; */
+	padding: 0 0.5ex;
+}
+
+.id {
+	grid-area: id__;
+}
+.name {
+	grid-area: name;
+}
+.tags {
+	grid-area: tags;
+}
+.total_m3 {
+	grid-area: t_m3;
+}
+.total_m2 {
+	grid-area: t_m2;
+}
+.total_szt {
+	grid-area: t_sz;
+}
+.aviable_m3 {
+	grid-area: a_m3;
+}
+.aviable_m2 {
+	grid-area: a_m2;
+}
+.aviable_szt {
+	grid-area: a_sz;
+}
+.price_m3 {
+	grid-area: p_m3;
+}
+.price_m2 {
+	grid-area: p_m2;
+}
+.price_szt {
+	grid-area: p_sz;
+}
+
+.buy_price {
+	grid-area: buyp;
+}
+.marg_perc {
+	grid-area: perc;
+}
+.marg_rel {
+	grid-area: marg;
+}
+
+tr {
+	display: grid;
+	grid-template-columns: repeat(2, 2fr) repeat(4, minmax(max-content, 1fr));
+	grid-template-areas:
+		'id__ tags t_m3 t_m2 t_sz buyp'
+		'name name a_m3 a_m2 a_sz marg'
+		'name name p_m3 p_m2 p_sz perc';
+}
+
+.text-align_right {
+	text-align: right;
 }
 .flex-column {
 	display: flex;
 	flex-direction: column;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+/* Firefox */
+input[type='number'] {
+	-moz-appearance: textfield;
 }
 </style>

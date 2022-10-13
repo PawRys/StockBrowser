@@ -5,7 +5,7 @@ export const dataType_ref = ref(null)
 export const textareaValue_ref = ref()
 
 export function timeout(ms) {
-	return new Promise((resolve) => setTimeout(resolve, ms))
+	return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 export function validate(input) {
@@ -64,4 +64,56 @@ export function prepareData(input) {
 		output.push(splits)
 	}
 	return output
+}
+
+export function calcQuant(size, value, from, to) {
+	if (!size) return 0
+	if (!value) return 0
+	if (!from) return 0
+	if (!to) return 0
+	size = size.split('x')
+	if (from === 'm3') {
+		if (to === 'm2') value = value / (size[0] / 1000)
+		if (to === 'szt') value = value / (size[0] / 1000) / (size[1] / 1000) / (size[2] / 1000)
+	}
+	if (from === 'm2') {
+		if (to === 'm3') value = value * (size[0] / 1000)
+		if (to === 'szt') value = value / (size[1] / 1000) / (size[2] / 1000)
+	}
+	if (from === 'szt') {
+		if (to === 'm3') value = value * (size[0] / 1000) * (size[1] / 1000) * (size[2] / 1000)
+		if (to === 'm2') value = value * (size[1] / 1000) * (size[2] / 1000)
+	}
+	// if (to === 'm3') return value.toFixed(3)
+	// if (to === 'm2') return value.toFixed(2)
+	// if (to === 'szt') return value.toFixed(1)
+	return value
+}
+
+export function calcPrice(size, value, from, to) {
+	if (!size) return 0
+	if (!value) return 0
+	if (!from) return 0
+	if (!to) return 0
+
+	size = size.split('x')
+	// value = value / GLOBAL.vat[from]
+
+	if (from === 'm3') {
+		if (to === 'm2') value = value * (size[0] / 1000)
+		if (to === 'szt') value = value * (size[0] / 1000) * (size[1] / 1000) * (size[2] / 1000)
+	}
+
+	if (from === 'm2') {
+		if (to === 'm3') value = value / (size[0] / 1000)
+		if (to === 'szt') value = value * (size[1] / 1000) * (size[2] / 1000)
+	}
+
+	if (from === 'szt') {
+		if (to === 'm3') value = value / (size[0] / 1000) / (size[1] / 1000) / (size[2] / 1000)
+		if (to === 'm2') value = value / (size[1] / 1000) / (size[2] / 1000)
+	}
+
+	// value = value * GLOBAL.vat[to]
+	return value
 }
