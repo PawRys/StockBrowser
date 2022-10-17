@@ -5,19 +5,19 @@ console.time('DataTable')
 
 const filter_ref = ref()
 const filterCount_ref = ref(1)
-const order_ref = ref(true)
+const sortOrder_ref = ref()
 const pageSize_ref = ref(10)
 const pageCount_ref = ref(1)
 const pageNumber_ref = ref(1)
 const dataSet_ref = ref('dataset-total')
-const products_ref = ref(await idb.products.where('total_m3').above(0).sortBy('id'))
+const products_ref = ref(await idb.products.where('tQub').above(0).sortBy('id'))
 
 watch(dataSet_ref, async () => {
 	if (dataSet_ref.value === 'dataset-full') products_ref.value = await idb.products.toArray()
 	if (dataSet_ref.value === 'dataset-total')
-		products_ref.value = await idb.products.where('total_m3').above(0).sortBy('id')
+		products_ref.value = await idb.products.where('tQub').above(0).sortBy('id')
 	if (dataSet_ref.value === 'dataset-aviable')
-		products_ref.value = await idb.products.where('aviable_m3').above(0).sortBy('id')
+		products_ref.value = await idb.products.where('aQub').above(0).sortBy('id')
 })
 
 const filteredProducts = computed(() => {
@@ -27,16 +27,14 @@ const filteredProducts = computed(() => {
 		`${row.id} ${row.name}`.match(new RegExp(filter_ref.value, 'i'))
 	)
 
-	const col = 'total'
-	const order = 1
-	// data = data.sort((a, b) => b[col] - a[col])
-	data = data.slice().sort((a, b) => {
-		a = a[col]
-		b = b[col]
-		return (a === b ? 0 : a > b ? 1 : -1) * (order_ref.value ? 1 : -1)
-	})
-
-	console.log(order_ref.value)
+	if (sortOrder_ref.value) {
+		const [column, direction] = sortOrder_ref.value.split('_')
+		data = data.sort((a, b) => {
+			a = a[column]
+			b = b[column]
+			return (a === b ? 0 : a > b ? 1 : -1) * (!direction ? 1 : -1)
+		})
+	}
 
 	const pageSize = pageSize_ref.value
 	const pageNumber = pageNumber_ref.value
@@ -55,6 +53,13 @@ const filteredProducts = computed(() => {
 
 	return data
 })
+
+function setPrevPage() {
+	pageNumber_ref.value -= 1
+}
+function setNextPage() {
+	pageNumber_ref.value += 1
+}
 
 console.timeEnd('DataTable')
 </script>
@@ -108,33 +113,75 @@ console.timeEnd('DataTable')
 	</p>
 
 	<p>
-		<input type="checkbox" name="" id="" v-model="order_ref" />
+		<!-- <input type="text" name="" id="" v-model="order_ref" /> -->
+		<select name="sortOrder" id="sortOrder" v-model="sortOrder_ref">
+			<option value="id">Id - rosnąco</option>
+			<option value="id_desc">Id - malejąco</option>
+			<option value="name">Nazwa A -> Z</option>
+			<option value="name_desc">Nazwa Z -> A</option>
+			<option value="price">💶 Cena - od najtańszych</option>
+			<option value="price_desc">💶 Cena - od najdroższych</option>
+			<option disabled></option>
+			<option disabled>Sortuj ilość:</option>
+			<option value="tQub_desc"> Całkowita m3 - od największej</option>
+			<option value="tQub"> Całkowita m3 - od najmniejszej</option>
+			<option value="tSqr_desc"> Całkowita m2 - od największej</option>
+			<option value="tSqr"> Całkowita m2 - od najmniejszej</option>
+			<option value="tPcs_desc"> Całkowita szt - od największej</option>
+			<option value="tPcs"> Całkowita szt - od najmniejszej</option>
+			<option disabled></option>
+			<option disabled>Sortuj ilość:</option>
+			<option value="aQub_desc"> Handlowa m3 - od największej</option>
+			<option value="aQub"> Handlowa m3 - od najmniejszej</option>
+			<option value="aSqr_desc"> Handlowa m2 - od największej</option>
+			<option value="aSqr"> Handlowa m2 - od najmniejszej</option>
+			<option value="aPcs_desc"> Handlowa szt - od największej</option>
+			<option value="aPcs"> Handlowa szt - od najmniejszej</option>
+		</select>
+	</p>
+
+	<p>
 		<label for="filter">
 			Szukaj:<input type="text" name="filter" id="filter" v-model="filter_ref" />
 		</label>
 	</p>
 
-	<table v-if="filteredProducts.length">
+	<table id="table" v-if="filteredProducts.length">
 		<tbody>
 			<!-- <tr v-for="ply in paginatedProducts"> -->
-			<tr v-for="ply in filteredProducts">
+			<tr v-for="ply in filteredProducts" :key="ply.id">
 				<td class="id">{{ ply.id }}</td>
 				<td class="name">{{ ply.name }}</td>
 				<td class="tags">search tags</td>
-				<td class="text-align_right total_m3">{{ ply.total_m3.toFixed(3) }} m3</td>
-				<td class="text-align_right total_m2">{{ ply.total_m2.toFixed(2) }} m2</td>
-				<td class="text-align_right total_szt">{{ ply.total_szt.toFixed(1) }} szt</td>
-				<td class="text-align_right aviable_m3">{{ ply.aviable_m3.toFixed(3) }} m3</td>
-				<td class="text-align_right aviable_m2">{{ ply.aviable_m2.toFixed(2) }} m2</td>
-				<td class="text-align_right aviable_szt">{{ ply.aviable_szt.toFixed(1) }} szt</td>
+				<td class="text-align_right total_m3">{{ ply.tQub.toFixed(3) }} m3</td>
+				<td class="text-align_right total_m2">{{ ply.tSqr.toFixed(2) }} m2</td>
+				<td class="text-align_right total_szt">{{ ply.tPcs.toFixed(1) }} szt</td>
+				<td class="text-align_right aviable_m3">{{ ply.aQub.toFixed(3) }} m3</td>
+				<td class="text-align_right aviable_m2">{{ ply.aSqr.toFixed(2) }} m2</td>
+				<td class="text-align_right aviable_szt">{{ ply.aPcs.toFixed(1) }} szt</td>
 				<td class="text-align_right price_m3">
-					<input type="number" name="" id="" :value="ply.price" />
+					<input
+						class="text-align_right"
+						type="number"
+						name=""
+						id=""
+						:value="ply.price.toFixed(2)" />
 				</td>
 				<td class="text-align_right price_m2">
-					<input type="number" name="" id="" :value="ply.price" />
+					<input
+						class="text-align_right"
+						type="number"
+						name=""
+						id=""
+						:value="ply.price.toFixed(2)" />
 				</td>
 				<td class="text-align_right price_szt">
-					<input type="number" name="" id="" :value="ply.price" />
+					<input
+						class="text-align_right"
+						type="number"
+						name=""
+						id=""
+						:value="ply.price.toFixed(2)" />
 				</td>
 				<td class="text-align_right buy_price">{{ ply.price.toFixed(2) }} zł/m3</td>
 				<td class="text-align_right marg_perc">[Narzut %]</td>
@@ -143,24 +190,14 @@ console.timeEnd('DataTable')
 		</tbody>
 	</table>
 	<p v-else>Nie znaleziono produktów.</p>
+	<p v-if="pageCount_ref > 1">
+		<a class="button" href="#table" @click="setPrevPage()">Prev</a>
+		{{ pageNumber_ref }} z {{ pageCount_ref }}
+		<a class="button" href="#table" @click="setNextPage()">Next</a>
+	</p>
 </template>
 
 <style scoped>
-table,
-tr {
-	padding: 0.6ex 1ex;
-	border: solid 1px silver;
-}
-
-table {
-	border-collapse: collapse;
-}
-
-td {
-	/* padding: 0.6ex 1ex; */
-	padding: 0 0.5ex;
-}
-
 .id {
 	grid-area: id__;
 }
@@ -208,13 +245,28 @@ td {
 	grid-area: marg;
 }
 
+table,
+tr {
+	padding: 0.6ex 1ex;
+	border: solid 1px silver;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+td {
+	/* padding: 0.6ex 1ex; */
+	padding: 0 0.5ex;
+}
+
 tr {
 	display: grid;
 	grid-template-columns: repeat(2, 2fr) repeat(4, minmax(max-content, 1fr));
 	grid-template-areas:
-		'id__ tags t_m3 t_m2 t_sz buyp'
-		'name name a_m3 a_m2 a_sz marg'
-		'name name p_m3 p_m2 p_sz perc';
+		'id__ tags buyp t_m3 t_m2 t_sz'
+		'name name marg a_m3 a_m2 a_sz'
+		'name name perc p_m3 p_m2 p_sz';
 }
 
 .text-align_right {
@@ -225,6 +277,9 @@ tr {
 	flex-direction: column;
 }
 
+table input {
+	width: 8ch;
+}
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {

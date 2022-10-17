@@ -48,12 +48,12 @@ async function bulkAddIDB() {
 		if (productIndex < 0) {
 			Object.assign(currentProduct, {
 				price: 0,
-				total_m3: 0,
-				total_m2: 0,
-				total_szt: 0,
-				aviable_m3: 0,
-				aviable_m2: 0,
-				aviable_szt: 0,
+				tQub: 0,
+				tSqr: 0,
+				tPcs: 0,
+				aQub: 0,
+				aSqr: 0,
+				aPcs: 0,
 			})
 		}
 		if (dataType_ref.value === 'prices') {
@@ -63,15 +63,12 @@ async function bulkAddIDB() {
 		}
 		if (dataType_ref.value === 'stocks') {
 			Object.assign(currentProduct, {
-				total_m3: calcQuant(size, newProduct[6], newProduct[2], 'm3'),
-				total_m2: calcQuant(size, newProduct[6], newProduct[2], 'm2'),
-				total_szt: calcQuant(size, newProduct[6], newProduct[2], 'szt'),
-				aviable_m3: calcQuant(size, newProduct[3], newProduct[2], 'm3'),
-				aviable_m2: calcQuant(size, newProduct[3], newProduct[2], 'm2'),
-				aviable_szt: calcQuant(size, newProduct[3], newProduct[2], 'szt'),
-				// total: newProduct[6],
-				// aviable: newProduct[3],
-				// stockUnit: newProduct[2],
+				tQub: calcQuant(size, newProduct[6], newProduct[2], 'm3'),
+				tSqr: calcQuant(size, newProduct[6], newProduct[2], 'm2'),
+				tPcs: calcQuant(size, newProduct[6], newProduct[2], 'szt'),
+				aQub: calcQuant(size, newProduct[3], newProduct[2], 'm3'),
+				aSqr: calcQuant(size, newProduct[3], newProduct[2], 'm2'),
+				aPcs: calcQuant(size, newProduct[3], newProduct[2], 'szt'),
 			})
 		}
 		const cursor = productIndex < 0 ? productsTable.length : productIndex
