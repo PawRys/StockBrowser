@@ -48,10 +48,10 @@ async function bulkAddIDB() {
 		if (productIndex < 0) {
 			Object.assign(currentProduct, {
 				price: 0,
-				tQub: 0,
+				tCub: 0,
 				tSqr: 0,
 				tPcs: 0,
-				aQub: 0,
+				aCub: 0,
 				aSqr: 0,
 				aPcs: 0,
 			})
@@ -63,10 +63,10 @@ async function bulkAddIDB() {
 		}
 		if (dataType_ref.value === 'stocks') {
 			Object.assign(currentProduct, {
-				tQub: calcQuant(size, newProduct[6], newProduct[2], 'm3'),
+				tCub: calcQuant(size, newProduct[6], newProduct[2], 'm3'),
 				tSqr: calcQuant(size, newProduct[6], newProduct[2], 'm2'),
 				tPcs: calcQuant(size, newProduct[6], newProduct[2], 'szt'),
-				aQub: calcQuant(size, newProduct[3], newProduct[2], 'm3'),
+				aCub: calcQuant(size, newProduct[3], newProduct[2], 'm3'),
 				aSqr: calcQuant(size, newProduct[3], newProduct[2], 'm2'),
 				aPcs: calcQuant(size, newProduct[3], newProduct[2], 'szt'),
 			})

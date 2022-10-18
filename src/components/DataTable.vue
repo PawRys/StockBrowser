@@ -1,23 +1,33 @@
 <script setup>
 import { ref, computed, watch, provide } from 'vue'
 import { db as idb } from '../assets/dexiedb.js'
+import Pagination from './DataTablePagination.vue'
+import Sorting from './DataTableSorting.vue'
+
 console.time('DataTable')
 
 const filter_ref = ref()
 const filterCount_ref = ref(1)
-const sortOrder_ref = ref()
 const pageSize_ref = ref(10)
 const pageCount_ref = ref(1)
 const pageNumber_ref = ref(1)
+const sortOrder_ref = ref('id')
 const dataSet_ref = ref('dataset-total')
-const products_ref = ref(await idb.products.where('tQub').above(0).sortBy('id'))
+const products_ref = ref(await idb.products.where('tCub').above(0).sortBy('id'))
+
+provide('pageSize_ref', pageSize_ref)
+provide('pageCount_ref', pageCount_ref)
+provide('pageNumber_ref', pageNumber_ref)
+provide('sortOrder_ref', sortOrder_ref)
+
+sortOrder_ref
 
 watch(dataSet_ref, async () => {
 	if (dataSet_ref.value === 'dataset-full') products_ref.value = await idb.products.toArray()
 	if (dataSet_ref.value === 'dataset-total')
-		products_ref.value = await idb.products.where('tQub').above(0).sortBy('id')
+		products_ref.value = await idb.products.where('tCub').above(0).sortBy('id')
 	if (dataSet_ref.value === 'dataset-aviable')
-		products_ref.value = await idb.products.where('aQub').above(0).sortBy('id')
+		products_ref.value = await idb.products.where('aCub').above(0).sortBy('id')
 })
 
 const filteredProducts = computed(() => {
@@ -46,20 +56,13 @@ const filteredProducts = computed(() => {
 	const end = validPageNumber * validPageSize
 	data = data.slice(start, end)
 
-	// Update pagination UI
+	// Update UI
 	pageCount_ref.value = pageCount
 	pageNumber_ref.value = validPageNumber
 	filterCount_ref.value = filterCount
 
 	return data
 })
-
-function setPrevPage() {
-	pageNumber_ref.value -= 1
-}
-function setNextPage() {
-	pageNumber_ref.value += 1
-}
 
 console.timeEnd('DataTable')
 </script>
@@ -68,7 +71,7 @@ console.timeEnd('DataTable')
 	<h2>Main Table</h2>
 	<div class="flex-column">
 		<label for="dataset-full">
-			Full:
+			Stany zerowe:
 			<input
 				type="radio"
 				name="dataset"
@@ -77,7 +80,7 @@ console.timeEnd('DataTable')
 				v-model="dataSet_ref" />
 		</label>
 		<label for="dataset-total">
-			Total:
+			Stany całkowite:
 			<input
 				type="radio"
 				name="dataset"
@@ -87,7 +90,7 @@ console.timeEnd('DataTable')
 				checked />
 		</label>
 		<label for="dataset-aviable">
-			Aviable:
+			Stany handlowe:
 			<input
 				type="radio"
 				name="dataset"
@@ -95,57 +98,23 @@ console.timeEnd('DataTable')
 				value="dataset-aviable"
 				v-model="dataSet_ref" />
 		</label>
-	</div>
-	<p>Rekordów: {{ filterCount_ref }} z {{ products_ref.length }}</p>
-	<p>
-		<label for="pagenum">
-			Numer strony:
-			<select name="pagenum" id="pagenum" v-model="pageNumber_ref">
-				<template v-for="n in pageCount_ref">
-					<option :value="n || 1">{{ n }}</option>
-				</template>
-			</select>
-			z {{ pageCount_ref }}
-		</label>
 		<label for="pagesize">
+			Ilość na stronę:
 			<input type="number" name="pagesize" id="pagesize" min="1" v-model="pageSize_ref" />
 		</label>
-	</p>
+	</div>
 
-	<p>
-		<!-- <input type="text" name="" id="" v-model="order_ref" /> -->
-		<select name="sortOrder" id="sortOrder" v-model="sortOrder_ref">
-			<option value="id">Id - rosnąco</option>
-			<option value="id_desc">Id - malejąco</option>
-			<option value="name">Nazwa A -> Z</option>
-			<option value="name_desc">Nazwa Z -> A</option>
-			<option value="price">💶 Cena - od najtańszych</option>
-			<option value="price_desc">💶 Cena - od najdroższych</option>
-			<option disabled></option>
-			<option disabled>Sortuj ilość:</option>
-			<option value="tQub_desc"> Całkowita m3 - od największej</option>
-			<option value="tQub"> Całkowita m3 - od najmniejszej</option>
-			<option value="tSqr_desc"> Całkowita m2 - od największej</option>
-			<option value="tSqr"> Całkowita m2 - od najmniejszej</option>
-			<option value="tPcs_desc"> Całkowita szt - od największej</option>
-			<option value="tPcs"> Całkowita szt - od najmniejszej</option>
-			<option disabled></option>
-			<option disabled>Sortuj ilość:</option>
-			<option value="aQub_desc"> Handlowa m3 - od największej</option>
-			<option value="aQub"> Handlowa m3 - od najmniejszej</option>
-			<option value="aSqr_desc"> Handlowa m2 - od największej</option>
-			<option value="aSqr"> Handlowa m2 - od najmniejszej</option>
-			<option value="aPcs_desc"> Handlowa szt - od największej</option>
-			<option value="aPcs"> Handlowa szt - od najmniejszej</option>
-		</select>
-	</p>
-
-	<p>
+	<div>
 		<label for="filter">
 			Szukaj:<input type="text" name="filter" id="filter" v-model="filter_ref" />
 		</label>
-	</p>
+	</div>
+	<p>Rekordów: {{ filterCount_ref }} z {{ products_ref.length }}</p>
 
+	<div style="display: flex">
+		<Sorting style="margin-right: auto" />
+		<Pagination id="pagination" />
+	</div>
 	<table id="table" v-if="filteredProducts.length">
 		<tbody>
 			<!-- <tr v-for="ply in paginatedProducts"> -->
@@ -153,48 +122,54 @@ console.timeEnd('DataTable')
 				<td class="id">{{ ply.id }}</td>
 				<td class="name">{{ ply.name }}</td>
 				<td class="tags">search tags</td>
-				<td class="text-align_right total_m3">{{ ply.tQub.toFixed(3) }} m3</td>
-				<td class="text-align_right total_m2">{{ ply.tSqr.toFixed(2) }} m2</td>
-				<td class="text-align_right total_szt">{{ ply.tPcs.toFixed(1) }} szt</td>
-				<td class="text-align_right aviable_m3">{{ ply.aQub.toFixed(3) }} m3</td>
-				<td class="text-align_right aviable_m2">{{ ply.aSqr.toFixed(2) }} m2</td>
-				<td class="text-align_right aviable_szt">{{ ply.aPcs.toFixed(1) }} szt</td>
-				<td class="text-align_right price_m3">
+				<td class="text-align_right tCub">{{ ply.tCub.toFixed(3) }}<small>m3</small></td>
+				<td class="text-align_right tSqr">{{ ply.tSqr.toFixed(2) }}<small>m2</small></td>
+				<td class="text-align_right tPcs">{{ ply.tPcs.toFixed(1) }}<small>szt</small></td>
+				<td class="text-align_right aCub">{{ ply.aCub.toFixed(3) }}<small>m3</small></td>
+				<td class="text-align_right aSqr">{{ ply.aSqr.toFixed(2) }}<small>m2</small></td>
+				<td class="text-align_right aPcs">{{ ply.aPcs.toFixed(1) }}<small>szt</small></td>
+				<td class="text-align_right pCub">
 					<input
 						class="text-align_right"
 						type="number"
 						name=""
 						id=""
 						:value="ply.price.toFixed(2)" />
+					<small>zł/m3</small>
 				</td>
-				<td class="text-align_right price_m2">
+				<td class="text-align_right pSqr">
 					<input
 						class="text-align_right"
 						type="number"
 						name=""
 						id=""
 						:value="ply.price.toFixed(2)" />
+					<small>zł/m2</small>
 				</td>
-				<td class="text-align_right price_szt">
+				<td class="text-align_right pPcs">
 					<input
 						class="text-align_right"
 						type="number"
 						name=""
 						id=""
 						:value="ply.price.toFixed(2)" />
+					<small>zł/szt</small>
 				</td>
-				<td class="text-align_right buy_price">{{ ply.price.toFixed(2) }} zł/m3</td>
-				<td class="text-align_right marg_perc">[Narzut %]</td>
-				<td class="text-align_right marg_rel">[Narzut zł]</td>
+				<td class="text-align_right buy_price">
+					{{ ply.price.toFixed(2) }}<small>zł/m3</small>
+				</td>
+				<td class="text-align_right marg_perc">
+					<input class="text-align_right" type="number" name="" id="" :value="0" />
+					<small>%</small>
+				</td>
+				<td class="text-align_right marg_rel">
+					<input class="text-align_right" type="number" name="" id="" :value="0" />
+					<small>zł/m3</small>
+				</td>
 			</tr>
 		</tbody>
 	</table>
 	<p v-else>Nie znaleziono produktów.</p>
-	<p v-if="pageCount_ref > 1">
-		<a class="button" href="#table" @click="setPrevPage()">Prev</a>
-		{{ pageNumber_ref }} z {{ pageCount_ref }}
-		<a class="button" href="#table" @click="setNextPage()">Next</a>
-	</p>
 </template>
 
 <style scoped>
@@ -207,32 +182,32 @@ console.timeEnd('DataTable')
 .tags {
 	grid-area: tags;
 }
-.total_m3 {
-	grid-area: t_m3;
+.tCub {
+	grid-area: tCub;
 }
-.total_m2 {
-	grid-area: t_m2;
+.tSqr {
+	grid-area: tSqr;
 }
-.total_szt {
-	grid-area: t_sz;
+.tPcs {
+	grid-area: tPcs;
 }
-.aviable_m3 {
-	grid-area: a_m3;
+.aCub {
+	grid-area: aCub;
 }
-.aviable_m2 {
-	grid-area: a_m2;
+.aSqr {
+	grid-area: aSqr;
 }
-.aviable_szt {
-	grid-area: a_sz;
+.aPcs {
+	grid-area: aPcs;
 }
-.price_m3 {
-	grid-area: p_m3;
+.pCub {
+	grid-area: pCub;
 }
-.price_m2 {
-	grid-area: p_m2;
+.pSqr {
+	grid-area: pSqr;
 }
-.price_szt {
-	grid-area: p_sz;
+.pPcs {
+	grid-area: pPcs;
 }
 
 .buy_price {
@@ -262,11 +237,13 @@ td {
 
 tr {
 	display: grid;
-	grid-template-columns: repeat(2, 2fr) repeat(4, minmax(max-content, 1fr));
+	grid-template-columns: repeat(2, 2fr) repeat(6, minmax(max-content, 1fr));
 	grid-template-areas:
-		'id__ tags buyp t_m3 t_m2 t_sz'
-		'name name marg a_m3 a_m2 a_sz'
-		'name name perc p_m3 p_m2 p_sz';
+		/* 'id__ tags buyp tCub tSqr tPcs'
+		'name name marg aCub aSqr aPcs'
+		'name name perc pCub pSqr pPcs'; */
+		'id__ tags tCub tSqr tPcs buyp marg perc'
+		'name name aCub aSqr aPcs pCub pSqr pPcs';
 }
 
 .text-align_right {
