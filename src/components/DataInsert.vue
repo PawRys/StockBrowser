@@ -1,8 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 import { db as idb } from '../assets/dexiedb.js'
-import { textareaValue_ref, message_ref, dataType_ref } from './DataInsertScripts.js'
-import { validate, prepareData, calcQuant, calcPrice } from './DataInsertScripts.js'
+import { textareaValue_ref, message_ref, dataType_ref } from './DataInsert_Scripts.js'
+import { validate, prepareData, calcQuant, calcPrice } from './DataInsert_Scripts.js'
 import IconBroom from './icons/IconBroom.vue'
 import IconCheck from './icons/IconCheck.vue'
 import IconDisk from './icons/IconDisk.vue'
@@ -43,7 +43,7 @@ async function bulkAddIDB() {
 		Object.assign(currentProduct, {
 			id: productId,
 			name: productName,
-			// size: getProductSize(`${productId} ${productName}`).replace(',', '.'),
+			size: size,
 		})
 		if (productIndex < 0) {
 			Object.assign(currentProduct, {
