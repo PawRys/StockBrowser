@@ -87,7 +87,7 @@ export function calcQuant(size, value, from, to) {
 	// if (to === 'm3') return value.toFixed(3)
 	// if (to === 'm2') return value.toFixed(2)
 	// if (to === 'szt') return value.toFixed(1)
-	return value
+	return value * 1
 }
 
 export function calcPrice(size, value, from, to) {
@@ -115,5 +115,5 @@ export function calcPrice(size, value, from, to) {
 	}
 
 	// value = value * GLOBAL.vat[to]
-	return value
+	return value * 1
 }

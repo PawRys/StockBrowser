@@ -60,7 +60,7 @@ html {
 body {
 	min-height: 100vh;
 	color: var(--font-color);
-	background: var(--bg-color);
+	/* background: var(--bg-color); */
 	line-height: 1.6;
 	font-family: 'Quicksand', 'Roboto Flex', sans-serif;
 	font-size: calc(18px + (24 - 18) * ((100vw - 320px) / (3840 - 320)));

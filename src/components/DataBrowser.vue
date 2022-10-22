@@ -3,12 +3,12 @@ import { ref, computed, watch, provide } from 'vue'
 import { db as idb } from '../assets/dexiedb.js'
 import Sorting from './DataBrowser_Sorting.vue'
 import Settings from './DataBrowser_Settings.vue'
-import Calculator from './DataBrowser_PriceCalc.vue'
+import PriceCalc from './DataBrowser_PriceCalc.vue'
 import Pagination from './DataBrowser_Pagination.vue'
 
 console.time('DataTable')
 
-const filter_ref = ref()
+const filter_ref = ref('4x1250x2500')
 const filterCount_ref = ref(1)
 const pageSize_ref = ref(20)
 const pageCount_ref = ref(1)
@@ -42,7 +42,7 @@ const filteredProducts = computed(() => {
 
 	if (sortOrder_ref.value) {
 		const [column, direction] = sortOrder_ref.value.split('_')
-		data = data.sort((a, b) => {
+		data = data.slice().sort((a, b) => {
 			a = a[column]
 			b = b[column]
 			return (a === b ? 0 : a > b ? 1 : -1) * (!direction ? 1 : -1)
@@ -94,10 +94,8 @@ console.timeEnd('DataTable')
 			<div class="text-align_right aCub">{{ ply.aCub.toFixed(3) }}<small>m3</small></div>
 			<div class="text-align_right aSqr">{{ ply.aSqr.toFixed(2) }}<small>m2</small></div>
 			<div class="text-align_right aPcs">{{ ply.aPcs.toFixed(1) }}<small>szt</small></div>
-			<div class="text-align_right buy_price">
-				{{ ply.price.toFixed(2) }}<small>zł/m3</small>
-			</div>
-			<Calculator :price="ply.price" />
+			<div class="text-align_right buy_price">{{ ply.pCub.toFixed(2) }}<small>zł/m3</small></div>
+			<PriceCalc :size="ply.size" :price="ply.pCub" />
 		</li>
 	</ul>
 	<p v-else>Nie znaleziono produktów.</p>
@@ -154,30 +152,26 @@ console.timeEnd('DataTable')
 	grid-area: marg;
 }
 
-table,
-tr {
-	padding: 0.6ex 1ex;
-	border: solid 1px silver;
-}
-
-table {
-	border-collapse: collapse;
-}
-
-td {
-	/* padding: 0.6ex 1ex; */
-	padding: 0 0.5ex;
-}
-
 li {
+	margin-block: 1rem;
+	padding: 0.5ex 1ex;
+
 	display: grid;
-	grid-template-columns: repeat(2, 2fr) repeat(6, minmax(max-content, 1fr));
+	gap: 0 0.5ex;
+	grid-template-columns: repeat(2, 2fr) repeat(6, minmax(max-content, 11ch));
 	grid-template-areas:
 		/* 'id__ tags buyp tCub tSqr tPcs'
 		'name name marg aCub aSqr aPcs'
 		'name name perc pCub pSqr pPcs'; */
 		'id__ tags tCub tSqr tPcs pCub pSqr pPcs'
 		'name name aCub aSqr aPcs buyp marg perc';
+}
+
+li:nth-of-type(2n) {
+	background-color: var(--bg-shade);
+}
+li:nth-of-type(2n + 1) {
+	background-color: var(--bg-color);
 }
 
 .text-align_right {
