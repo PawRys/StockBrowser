@@ -34,15 +34,13 @@ watch(dataSet_ref, async () => {
 })
 
 const filteredProducts = computed(() => {
-	let data
-
-	data = products_ref.value.filter(row =>
+	let data = products_ref.value.filter(row =>
 		`${row.id} ${row.name}`.match(new RegExp(filter_ref.value, 'i'))
 	)
 
 	if (sortOrder_ref.value) {
 		const [column, direction] = sortOrder_ref.value.split('_')
-		data = data.slice().sort((a, b) => {
+		data = data.sort((a, b) => {
 			a = a[column]
 			b = b[column]
 			return (a === b ? 0 : a > b ? 1 : -1) * (!direction ? 1 : -1)
