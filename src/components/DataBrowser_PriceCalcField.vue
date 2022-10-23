@@ -9,6 +9,7 @@ const props = defineProps({
 })
 const buyPrice = inject('buyPrice_ref')
 const recalcs = inject('recalcs')
+const vat = inject('vat')
 
 const roundup = computed(() => {
 	return edit.value ? Math.round(recalcs[props.unit] * 100) / 100 : recalcs[props.unit].toFixed(2)
@@ -32,9 +33,9 @@ function recalc(e) {
 	if (props.unit === 'marg') basePrice = buyPrice.value + val
 	if (props.unit === 'perc') basePrice = buyPrice.value + buyPrice.value * (val / 100)
 
-	recalcs.m3 = calcPrice(props.size, basePrice, 'm3', 'm3')
-	recalcs.m2 = calcPrice(props.size, basePrice, 'm3', 'm2')
-	recalcs.szt = calcPrice(props.size, basePrice, 'm3', 'szt')
+	recalcs.m3 = calcPrice(props.size, basePrice, 'm3', 'm3') * vat.m3
+	recalcs.m2 = calcPrice(props.size, basePrice, 'm3', 'm2') * vat.m2
+	recalcs.szt = calcPrice(props.size, basePrice, 'm3', 'szt') * vat.szt
 	recalcs.marg = basePrice - buyPrice.value
 	recalcs.perc = (basePrice / buyPrice.value) * 100 - 100 || 0
 }

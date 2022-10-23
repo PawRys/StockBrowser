@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, provide } from 'vue'
+import { ref, reactive, computed, watch, provide } from 'vue'
 import { db as idb } from '../assets/dexiedb.js'
 import Sorting from './DataBrowser_Sorting.vue'
 import Settings from './DataBrowser_Settings.vue'
@@ -17,11 +17,14 @@ const sortOrder_ref = ref('id')
 const dataSet_ref = ref('dataset-total')
 const products_ref = ref(await idb.products.where('tCub').above(0).sortBy('id'))
 
+const vat = reactive({ m3: 1, m2: 1, szt: 1.23 })
+
 provide('pageSize_ref', pageSize_ref)
 provide('pageCount_ref', pageCount_ref)
 provide('pageNumber_ref', pageNumber_ref)
 provide('sortOrder_ref', sortOrder_ref)
 provide('dataSet_ref', dataSet_ref)
+provide('vat', vat)
 
 sortOrder_ref
 
@@ -70,6 +73,9 @@ console.timeEnd('DataTable')
 
 <template>
 	<h2 id="pageTop">Main Table</h2>
+	<input type="text" name="vatCub" id="" v-model="vat.m3" />
+	<input type="text" name="vatSqr" id="" v-model="vat.m2" />
+	<input type="text" name="vatPcs" id="" v-model="vat.szt" />
 	<Settings />
 	<div>
 		<label for="filter">

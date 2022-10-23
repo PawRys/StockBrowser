@@ -1,23 +1,37 @@
-<script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+<script setup>
+import { ref, reactive, computed, watchEffect, watch } from 'vue'
 
-const data = reactive([
-	{ id: 1, val: 100 },
-	{ id: 2, val: 200 },
-	{ id: 3, val: 300 },
-])
+const mother_ref = ref(1)
+const first_ref = ref(1)
+const second_ref = ref(1)
+const third_ref = ref(1)
+const vat = ref(false)
 
-const recalc = computed(() => {
-	return data[0].val * 4
-})
-
-function test(e) {
-	console.log(e.target.value.trim())
+function whole(val) {
+	mother_ref.value = Math.round((val.target.value.trim() / 1) * 100) / 100
 }
+function half(val) {
+	mother_ref.value = Math.round((val.target.value.trim() / 2) * 100) / 100
+}
+function qart(val) {
+	mother_ref.value = Math.round((val.target.value.trim() / 4 / (vat.value ? 1.23 : 1)) * 100) / 100
+}
+
+const first = computed(() => {
+	return mother_ref.value * 1
+})
+const second = computed(() => {
+	return mother_ref.value * 2
+})
+const third = computed(() => {
+	return mother_ref.value * 4 * (vat.value ? 1.23 : 1)
+})
 </script>
 
 <template>
-	<input v-model="data[0].val" @keyup="test" placeholder="A" type="text" />
-	<input :value="recalc" placeholder="B" type="text" />
-	<input v-model="data[0].val" placeholder="C" type="text" />
+	<h2>{{ mother_ref }}</h2>
+	<label for="vat">Vat: <input type="checkbox" name="vat" id="" v-model="vat" /></label>
+	<p><input type="number" :value="first" @change="whole" />: {{ first_ref }}</p>
+	<p><input type="number" :value="second" @change="half" />: {{ second_ref }}</p>
+	<p><input type="number" :value="third" @change="qart" />: {{ third_ref }}</p>
 </template>
