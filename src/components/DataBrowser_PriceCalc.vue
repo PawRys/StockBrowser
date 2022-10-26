@@ -3,36 +3,25 @@ import { ref, reactive, computed, watch, inject, provide } from 'vue'
 import { calcPrice } from './DataInsert_Scripts.js'
 import Field from './DataBrowser_PriceCalcField.vue'
 
-const props = defineProps({
-	price: Number,
-	size: String,
-})
-const buyPrice_ref = ref(props.price)
-const temp = 0
-const recalcs = reactive({
-	m3: buyPrice_ref.value,
-	m2: calcPrice(props.size, buyPrice_ref.value, 'm3', 'm2'),
-	szt: calcPrice(props.size, buyPrice_ref.value, 'm3', 'szt'),
-	marg: 0,
-	perc: 0,
-})
+const props = defineProps(['plySize', 'buyPrice'])
+const priceRoot = ref(props.buyPrice)
+provide('priceRoot', priceRoot)
+provide('buyPrice', props.buyPrice)
 
 const priceColor = computed(() => {
-	if (recalcs.perc > 0.1) return 'green'
-	if (recalcs.perc < -0.1) return 'red'
-	return ''
+	const diffrence = priceRoot.value - props.buyPrice
+	if (diffrence > 1) return 'green'
+	if (diffrence < -1) return 'red'
+	return 'blue'
 })
-
-provide('buyPrice_ref', buyPrice_ref)
-provide('recalcs', recalcs)
 </script>
 
 <template>
-	<Field class="pCub" :class="priceColor" :size="props.size" :unit="'m3'" />
-	<Field class="pSqr" :class="priceColor" :size="props.size" :unit="'m2'" />
-	<Field class="pPcs" :class="priceColor" :size="props.size" :unit="'szt'" />
-	<Field class="marg" :class="priceColor" :size="props.size" :unit="'marg'" />
-	<Field class="perc" :class="priceColor" :size="props.size" :unit="'perc'" />
+	<Field class="pCub" :class="priceColor" :size="props.plySize" :unit="'pCub'" />
+	<Field class="pSqr" :class="priceColor" :size="props.plySize" :unit="'pSqr'" />
+	<Field class="pPcs" :class="priceColor" :size="props.plySize" :unit="'pPcs'" />
+	<Field class="marg" :class="priceColor" :size="props.plySize" :unit="'marg'" />
+	<Field class="perc" :class="priceColor" :size="props.plySize" :unit="'perc'" />
 </template>
 
 <style scoped>
@@ -41,5 +30,9 @@ provide('recalcs', recalcs)
 }
 .red {
 	color: crimson;
+}
+
+.blue {
+	color: darkslateblue;
 }
 </style>

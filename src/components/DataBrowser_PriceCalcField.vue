@@ -1,71 +1,86 @@
 <script setup>
-import { ref, computed, watch, inject, defineProps } from 'vue'
+import { ref, computed, inject } from 'vue'
 import { calcPrice } from './DataInsert_Scripts.js'
 
-const edit = ref(false)
-const props = defineProps({
-	size: String,
-	unit: String,
-})
-const buyPrice = inject('buyPrice_ref')
-const recalcs = inject('recalcs')
+const props = defineProps(['size', 'unit'])
+const priceRoot = inject('priceRoot')
+const buyPrice = inject('buyPrice')
+const isEdited = ref(false)
+const shadowValue = ref()
 const vat = inject('vat')
 
-const roundup = computed(() => {
-	return edit.value ? Math.round(recalcs[props.unit] * 100) / 100 : recalcs[props.unit].toFixed(2)
+function calcPriceRoot(event) {
+	const inputVal = event.target.value.trim() * 1
+	if (props.unit === 'pCub') priceRoot.value = calcPrice(props.size, inputVal, 'm3', 'm3') / vat.m3
+	if (props.unit === 'pSqr') priceRoot.value = calcPrice(props.size, inputVal, 'm2', 'm3') / vat.m2
+	if (props.unit === 'pPcs')
+		priceRoot.value = calcPrice(props.size, inputVal, 'szt', 'm3') / vat.szt
+	if (props.unit === 'marg') priceRoot.value = buyPrice + inputVal
+	if (props.unit === 'perc') priceRoot.value = buyPrice + (buyPrice / 100) * inputVal
+	shadowValue.value = event.target.value.trim()
+}
+
+const calcValues = computed(() => {
+	const root = priceRoot.value
+	let result = 0
+	if (props.unit === 'pCub') result = calcPrice(props.size, root, 'm3', 'm3') * vat.m3
+	if (props.unit === 'pSqr') result = calcPrice(props.size, root, 'm3', 'm2') * vat.m2
+	if (props.unit === 'pPcs') result = calcPrice(props.size, root, 'm3', 'szt') * vat.szt
+	if (props.unit === 'marg') result = -buyPrice + root
+	if (props.unit === 'perc') result = ((root - buyPrice) / buyPrice) * 100
+	if (props.unit === 'perc') return result.toFixed(1)
+	return result.toFixed(2)
 })
-const prefix = computed(() => {
-	return props.unit === 'marg' ? '+' : ''
+
+function focusHandler() {
+	isEdited.value = true
+	shadowValue.value = calcValues.value
+}
+
+const pfix = computed(() => {
+	if (props.unit === 'marg') return '+'
+	return ''
 })
-const suffix = computed(() => {
-	let text = `zł/${props.unit}`
-	if (props.unit === 'perc') text = '%'
-	if (props.unit === 'marg') text = 'zł/m3'
+
+const sfix = computed(() => {
+	let result = ''
+	if (props.unit === 'pCub') result = 'zł/m3'
+	if (props.unit === 'pSqr') result = 'zł/m2'
+	if (props.unit === 'pPcs') result = 'zł/szt'
+	if (props.unit === 'marg') result = 'zł/m3'
+	if (props.unit === 'perc') result = '%'
+	return result
+})
+
+const vatClass = computed(() => {
+	let text = ''
+	if (props.unit === 'pCub' && vat.m3 > 1) text = 'vatApplied'
+	if (props.unit === 'pSqr' && vat.m2 > 1) text = 'vatApplied'
+	if (props.unit === 'pPcs' && vat.szt > 1) text = 'vatApplied'
 	return text
 })
-
-function recalc(e) {
-	const val = e.target.value * 1
-	let basePrice = 0
-
-	if (props.unit !== 'marg' && props.unit !== 'perc')
-		basePrice = calcPrice(props.size, val, props.unit, 'm3')
-	if (props.unit === 'marg') basePrice = buyPrice.value + val
-	if (props.unit === 'perc') basePrice = buyPrice.value + buyPrice.value * (val / 100)
-
-	recalcs.m3 = calcPrice(props.size, basePrice, 'm3', 'm3') * vat.m3
-	recalcs.m2 = calcPrice(props.size, basePrice, 'm3', 'm2') * vat.m2
-	recalcs.szt = calcPrice(props.size, basePrice, 'm3', 'szt') * vat.szt
-	recalcs.marg = basePrice - buyPrice.value
-	recalcs.perc = (basePrice / buyPrice.value) * 100 - 100 || 0
-}
-
-function test(e) {
-	// console.dir(e.path[1])
-}
-// watch(edit, () => {
-// 	console.log(edit.value)
-// })
 </script>
 
 <template>
-	<div class="price-calculator text-align_right" @click="edit = true" @keydown.tab="test">
-		<span v-if="!edit" class="result">
-			<span>{{ prefix }}</span
-			>{{ roundup }}<small>{{ suffix }}</small>
-		</span>
-
+	<div class="text-align_right">
+		<span
+			v-if="!isEdited"
+			class="result"
+			:class="vatClass"
+			contenteditable="true"
+			@focus="focusHandler"
+			>{{ pfix }}{{ calcValues }}<small>{{ sfix }}</small></span
+		>
 		<input
 			v-else
 			class="text-align_right"
 			type="number"
-			:value="roundup"
-			@keyup="recalc"
-			@keyup.enter="$event.target.select()"
-			@vnode-mounted="({ el }) => el.focus()"
-			@click="$event.target.select()"
+			:value="shadowValue"
+			@input="calcPriceRoot"
+			@blur="isEdited = false"
 			@focus="$event.target.select()"
-			@blur="edit = false" />
+			@keypress.enter="$event.target.select()"
+			@vnode-mounted="({ el }) => el.focus()" />
 	</div>
 </template>
 
@@ -73,6 +88,10 @@ function test(e) {
 .result {
 	cursor: pointer;
 	border-bottom: dashed 1px var(--font-color);
+}
+
+.vatApplied {
+	font-weight: 600;
 }
 input {
 	width: 10ch;

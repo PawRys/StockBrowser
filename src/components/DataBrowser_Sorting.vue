@@ -12,8 +12,8 @@ const sortOrder_ref = inject('sortOrder_ref')
 			<option value="id_desc">Id - malejąco</option>
 			<option value="name">Nazwa A -> Z</option>
 			<option value="name_desc">Nazwa Z -> A</option>
-			<option value="price_desc">💶 Cena - od najdroższych</option>
-			<option value="price">💶 Cena - od najtańszych</option>
+			<option value="pCub_desc">💶 Cena - od najdroższych</option>
+			<option value="pCub">💶 Cena - od najtańszych</option>
 			<option disabled></option>
 			<option disabled>Sortuj ilość:</option>
 			<option value="tCub_desc"> Całkowita m3 - od największej</option>

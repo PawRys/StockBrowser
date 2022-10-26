@@ -17,16 +17,14 @@ const sortOrder_ref = ref('id')
 const dataSet_ref = ref('dataset-total')
 const products_ref = ref(await idb.products.where('tCub').above(0).sortBy('id'))
 
-const vat = reactive({ m3: 1, m2: 1, szt: 1.23 })
-
 provide('pageSize_ref', pageSize_ref)
 provide('pageCount_ref', pageCount_ref)
 provide('pageNumber_ref', pageNumber_ref)
 provide('sortOrder_ref', sortOrder_ref)
 provide('dataSet_ref', dataSet_ref)
-provide('vat', vat)
 
-sortOrder_ref
+const vat = reactive({ m3: 1, m2: 1, szt: 1.23 })
+provide('vat', vat)
 
 watch(dataSet_ref, async () => {
 	if (dataSet_ref.value === 'dataset-full') products_ref.value = await idb.products.toArray()
@@ -73,9 +71,27 @@ console.timeEnd('DataTable')
 
 <template>
 	<h2 id="pageTop">Main Table</h2>
-	<input type="text" name="vatCub" id="" v-model="vat.m3" />
-	<input type="text" name="vatSqr" id="" v-model="vat.m2" />
-	<input type="text" name="vatPcs" id="" v-model="vat.szt" />
+	<input
+		type="checkbox"
+		name="vatCub"
+		id=""
+		v-model="vat.m3"
+		:true-value="1.23"
+		:false-value="1" />
+	<input
+		type="checkbox"
+		name="vatSqr"
+		id=""
+		v-model="vat.m2"
+		:true-value="1.23"
+		:false-value="1" />
+	<input
+		type="checkbox"
+		name="vatPcs"
+		id=""
+		v-model="vat.szt"
+		:true-value="1.23"
+		:false-value="1" />
 	<Settings />
 	<div>
 		<label for="filter">
@@ -99,7 +115,7 @@ console.timeEnd('DataTable')
 			<div class="text-align_right aSqr">{{ ply.aSqr.toFixed(2) }}<small>m2</small></div>
 			<div class="text-align_right aPcs">{{ ply.aPcs.toFixed(1) }}<small>szt</small></div>
 			<div class="text-align_right buy_price">{{ ply.pCub.toFixed(2) }}<small>zł/m3</small></div>
-			<PriceCalc :size="ply.size" :price="ply.pCub" />
+			<PriceCalc :plySize="ply.size" :buyPrice="ply.pCub" />
 		</li>
 	</ul>
 	<p v-else>Nie znaleziono produktów.</p>

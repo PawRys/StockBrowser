@@ -30,10 +30,11 @@ function panelSwitch(name) {
 	<Suspense>
 		<DataTable v-if="panelName === 'tablePanel'" />
 	</Suspense>
-
 	<DataInsert v-if="panelName === 'loadPanel'" />
 	<Test v-if="panelName === 'test'" />
-	<p>The End</p>
+	<footer>
+		<p>The End</p>
+	</footer>
 </template>
 
 <style>
