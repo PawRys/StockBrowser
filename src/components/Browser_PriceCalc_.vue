@@ -1,7 +1,7 @@
 <script setup>
 import { ref, reactive, computed, watch, inject, provide } from 'vue'
-import { calcPrice } from './DataInsert_Scripts.js'
-import Field from './DataBrowser_PriceCalcField.vue'
+import { calcPrice } from './DataCollector_Scripts.js'
+import Field from './Browser_PriceCalc_Field.vue'
 
 const props = defineProps(['plySize', 'buyPrice'])
 const priceRoot = ref(props.buyPrice)

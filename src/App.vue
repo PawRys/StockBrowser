@@ -1,8 +1,8 @@
 <script setup>
 import { ref } from 'vue'
-import DataTable from './components/DataBrowser.vue'
-import DataInsert from './components/DataInsert.vue'
-import Test from './components/Test.vue'
+import BrowserTab from './components/Browser_.vue'
+import DataCollectorTab from './components/DataCollector_.vue'
+import TestTab from './components/Test.vue'
 
 import IconGrid from './components/icons/IconGrid.vue'
 import IconDisk from './components/icons/IconDisk.vue'
@@ -28,10 +28,10 @@ function panelSwitch(name) {
 	</div>
 
 	<Suspense>
-		<DataTable v-if="panelName === 'tablePanel'" />
+		<BrowserTab v-if="panelName === 'tablePanel'" />
 	</Suspense>
-	<DataInsert v-if="panelName === 'loadPanel'" />
-	<Test v-if="panelName === 'test'" />
+	<DataCollectorTab v-if="panelName === 'loadPanel'" />
+	<TestTab v-if="panelName === 'test'" />
 	<footer>
 		<p>The End</p>
 	</footer>

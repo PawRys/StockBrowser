@@ -91,7 +91,7 @@ export function calcQuant(size, value, from, to) {
 }
 
 export function calcPrice(size, value, from, to) {
-	if (size === 0) return 0
+	if (size == 0) return 0
 	if (!value) return 0
 	if (!from) return 0
 	if (!to) return 0

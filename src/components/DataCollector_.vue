@@ -1,12 +1,12 @@
 <script setup>
 import { ref } from 'vue'
 import { db as idb } from '../assets/dexiedb.js'
-import { textareaValue_ref, message_ref, dataType_ref } from './DataInsert_Scripts.js'
-import { validate, prepareData, calcQuant, calcPrice } from './DataInsert_Scripts.js'
+import { textareaValue_ref, message_ref, dataType_ref } from './DataCollector_Scripts.js'
+import { validate, prepareData, calcQuant, calcPrice } from './DataCollector_Scripts.js'
 import IconBroom from './icons/IconBroom.vue'
 import IconCheck from './icons/IconCheck.vue'
 import IconDisk from './icons/IconDisk.vue'
-import ExampleData from './DataInsert_ExampleData.vue'
+import ExampleData from './DataCollector_ExampleData.vue'
 
 async function textareaPaste(e) {
 	const permission = await navigator.permissions.query({

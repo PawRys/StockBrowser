@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, inject } from 'vue'
-import { calcPrice } from './DataInsert_Scripts.js'
+import { calcPrice } from './DataCollector_Scripts.js'
 
 const props = defineProps(['size', 'unit'])
 const priceRoot = inject('priceRoot')

@@ -1,14 +1,14 @@
 <script setup>
 import { ref, reactive, computed, watch, provide } from 'vue'
 import { db as idb } from '../assets/dexiedb.js'
-import Sorting from './DataBrowser_Sorting.vue'
-import Settings from './DataBrowser_Settings.vue'
-import PriceCalc from './DataBrowser_PriceCalc.vue'
-import Pagination from './DataBrowser_Pagination.vue'
+import Sorting from './Browser_Sorting.vue'
+import Settings from './Browser_Settings.vue'
+import PriceCalc from './Browser_PriceCalc_.vue'
+import Pagination from './Browser_Pagination.vue'
 
 console.time('DataTable')
 
-const filter_ref = ref('4x1250x2500')
+const filter_ref = ref()
 const filterCount_ref = ref(1)
 const pageSize_ref = ref(20)
 const pageCount_ref = ref(1)
@@ -95,7 +95,7 @@ console.timeEnd('DataTable')
 	<Settings />
 	<div>
 		<label for="filter">
-			Szukaj:<input type="text" name="filter" id="filter" v-model="filter_ref" />
+			Szukaj:<input type="search" name="filter" id="filter" v-model="filter_ref" />
 		</label>
 	</div>
 	<p>Rekordów: {{ filterCount_ref }} z {{ products_ref.length }}</p>
