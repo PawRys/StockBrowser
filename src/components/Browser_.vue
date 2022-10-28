@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed, watch, provide } from 'vue'
+import { ref, reactive, computed, watch, provide, inject } from 'vue'
 import { db as idb } from '../assets/dexiedb.js'
 import Sorting from './Browser_Sorting.vue'
 import Settings from './Browser_Settings.vue'
@@ -13,14 +13,14 @@ const filterCount_ref = ref(1)
 const pageSize_ref = ref(20)
 const pageCount_ref = ref(1)
 const pageNumber_ref = ref(1)
-const sortOrder_ref = ref('id')
+const sortParams = ref(['id', 1])
 const dataSet_ref = ref('dataset-total')
 const products_ref = ref(await idb.products.where('tCub').above(0).sortBy('id'))
 
 provide('pageSize_ref', pageSize_ref)
 provide('pageCount_ref', pageCount_ref)
 provide('pageNumber_ref', pageNumber_ref)
-provide('sortOrder_ref', sortOrder_ref)
+provide('sortParams', sortParams)
 provide('dataSet_ref', dataSet_ref)
 
 const vat = reactive({ m3: 1, m2: 1, szt: 1.23 })
@@ -39,12 +39,12 @@ const filteredProducts = computed(() => {
 		`${row.id} ${row.name}`.match(new RegExp(filter_ref.value, 'i'))
 	)
 
-	if (sortOrder_ref.value) {
-		const [column, direction] = sortOrder_ref.value.split('_')
+	if (sortParams.value) {
+		const [column, direction] = sortParams.value
 		data = data.sort((a, b) => {
 			a = a[column]
 			b = b[column]
-			return (a === b ? 0 : a > b ? 1 : -1) * (!direction ? 1 : -1)
+			return (a === b ? 0 : a > b ? 1 : -1) * direction
 		})
 	}
 
@@ -170,6 +170,10 @@ console.timeEnd('DataTable')
 }
 .marg {
 	grid-area: marg;
+}
+
+ul {
+	padding: 0;
 }
 
 li {

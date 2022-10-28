@@ -92,12 +92,16 @@ export function calcQuant(size, value, from, to) {
 
 export function calcPrice(size, value, from, to) {
 	if (size == 0) return 0
+	if (!size) return 0
 	if (!value) return 0
 	if (!from) return 0
 	if (!to) return 0
 
-	size = size.split('x')
-	// value = value / GLOBAL.vat[from]
+	try {
+		size = size.split('x')
+	} catch {
+		console.log(`Variable: ${typeof value}: ${value}`)
+	}
 
 	if (from === 'm3') {
 		if (to === 'm2') value = value * (size[0] / 1000)

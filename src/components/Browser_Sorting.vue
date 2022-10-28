@@ -1,36 +1,63 @@
 <script setup>
-import { ref, computed, watch, inject } from 'vue'
+import { ref, reactive, inject } from 'vue'
 
-const sortOrder_ref = inject('sortOrder_ref')
+const sortParams = inject('sortParams')
+const order = ref()
+const sortKeys = reactive({
+	id: 1,
+	name: 1,
+	pCub: 1,
+	tCub: -1,
+	tSqr: -1,
+	tPcs: -1,
+	aCub: -1,
+	aSqr: -1,
+	aPcs: -1,
+})
+
+function setSortParams(id) {
+	sortKeys[id] *= -1
+	sortParams.value = [id, sortKeys[id]]
+}
 </script>
 
 <template>
 	<div>
-		Sortuj:
-		<select name="sortOrder" id="sortOrder" v-model="sortOrder_ref">
-			<option value="id">Id - rosnąco</option>
-			<option value="id_desc">Id - malejąco</option>
-			<option value="name">Nazwa A -> Z</option>
-			<option value="name_desc">Nazwa Z -> A</option>
-			<option value="pCub_desc">💶 Cena - od najdroższych</option>
-			<option value="pCub">💶 Cena - od najtańszych</option>
-			<option disabled></option>
-			<option disabled>Sortuj ilość:</option>
-			<option value="tCub_desc"> Całkowita m3 - od największej</option>
-			<option value="tCub"> Całkowita m3 - od najmniejszej</option>
-			<option value="tSqr_desc"> Całkowita m2 - od największej</option>
-			<option value="tSqr"> Całkowita m2 - od najmniejszej</option>
-			<option value="tPcs_desc"> Całkowita szt - od największej</option>
-			<option value="tPcs"> Całkowita szt - od najmniejszej</option>
-			<option disabled></option>
-			<option disabled>Sortuj ilość:</option>
-			<option value="aCub_desc"> Handlowa m3 - od największej</option>
-			<option value="aCub"> Handlowa m3 - od najmniejszej</option>
-			<option value="aSqr_desc"> Handlowa m2 - od największej</option>
-			<option value="aSqr"> Handlowa m2 - od najmniejszej</option>
-			<option value="aPcs_desc"> Handlowa szt - od największej</option>
-			<option value="aPcs"> Handlowa szt - od najmniejszej</option>
-		</select>
+		<h2>Sortuj:</h2>
+
+		<div>
+			<button class="button small" @click="setSortParams('id')">
+				<span>Kod</span>
+			</button>
+			<button class="button small" @click="setSortParams('name')">
+				<span>Nazwa</span>
+			</button>
+			<button class="button small" @click="setSortParams('pCub')">
+				<span>Cena zakupu</span>
+			</button>
+		</div>
+		<div>
+			<button class="button small" @click="setSortParams('tCub')">
+				<span>Stan całkowity m<sup>3</sup></span>
+			</button>
+			<button class="button small" @click="setSortParams('tSqr')">
+				<span>Stan całkowity m<sup>2</sup></span>
+			</button>
+			<button class="button small" @click="setSortParams('tPcs')">
+				<span>Stan całkowity szt</span>
+			</button>
+		</div>
+		<div>
+			<button class="button small" @click="setSortParams('aCub')">
+				<span>Stan handlowy m<sup>3</sup></span>
+			</button>
+			<button class="button small" @click="setSortParams('aSqr')">
+				<span>Stan handlowy m<sup>2</sup></span>
+			</button>
+			<button class="button small" @click="setSortParams('aPcs')">
+				<span>Stan handlowy szt</span>
+			</button>
+		</div>
 	</div>
 </template>
 
