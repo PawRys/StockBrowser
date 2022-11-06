@@ -35,15 +35,6 @@ const pageSize_ref = inject('pageSize_ref')
 				value="dataset-aviable"
 				v-model="dataSet_ref" />
 		</label>
-		<label for="pagesize">
-			Ilość na stronę:
-			<select name="sortOrder" id="sortOrder" v-model="pageSize_ref">
-				<option value="10">10</option>
-				<option value="20">20</option>
-				<option value="40">40</option>
-			</select>
-			<!-- <input type="number" name="pagesize" id="pagesize" min="1" v-model="pageSize_ref" /> -->
-		</label>
 	</div>
 </template>
 

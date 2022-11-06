@@ -1,6 +1,5 @@
 <script setup>
 import { ref, reactive, computed, watch, inject, provide } from 'vue'
-import { calcPrice } from './DataCollector_Scripts.js'
 import Field from './Browser_PriceCalc_Field.vue'
 
 const props = defineProps(['plySize', 'buyPrice'])
@@ -12,16 +11,41 @@ const priceColor = computed(() => {
 	const diffrence = priceRoot.value - props.buyPrice
 	if (diffrence > 1) return 'green'
 	if (diffrence < -1) return 'red'
-	return 'blue'
+	return ''
 })
 </script>
 
 <template>
-	<Field class="pCub" :class="priceColor" :size="props.plySize" :unit="'pCub'" />
-	<Field class="pSqr" :class="priceColor" :size="props.plySize" :unit="'pSqr'" />
-	<Field class="pPcs" :class="priceColor" :size="props.plySize" :unit="'pPcs'" />
-	<Field class="marg" :class="priceColor" :size="props.plySize" :unit="'marg'" />
-	<Field class="perc" :class="priceColor" :size="props.plySize" :unit="'perc'" />
+	<Field
+		style="grid-area: pCub"
+		class="price pCub"
+		:class="priceColor"
+		:size="props.plySize"
+		:unit="'pCub'" />
+	<Field
+		style="grid-area: pSqr"
+		class="price pSqr"
+		:class="priceColor"
+		:size="props.plySize"
+		:unit="'pSqr'" />
+	<Field
+		style="grid-area: pPcs"
+		class="price pPcs"
+		:class="priceColor"
+		:size="props.plySize"
+		:unit="'pPcs'" />
+	<Field
+		style="grid-area: marg"
+		class="price marg"
+		:class="priceColor"
+		:size="props.plySize"
+		:unit="'marg'" />
+	<Field
+		style="grid-area: perc"
+		class="price perc"
+		:class="priceColor"
+		:size="props.plySize"
+		:unit="'perc'" />
 </template>
 
 <style scoped>
@@ -32,7 +56,7 @@ const priceColor = computed(() => {
 	color: crimson;
 }
 
-.blue {
+/* .blue {
 	color: darkslateblue;
-}
+} */
 </style>

@@ -2,9 +2,10 @@
 import { ref, reactive, computed, watch, provide, inject } from 'vue'
 import { db as idb } from '../assets/dexiedb.js'
 import Sorting from './Browser_Sorting.vue'
-import Settings from './Browser_Settings.vue'
+import VatSetup from './Browser_VatSetup.vue'
 import PriceCalc from './Browser_PriceCalc_.vue'
 import Pagination from './Browser_Pagination.vue'
+import DataSettings from './Browser_DataSettings.vue'
 
 console.time('DataTable')
 
@@ -13,17 +14,16 @@ const filterCount_ref = ref(1)
 const pageSize_ref = ref(20)
 const pageCount_ref = ref(1)
 const pageNumber_ref = ref(1)
-const sortParams = ref(['id', 1])
+const sortParams = ref(['code', 1])
 const dataSet_ref = ref('dataset-total')
 const products_ref = ref(await idb.products.where('tCub').above(0).sortBy('id'))
+const vat = reactive({ m3: 1, m2: 1, szt: 1.23 })
 
 provide('pageSize_ref', pageSize_ref)
 provide('pageCount_ref', pageCount_ref)
 provide('pageNumber_ref', pageNumber_ref)
 provide('sortParams', sortParams)
 provide('dataSet_ref', dataSet_ref)
-
-const vat = reactive({ m3: 1, m2: 1, szt: 1.23 })
 provide('vat', vat)
 
 watch(dataSet_ref, async () => {
@@ -71,136 +71,115 @@ console.timeEnd('DataTable')
 
 <template>
 	<h2 id="pageTop">Main Table</h2>
-	<input
-		type="checkbox"
-		name="vatCub"
-		id=""
-		v-model="vat.m3"
-		:true-value="1.23"
-		:false-value="1" />
-	<input
-		type="checkbox"
-		name="vatSqr"
-		id=""
-		v-model="vat.m2"
-		:true-value="1.23"
-		:false-value="1" />
-	<input
-		type="checkbox"
-		name="vatPcs"
-		id=""
-		v-model="vat.szt"
-		:true-value="1.23"
-		:false-value="1" />
-	<Settings />
-	<div>
+	<section>
+		<DataSettings />
 		<label for="filter">
 			Szukaj:<input type="search" name="filter" id="filter" v-model="filter_ref" />
 		</label>
-	</div>
-	<p>Rekordów: {{ filterCount_ref }} z {{ products_ref.length }}</p>
-	<div style="display: flex">
-		<Sorting />
-		<Pagination style="margin-left: auto" />
-	</div>
-	<ul id="table" v-if="filteredProducts.length">
-		<li v-for="ply in filteredProducts" :key="ply.id">
-			<div class="id">{{ ply.id }}</div>
-			<div class="name">{{ ply.name }}</div>
-			<div class="tags">search tags</div>
-			<div class="text-align_right tCub">{{ ply.tCub.toFixed(3) }}<small>m3</small></div>
-			<div class="text-align_right tSqr">{{ ply.tSqr.toFixed(2) }}<small>m2</small></div>
-			<div class="text-align_right tPcs">{{ ply.tPcs.toFixed(1) }}<small>szt</small></div>
-			<div class="text-align_right aCub">{{ ply.aCub.toFixed(3) }}<small>m3</small></div>
-			<div class="text-align_right aSqr">{{ ply.aSqr.toFixed(2) }}<small>m2</small></div>
-			<div class="text-align_right aPcs">{{ ply.aPcs.toFixed(1) }}<small>szt</small></div>
-			<div class="text-align_right buy_price">{{ ply.pCub.toFixed(2) }}<small>zł/m3</small></div>
+		<div class="counter" style="grid-area: count">
+			Rekordów: {{ filterCount_ref }} z {{ products_ref.length }}
+		</div>
+	</section>
+	<header class="header">
+		<Sorting style="grid-area: sort" />
+		<VatSetup style="grid-area: vats" />
+		<Pagination style="grid-area: page" />
+	</header>
+	<ul class="list-container" v-if="filteredProducts.length">
+		<li v-for="ply in filteredProducts" :key="ply.code" class="list-item">
+			<div style="grid-area: code" class="code">{{ ply.code }}</div>
+			<div style="grid-area: name" class="name">{{ ply.name }}</div>
+			<div style="grid-area: tags" class="tags">search tags</div>
+
+			<div style="grid-area: tCub" class="quantity-total tCub">
+				{{ ply.tCub.toFixed(3) }}<small>m<sup>3</sup></small>
+			</div>
+			<div style="grid-area: tSqr" class="quantity-total tSqr">
+				{{ ply.tSqr.toFixed(2) }}<small>m<sup>2</sup></small>
+			</div>
+			<div style="grid-area: tPcs" class="quantity-total tPcs">
+				{{ ply.tPcs.toFixed(1) }}<small>szt</small>
+			</div>
+
+			<div style="grid-area: aCub" class="quantity-aviable aCub">
+				{{ ply.aCub.toFixed(3) }}<small>m<sup>3</sup></small>
+			</div>
+			<div style="grid-area: aSqr" class="quantity-aviable aSqr">
+				{{ ply.aSqr.toFixed(2) }}<small>m<sup>2</sup></small>
+			</div>
+			<div style="grid-area: aPcs" class="quantity-aviable aPcs">
+				{{ ply.aPcs.toFixed(1) }}<small>szt</small>
+			</div>
+
+			<div style="grid-area: buyp" class="price buyp">
+				{{ ply.pCub.toFixed(2) }}<small>zł/m<sup>3</sup></small>
+			</div>
 			<PriceCalc :plySize="ply.size" :buyPrice="ply.pCub" />
 		</li>
 	</ul>
 	<p v-else>Nie znaleziono produktów.</p>
-	<div style="display: flex">
+	<footer style="display: flex">
 		<Pagination style="margin-left: auto" />
-	</div>
+	</footer>
 </template>
 
 <style>
-.id {
-	grid-area: id__;
+.header {
+	display: grid;
+	align-items: center;
+	gap: 1ch;
+	grid-template-columns: repeat(3, 1fr);
+	grid-template-areas:
+		'. . .'
+		'sort vats page';
 }
-.name {
-	grid-area: name;
+.sorting {
+	justify-self: left;
 }
-.tags {
-	grid-area: tags;
+.pagination {
+	justify-self: right;
 }
-.tCub {
-	grid-area: tCub;
+.vatsetup {
+	justify-self: center;
 }
-.tSqr {
-	grid-area: tSqr;
-}
-.tPcs {
-	grid-area: tPcs;
-}
-.aCub {
-	grid-area: aCub;
-}
-.aSqr {
-	grid-area: aSqr;
-}
-.aPcs {
-	grid-area: aPcs;
-}
-.pCub {
-	grid-area: pCub;
-}
-.pSqr {
-	grid-area: pSqr;
-}
-.pPcs {
-	grid-area: pPcs;
+.counter {
+	justify-self: center;
 }
 
-.buy_price {
-	grid-area: buyp;
-}
-.perc {
-	grid-area: perc;
-}
-.marg {
-	grid-area: marg;
-}
-
-ul {
+.list-container {
 	padding: 0;
 }
 
-li {
+.list-item {
 	margin-block: 1rem;
 	padding: 0.5ex 1ex;
 
 	display: grid;
-	gap: 0 0.5ex;
+	gap: 0.5ch;
 	grid-template-columns: repeat(2, 2fr) repeat(6, minmax(max-content, 11ch));
 	grid-template-areas:
-		/* 'id__ tags buyp tCub tSqr tPcs'
-		'name name marg aCub aSqr aPcs'
-		'name name perc pCub pSqr pPcs'; */
-		'id__ tags tCub tSqr tPcs pCub pSqr pPcs'
+		'code tags tCub tSqr tPcs pCub pSqr pPcs'
 		'name name aCub aSqr aPcs buyp marg perc';
 }
 
-li:nth-of-type(2n) {
-	background-color: var(--bg-shade);
-}
-li:nth-of-type(2n + 1) {
-	background-color: var(--bg-color);
+[class*='price'],
+[class*='quantity'] {
+	text-align: right;
+	/* color: tomato; */
 }
 
-.text-align_right {
-	text-align: right;
+/* [class*='price']:not(.buyp) { */
+/* background-color: whitesmoke;
+	box-shadow: 0 0 0 5px; */
+/* font-style: italic; */
+/* font-weight: 300; */
+/* color: cadetblue; */
+/* } */
+
+[class*='total'] {
+	font-weight: 600;
 }
+
 .flex-column {
 	display: flex;
 	flex-direction: column;

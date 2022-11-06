@@ -26,28 +26,24 @@ const calcValues = computed(() => {
 	if (props.unit === 'pCub') result = calcPrice(props.size, root, 'm3', 'm3') * vat.m3
 	if (props.unit === 'pSqr') result = calcPrice(props.size, root, 'm3', 'm2') * vat.m2
 	if (props.unit === 'pPcs') result = calcPrice(props.size, root, 'm3', 'szt') * vat.szt
-	if (props.unit === 'marg') result = -buyPrice + root
-	if (props.unit === 'perc') result = ((root - buyPrice) / buyPrice) * 100
+	if (props.unit === 'marg') result = root - buyPrice
+	if (props.unit === 'perc' && buyPrice !== 0) result = ((root - buyPrice) / buyPrice) * 100
 	if (props.unit === 'perc') return result.toFixed(1)
 	return result.toFixed(2)
 })
 
-function focusHandler() {
-	isEdited.value = true
-	shadowValue.value = calcValues.value
-}
-
 const pfix = computed(() => {
-	if (props.unit === 'marg') return '+'
+	const diffrence = priceRoot.value - buyPrice
+	if (props.unit === 'marg' && diffrence >= 0) return '+'
 	return ''
 })
 
 const sfix = computed(() => {
 	let result = ''
-	if (props.unit === 'pCub') result = 'zł/m3'
-	if (props.unit === 'pSqr') result = 'zł/m2'
+	if (props.unit === 'pCub') result = 'zł/m<sup>3</sup>'
+	if (props.unit === 'pSqr') result = 'zł/m<sup>2</sup>'
 	if (props.unit === 'pPcs') result = 'zł/szt'
-	if (props.unit === 'marg') result = 'zł/m3'
+	if (props.unit === 'marg') result = 'zł/m<sup>3</sup>'
 	if (props.unit === 'perc') result = '%'
 	return result
 })
@@ -59,27 +55,38 @@ const vatClass = computed(() => {
 	if (props.unit === 'pPcs' && vat.szt > 1) text = 'vatApplied'
 	return text
 })
+
+function focusHandler() {
+	isEdited.value = true
+	shadowValue.value = calcValues.value
+}
+
+function logger(x) {
+	console.log(x)
+	console.log(`esc`)
+}
 </script>
 
 <template>
-	<div class="text-align_right">
+	<div>
 		<span
 			v-if="!isEdited"
 			class="result"
 			:class="vatClass"
 			contenteditable="true"
 			@focus="focusHandler"
-			>{{ pfix }}{{ calcValues }}<small>{{ sfix }}</small></span
-		>
+			>{{ pfix }}{{ calcValues }}<small v-html="sfix"></small
+		></span>
 		<input
 			v-else
-			class="text-align_right"
+			class="price"
 			type="number"
 			:value="shadowValue"
 			@input="calcPriceRoot"
 			@blur="isEdited = false"
 			@focus="$event.target.select()"
-			@keypress.enter="$event.target.select()"
+			@keydown.enter="$event.target.select()"
+			@keydown.esc="$event.target.blur()"
 			@vnode-mounted="({ el }) => el.focus()" />
 	</div>
 </template>
@@ -87,11 +94,15 @@ const vatClass = computed(() => {
 <style scoped>
 .result {
 	cursor: pointer;
-	border-bottom: dashed 1px var(--font-color);
+	/* border-bottom: dashed 1px var(--font-color); */
+	box-shadow: 0px 0px 0px 1px #ddd;
+	padding: 0ch 0.5ch;
+	/* width: 100%; */
+	display: flow-root;
 }
 
 .vatApplied {
-	font-weight: 600;
+	font-weight: 700;
 }
 input {
 	width: 10ch;

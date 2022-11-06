@@ -37,11 +37,11 @@ async function bulkAddIDB() {
 	for (let newProduct of productsNewData) {
 		const productId = newProduct[0]
 		const productName = newProduct[1]
-		const productIndex = productsTable.findIndex(row => row.id === productId)
+		const productIndex = productsTable.findIndex(row => row.code === productId)
 		const currentProduct = productIndex < 0 ? {} : productsTable[productIndex]
 		const size = getProductSize(`${productId} ${productName}`).replace(',', '.')
 		Object.assign(currentProduct, {
-			id: productId,
+			code: productId,
 			name: productName,
 			size: size,
 		})
