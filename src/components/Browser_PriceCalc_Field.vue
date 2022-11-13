@@ -11,23 +11,30 @@ const vat = inject('vat')
 
 function calcPriceRoot(event) {
 	const inputVal = event.target.value.trim() * 1
-	if (props.unit === 'pCub') priceRoot.value = calcPrice(props.size, inputVal, 'm3', 'm3') / vat.m3
-	if (props.unit === 'pSqr') priceRoot.value = calcPrice(props.size, inputVal, 'm2', 'm3') / vat.m2
+	if (props.unit === 'pCub')
+		priceRoot.value = calcPrice(props.size, inputVal, 'm3', 'm3') / vat.m3
+	if (props.unit === 'pSqr')
+		priceRoot.value = calcPrice(props.size, inputVal, 'm2', 'm3') / vat.m2
 	if (props.unit === 'pPcs')
 		priceRoot.value = calcPrice(props.size, inputVal, 'szt', 'm3') / vat.szt
 	if (props.unit === 'marg') priceRoot.value = buyPrice + inputVal
-	if (props.unit === 'perc') priceRoot.value = buyPrice + (buyPrice / 100) * inputVal
+	if (props.unit === 'perc')
+		priceRoot.value = buyPrice + (buyPrice / 100) * inputVal
 	shadowValue.value = event.target.value.trim()
 }
 
 const calcValues = computed(() => {
 	const root = priceRoot.value
 	let result = 0
-	if (props.unit === 'pCub') result = calcPrice(props.size, root, 'm3', 'm3') * vat.m3
-	if (props.unit === 'pSqr') result = calcPrice(props.size, root, 'm3', 'm2') * vat.m2
-	if (props.unit === 'pPcs') result = calcPrice(props.size, root, 'm3', 'szt') * vat.szt
+	if (props.unit === 'pCub')
+		result = calcPrice(props.size, root, 'm3', 'm3') * vat.m3
+	if (props.unit === 'pSqr')
+		result = calcPrice(props.size, root, 'm3', 'm2') * vat.m2
+	if (props.unit === 'pPcs')
+		result = calcPrice(props.size, root, 'm3', 'szt') * vat.szt
 	if (props.unit === 'marg') result = root - buyPrice
-	if (props.unit === 'perc' && buyPrice !== 0) result = ((root - buyPrice) / buyPrice) * 100
+	if (props.unit === 'perc' && buyPrice !== 0)
+		result = ((root - buyPrice) / buyPrice) * 100
 	if (props.unit === 'perc') return result.toFixed(1)
 	return result.toFixed(2)
 })
@@ -68,11 +75,10 @@ function logger(x) {
 </script>
 
 <template>
-	<div>
+	<div :class="vatClass">
 		<span
 			v-if="!isEdited"
 			class="result"
-			:class="vatClass"
 			contenteditable="true"
 			@focus="focusHandler"
 			>{{ pfix }}{{ calcValues }}<small v-html="sfix"></small

@@ -1,8 +1,18 @@
 <script setup>
 import { ref } from 'vue'
 import { db as idb } from '../assets/dexiedb.js'
-import { textareaValue_ref, message_ref, dataType_ref } from './DataCollector_Scripts.js'
-import { validate, prepareData, calcQuant, calcPrice } from './DataCollector_Scripts.js'
+import {
+	textareaValue_ref,
+	message_ref,
+	dataType_ref,
+} from './DataCollector_Scripts.js'
+import {
+	validate,
+	prepareData,
+	updateProductsTable,
+	calcQuant,
+	calcPrice,
+} from './DataCollector_Scripts.js'
 import IconBroom from './icons/IconBroom.vue'
 import IconCheck from './icons/IconCheck.vue'
 import IconDisk from './icons/IconDisk.vue'
@@ -13,10 +23,14 @@ async function textareaPaste(e) {
 		name: 'clipboard-read',
 	})
 	if (permission.state == 'denied') {
-		alert(`Uprawnienia do schowka dla tej witryny zostały wyłączone. Ask Google for help.`)
+		alert(
+			`Uprawnienia do schowka dla tej witryny zostały wyłączone. Ask Google for help.`
+		)
 		return
 	}
-	const clipboardData = await navigator.clipboard.readText().catch(reason => console.error(reason))
+	const clipboardData = await navigator.clipboard
+		.readText()
+		.catch(reason => console.error(reason))
 	textareaValue_ref.value = clipboardData
 	validate(textareaValue_ref.value)
 }
@@ -32,69 +46,56 @@ function textareaClear() {
 
 async function bulkAddIDB() {
 	console.time('bulkAddIDB')
-	const productsTable = await idb.products.toArray()
-	const productsNewData = prepareData(textareaValue_ref.value)
-	for (let newProduct of productsNewData) {
-		const productId = newProduct[0]
-		const productName = newProduct[1]
-		const productIndex = productsTable.findIndex(row => row.code === productId)
-		const currentProduct = productIndex < 0 ? {} : productsTable[productIndex]
-		const size = getProductSize(`${productId} ${productName}`).replace(',', '.')
-		Object.assign(currentProduct, {
-			code: productId,
-			name: productName,
-			size: size,
-		})
-		if (productIndex < 0) {
-			Object.assign(currentProduct, {
-				pCub: 0,
-				// pSqr: 0,
-				// pPcs: 0,
-				tCub: 0,
-				tSqr: 0,
-				tPcs: 0,
-				aCub: 0,
-				aSqr: 0,
-				aPcs: 0,
-			})
-		}
-		if (dataType_ref.value === 'prices') {
-			Object.assign(currentProduct, {
-				pCub: calcPrice(size, newProduct[4], newProduct[2], 'm3'),
-				// pSqr: calcPrice(size, newProduct[4], newProduct[2], 'm2'),
-				// pPcs: calcPrice(size, newProduct[4], newProduct[2], 'szt'),
-			})
-		}
-		if (dataType_ref.value === 'stocks') {
-			Object.assign(currentProduct, {
-				tCub: calcQuant(size, newProduct[6], newProduct[2], 'm3'),
-				tSqr: calcQuant(size, newProduct[6], newProduct[2], 'm2'),
-				tPcs: calcQuant(size, newProduct[6], newProduct[2], 'szt'),
-				aCub: calcQuant(size, newProduct[3], newProduct[2], 'm3'),
-				aSqr: calcQuant(size, newProduct[3], newProduct[2], 'm2'),
-				aPcs: calcQuant(size, newProduct[3], newProduct[2], 'szt'),
-			})
-		}
-		const cursor = productIndex < 0 ? productsTable.length : productIndex
-		const replace = productIndex < 0 ? 0 : 1
-		productsTable.splice(cursor, replace, currentProduct)
-	}
 	message_ref.value = 'Loading... ⏳'
-	await idb.products.clear()
-	await idb.products.bulkAdd(productsTable).catch(err => {
-		message_ref.value = 'Coś poszło nie tak ❗'
-		console.log(err)
-		return
-	})
-	message_ref.value = '📜 Zaktualizowano produkty ✔'
-	if (dataType_ref.value === 'prices') message_ref.value = '💵 Zaktualizowano ceny ✔'
-	if (dataType_ref.value === 'stocks') message_ref.value = '📦 Zaktualizowano ilości ✔'
-	console.timeEnd('bulkAddIDB')
-}
+	let updatedProducts = null
 
-function getProductSize(line) {
-	const fullSizeB = line.match(/\d+[,\.]?\d*x\d+x\d+/i)
-	return fullSizeB ? fullSizeB[0] : '0'
+	if (dataType_ref.value !== 'code') {
+		updatedProducts = await updateProductsTable()
+	} else {
+		// const fetchURL = 'https://bossman.hekko24.pl/apps/assets/website/app_stocks/stocks.3.php'
+		const fetchURL = 'http://localhost:3000/api/index.php'
+		const URLparams = {
+			action: 'request',
+			pin: textareaValue_ref.value,
+		}
+		const fetchSettings = {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+			},
+			body: new URLSearchParams(URLparams).toString(),
+		}
+		const fetchResult = await fetch(fetchURL, fetchSettings).catch(reason =>
+			console.error(reason)
+		)
+		const { message, data } = await fetchResult.json()
+
+		if (data) updatedProducts = data
+		message_ref.value = message
+	}
+
+	if (updatedProducts) {
+		await idb.products.clear()
+		await idb.products.bulkAdd(updatedProducts).catch(err => {
+			message_ref.value = 'Coś poszło nie tak ❗'
+			console.log(err)
+			return
+		})
+	}
+	if (dataType_ref.value === 'code') {
+		// message_ref.value = '📜 Pobrano dane z chmury ✔'
+	}
+	if (dataType_ref.value === 'products') {
+		message_ref.value = '📜 Zaktualizowano produkty ✔'
+	}
+	if (dataType_ref.value === 'prices') {
+		message_ref.value = '💵 Zaktualizowano ceny ✔'
+	}
+	if (dataType_ref.value === 'stocks') {
+		message_ref.value = '📦 Zaktualizowano ilości ✔'
+	}
+	console.log(updatedProducts)
+	console.timeEnd('bulkAddIDB')
 }
 </script>
 
@@ -108,7 +109,9 @@ function getProductSize(line) {
 			rows="10"
 			v-model="textareaValue_ref"
 			@input="checkValidation"></textarea>
-		<p class="message" :class="{ visible: message_ref, hidden: !message_ref }">
+		<p
+			class="message"
+			:class="{ visible: message_ref, hidden: !message_ref }">
 			{{ message_ref }}
 		</p>
 		<button class="button" @click="textareaClear">

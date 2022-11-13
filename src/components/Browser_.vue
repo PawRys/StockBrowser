@@ -27,16 +27,25 @@ provide('dataSet_ref', dataSet_ref)
 provide('vat', vat)
 
 watch(dataSet_ref, async () => {
-	if (dataSet_ref.value === 'dataset-full') products_ref.value = await idb.products.toArray()
+	if (dataSet_ref.value === 'dataset-full')
+		products_ref.value = await idb.products.toArray()
 	if (dataSet_ref.value === 'dataset-total')
-		products_ref.value = await idb.products.where('tCub').above(0).sortBy('id')
+		products_ref.value = await idb.products
+			.where('tCub')
+			.above(0)
+			.sortBy('id')
 	if (dataSet_ref.value === 'dataset-aviable')
-		products_ref.value = await idb.products.where('aCub').above(0).sortBy('id')
+		products_ref.value = await idb.products
+			.where('aCub')
+			.above(0)
+			.sortBy('id')
+
+	console.log(products_ref.value)
 })
 
 const filteredProducts = computed(() => {
 	let data = products_ref.value.filter(row =>
-		`${row.id} ${row.name}`.match(new RegExp(filter_ref.value, 'i'))
+		`${row.code} ${row.name}`.match(new RegExp(filter_ref.value, 'i'))
 	)
 
 	if (sortParams.value) {
@@ -74,7 +83,11 @@ console.timeEnd('DataTable')
 	<section>
 		<DataSettings />
 		<label for="filter">
-			Szukaj:<input type="search" name="filter" id="filter" v-model="filter_ref" />
+			Szukaj:<input
+				type="search"
+				name="filter"
+				id="filter"
+				v-model="filter_ref" />
 		</label>
 		<div class="counter" style="grid-area: count">
 			Rekordów: {{ filterCount_ref }} z {{ products_ref.length }}

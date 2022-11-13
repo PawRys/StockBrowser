@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { db as idb } from '../assets/dexiedb.js'
 
 export const message_ref = ref('')
 export const dataType_ref = ref(null)
@@ -18,13 +19,16 @@ export function validate(input) {
 	}
 	const isStocks = /Stany i rezerwacje towarów/i.test(input)
 	const isCorrectStockColumns =
-		/Kod towaru		nazwa towaru		jm		stan handlowy	rezerwacje R	rezerwacje A		stan  całkowity	/i.test(input)
+		/Kod towaru		nazwa towaru		jm		stan handlowy	rezerwacje R	rezerwacje A		stan  całkowity	/i.test(
+			input
+		)
 	if (isStocks && isCorrectStockColumns) {
 		dataType_ref.value = 'stocks'
 		message_ref.value = `📦 Rozpoznano stany i rezerwacje towarów.`
 	}
 	const isPrices = /Stany magazynowe towarów/i.test(input)
-	const isCorrectPriceColumns = /Kod towaru		nazwa towaru		jm		stan	cena	wartość		/i.test(input)
+	const isCorrectPriceColumns =
+		/Kod towaru		nazwa towaru		jm		stan	cena	wartość		/i.test(input)
 	if (isPrices && isCorrectPriceColumns) {
 		dataType_ref.value = 'prices'
 		message_ref.value = `💵 Rozpoznano ceny zakupowe towarów.`
@@ -53,7 +57,12 @@ export function prepareData(input) {
 	for (let line of linesArray) {
 		const splits = line.match(/[^\t]+/g)
 		// Ommit garbage
-		if (/\b(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/i.test(splits[0])) continue
+		if (
+			/\b(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/i.test(
+				splits[0]
+			)
+		)
+			continue
 		if (dataType_ref.value === 'products' && splits.length !== 2) continue
 		if (dataType_ref.value === 'prices' && splits.length !== 6) continue
 		if (dataType_ref.value === 'stocks' && splits.length !== 7) continue
@@ -66,6 +75,59 @@ export function prepareData(input) {
 	return output
 }
 
+export async function updateProductsTable() {
+	const productsTable = await idb.products.toArray()
+	const productsNewData = prepareData(textareaValue_ref.value)
+	for (let newProduct of productsNewData) {
+		const productId = newProduct[0]
+		const productName = newProduct[1]
+		const productIndex = productsTable.findIndex(
+			row => row.code === productId
+		)
+		const currentProduct = productIndex < 0 ? {} : productsTable[productIndex]
+		const size = getProductSize(`${productId} ${productName}`).replace(
+			',',
+			'.'
+		)
+		Object.assign(currentProduct, {
+			code: productId,
+			name: productName,
+			size: size,
+		})
+		if (productIndex < 0) {
+			Object.assign(currentProduct, {
+				pCub: 0,
+				tCub: 0,
+				tSqr: 0,
+				tPcs: 0,
+				aCub: 0,
+				aSqr: 0,
+				aPcs: 0,
+			})
+		}
+		if (dataType_ref.value === 'prices') {
+			Object.assign(currentProduct, {
+				pCub: calcPrice(size, newProduct[4], newProduct[2], 'm3'),
+			})
+		}
+		if (dataType_ref.value === 'stocks') {
+			Object.assign(currentProduct, {
+				tCub: calcQuant(size, newProduct[6], newProduct[2], 'm3'),
+				tSqr: calcQuant(size, newProduct[6], newProduct[2], 'm2'),
+				tPcs: calcQuant(size, newProduct[6], newProduct[2], 'szt'),
+				aCub: calcQuant(size, newProduct[3], newProduct[2], 'm3'),
+				aSqr: calcQuant(size, newProduct[3], newProduct[2], 'm2'),
+				aPcs: calcQuant(size, newProduct[3], newProduct[2], 'szt'),
+			})
+		}
+
+		const cursor = productIndex < 0 ? productsTable.length : productIndex
+		const replace = productIndex < 0 ? 0 : 1
+		productsTable.splice(cursor, replace, currentProduct)
+	}
+	return productsTable
+}
+
 export function calcQuant(size, value, from, to) {
 	if (!size) return 0
 	if (!value) return 0
@@ -74,14 +136,16 @@ export function calcQuant(size, value, from, to) {
 	size = size.split('x')
 	if (from === 'm3') {
 		if (to === 'm2') value = value / (size[0] / 1000)
-		if (to === 'szt') value = value / (size[0] / 1000) / (size[1] / 1000) / (size[2] / 1000)
+		if (to === 'szt')
+			value = value / (size[0] / 1000) / (size[1] / 1000) / (size[2] / 1000)
 	}
 	if (from === 'm2') {
 		if (to === 'm3') value = value * (size[0] / 1000)
 		if (to === 'szt') value = value / (size[1] / 1000) / (size[2] / 1000)
 	}
 	if (from === 'szt') {
-		if (to === 'm3') value = value * (size[0] / 1000) * (size[1] / 1000) * (size[2] / 1000)
+		if (to === 'm3')
+			value = value * (size[0] / 1000) * (size[1] / 1000) * (size[2] / 1000)
 		if (to === 'm2') value = value * (size[1] / 1000) * (size[2] / 1000)
 	}
 	// if (to === 'm3') return value.toFixed(3)
@@ -105,7 +169,8 @@ export function calcPrice(size, value, from, to) {
 
 	if (from === 'm3') {
 		if (to === 'm2') value = value * (size[0] / 1000)
-		if (to === 'szt') value = value * (size[0] / 1000) * (size[1] / 1000) * (size[2] / 1000)
+		if (to === 'szt')
+			value = value * (size[0] / 1000) * (size[1] / 1000) * (size[2] / 1000)
 	}
 
 	if (from === 'm2') {
@@ -114,10 +179,16 @@ export function calcPrice(size, value, from, to) {
 	}
 
 	if (from === 'szt') {
-		if (to === 'm3') value = value / (size[0] / 1000) / (size[1] / 1000) / (size[2] / 1000)
+		if (to === 'm3')
+			value = value / (size[0] / 1000) / (size[1] / 1000) / (size[2] / 1000)
 		if (to === 'm2') value = value / (size[1] / 1000) / (size[2] / 1000)
 	}
 
 	// value = value * GLOBAL.vat[to]
 	return value * 1
+}
+
+function getProductSize(line) {
+	const fullSizeB = line.match(/\d+[,\.]?\d*x\d+x\d+/i)
+	return fullSizeB ? fullSizeB[0] : '0'
 }
