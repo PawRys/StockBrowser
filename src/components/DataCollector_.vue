@@ -1,101 +1,78 @@
 <script setup>
-import { ref } from 'vue'
-import { db as idb } from '../assets/dexiedb.js'
-import {
-	textareaValue_ref,
-	message_ref,
-	dataType_ref,
-} from './DataCollector_Scripts.js'
+import { ref } from 'vue';
+import { db as idb } from '../assets/dexiedb.js';
 import {
 	validate,
 	prepareData,
-	updateProductsTable,
-	calcQuant,
-	calcPrice,
-} from './DataCollector_Scripts.js'
-import IconBroom from './icons/IconBroom.vue'
-import IconCheck from './icons/IconCheck.vue'
-import IconDisk from './icons/IconDisk.vue'
-import ExampleData from './DataCollector_ExampleData.vue'
+	fetchProducts,
+	updateProducts,
+} from './DataCollector_Scripts.js';
+import IconBroom from './icons/IconBroom.vue';
+import IconCheck from './icons/IconCheck.vue';
+import IconDisk from './icons/IconDisk.vue';
+import ExampleData from './DataCollector_ExampleData.vue';
+
+const textareaData = ref();
+const dataType = ref(null);
+const messageBox = ref('');
+
+function checkValidation() {
+	const { message, data } = validate(textareaData.value);
+	messageBox.value = message;
+	dataType.value = data;
+}
+
+function textareaClear() {
+	textareaData.value = '';
+	checkValidation();
+}
 
 async function textareaPaste(e) {
 	const permission = await navigator.permissions.query({
 		name: 'clipboard-read',
-	})
+	});
 	if (permission.state == 'denied') {
 		alert(
 			`Uprawnienia do schowka dla tej witryny zostały wyłączone. Ask Google for help.`
-		)
-		return
+		);
+		return;
+	} else {
+		const clipboardData = await navigator.clipboard
+			.readText()
+			.catch(reason => console.error(reason));
+		textareaData.value = clipboardData;
+		checkValidation();
 	}
-	const clipboardData = await navigator.clipboard
-		.readText()
-		.catch(reason => console.error(reason))
-	textareaValue_ref.value = clipboardData
-	validate(textareaValue_ref.value)
-}
-
-function checkValidation() {
-	validate(textareaValue_ref.value)
-}
-
-function textareaClear() {
-	textareaValue_ref.value = ''
-	validate(textareaValue_ref.value)
 }
 
 async function bulkAddIDB() {
-	console.time('bulkAddIDB')
-	message_ref.value = 'Loading... ⏳'
-	let updatedProducts = null
+	console.time('bulkAddIDB');
+	let result;
+	messageBox.value = 'Loading... ⏳';
 
-	if (dataType_ref.value !== 'code') {
-		updatedProducts = await updateProductsTable()
-	} else {
+	if (dataType.value === 'code') {
 		// const fetchURL = 'https://bossman.hekko24.pl/apps/assets/website/app_stocks/stocks.3.php'
-		const fetchURL = 'http://localhost:3000/api/index.php'
-		const URLparams = {
-			action: 'request',
-			pin: textareaValue_ref.value,
-		}
-		const fetchSettings = {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-			},
-			body: new URLSearchParams(URLparams).toString(),
-		}
-		const fetchResult = await fetch(fetchURL, fetchSettings).catch(reason =>
-			console.error(reason)
-		)
-		const { message, data } = await fetchResult.json()
-
-		if (data) updatedProducts = data
-		message_ref.value = message
+		const fetchURL = 'http://localhost:3000/api/index.php';
+		result = await fetchProducts(fetchURL, textareaData.value);
+	} else {
+		const oldData = await idb.products.toArray();
+		const newData = prepareData(textareaData.value, dataType.value);
+		result = await updateProducts(oldData, newData, dataType.value);
 	}
 
-	if (updatedProducts) {
-		await idb.products.clear()
-		await idb.products.bulkAdd(updatedProducts).catch(err => {
-			message_ref.value = 'Coś poszło nie tak ❗'
-			console.log(err)
-			return
-		})
+	const { data, message } = result;
+	messageBox.value = message;
+
+	if (data) {
+		try {
+			await idb.products.clear();
+			await idb.products.bulkAdd(data);
+		} catch (err) {
+			messageBox.value = 'Coś poszło nie tak ❗';
+			console.error(err);
+		}
 	}
-	if (dataType_ref.value === 'code') {
-		// message_ref.value = '📜 Pobrano dane z chmury ✔'
-	}
-	if (dataType_ref.value === 'products') {
-		message_ref.value = '📜 Zaktualizowano produkty ✔'
-	}
-	if (dataType_ref.value === 'prices') {
-		message_ref.value = '💵 Zaktualizowano ceny ✔'
-	}
-	if (dataType_ref.value === 'stocks') {
-		message_ref.value = '📦 Zaktualizowano ilości ✔'
-	}
-	console.log(updatedProducts)
-	console.timeEnd('bulkAddIDB')
+	console.timeEnd('bulkAddIDB');
 }
 </script>
 
@@ -107,12 +84,12 @@ async function bulkAddIDB() {
 			id="datainsert"
 			name="datainsert"
 			rows="10"
-			v-model="textareaValue_ref"
+			v-model="textareaData"
 			@input="checkValidation"></textarea>
 		<p
-			class="message"
-			:class="{ visible: message_ref, hidden: !message_ref }">
-			{{ message_ref }}
+			class="messageBox"
+			:class="{ visible: messageBox, hidden: !messageBox }">
+			{{ messageBox }}
 		</p>
 		<button class="button" @click="textareaClear">
 			Wyczyść
@@ -122,7 +99,7 @@ async function bulkAddIDB() {
 			Schowek
 			<IconDisk />
 		</button>
-		<button class="button accent" @click="bulkAddIDB" v-if="dataType_ref">
+		<button class="button accent" @click="bulkAddIDB" v-if="dataType">
 			Zatwierdź
 			<IconCheck />
 		</button>
@@ -140,23 +117,23 @@ async function bulkAddIDB() {
 }
 
 #datainsert,
-.message {
+.messageBox {
 	grid-column: 1 / span 4;
 	width: 100%;
 }
 
-.message {
+.messageBox {
 	margin: 0;
 	transition-property: height, scale;
 	transition-duration: var(--transition-duration);
 }
 
-.message.hidden {
+.messageBox.hidden {
 	height: 0ch;
 	scale: 1 0;
 }
 
-.message.visible {
+.messageBox.visible {
 	height: 3ch;
 	scale: 1 1;
 }

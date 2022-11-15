@@ -1,21 +1,24 @@
 <script setup>
-import { ref, reactive, computed, watch, inject, provide } from 'vue'
-import Field from './Browser_PriceCalc_Field.vue'
+import { ref, computed, provide } from 'vue';
+import Field from './Browser_PriceCalculator_Field.vue';
 
-const props = defineProps(['plySize', 'buyPrice'])
-const priceRoot = ref(props.buyPrice)
-provide('priceRoot', priceRoot)
-provide('buyPrice', props.buyPrice)
+const props = defineProps(['plySize', 'buyPrice']);
+const priceRoot = ref(props.buyPrice);
+provide('priceRoot', priceRoot);
+provide('buyPrice', props.buyPrice);
 
 const priceColor = computed(() => {
-	const diffrence = priceRoot.value - props.buyPrice
-	if (diffrence > 1) return 'green'
-	if (diffrence < -1) return 'red'
-	return ''
-})
+	const diffrence = priceRoot.value - props.buyPrice;
+	if (diffrence > 1) return 'green';
+	if (diffrence < -1) return 'red';
+	return '';
+});
 </script>
 
 <template>
+	<div style="grid-area: buyp" class="price buyp">
+		{{ props.buyPrice.toFixed(2) }}<small>zł/m<sup>3</sup></small>
+	</div>
 	<Field
 		style="grid-area: pCub"
 		class="price pCub"

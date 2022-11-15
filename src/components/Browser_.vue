@@ -1,81 +1,87 @@
 <script setup>
-import { ref, reactive, computed, watch, provide, inject } from 'vue'
-import { db as idb } from '../assets/dexiedb.js'
-import Sorting from './Browser_Sorting.vue'
-import VatSetup from './Browser_VatSetup.vue'
-import PriceCalc from './Browser_PriceCalc_.vue'
-import Pagination from './Browser_Pagination.vue'
-import DataSettings from './Browser_DataSettings.vue'
+import { ref, reactive, computed, watch, provide, inject } from 'vue';
+import { db as idb } from '../assets/dexiedb.js';
+import Sorting from './Browser_Sorting.vue';
+import VatSetup from './Browser_VatSetup.vue';
+import Pagination from './Browser_Pagination.vue';
+import Quantities from './Browser_Quantities.vue';
+import DataSettings from './Browser_DataSettings.vue';
+import PriceCalculator from './Browser_PriceCalculator_.vue';
 
-console.time('DataTable')
+console.time('DataTable');
 
-const filter_ref = ref()
-const filterCount_ref = ref(1)
-const pageSize_ref = ref(20)
-const pageCount_ref = ref(1)
-const pageNumber_ref = ref(1)
-const sortParams = ref(['code', 1])
-const dataSet_ref = ref('dataset-total')
-const products_ref = ref(await idb.products.where('tCub').above(0).sortBy('id'))
-const vat = reactive({ m3: 1, m2: 1, szt: 1.23 })
+const filter_ref = ref();
+const filterCount_ref = ref(1);
+const pageSize_ref = ref(20);
+const pageCount_ref = ref(1);
+const pageNumber_ref = ref(1);
+const sortParams = ref(['code', 1]);
+const dataSet_ref = ref('dataset-total');
+const products_ref = ref(
+	await idb.products.where('tCub').above(0).sortBy('id')
+);
+const vat = reactive({ m3: 1, m2: 1, szt: 1.23 });
 
-provide('pageSize_ref', pageSize_ref)
-provide('pageCount_ref', pageCount_ref)
-provide('pageNumber_ref', pageNumber_ref)
-provide('sortParams', sortParams)
-provide('dataSet_ref', dataSet_ref)
-provide('vat', vat)
+provide('pageSize_ref', pageSize_ref);
+provide('pageCount_ref', pageCount_ref);
+provide('pageNumber_ref', pageNumber_ref);
+provide('sortParams', sortParams);
+provide('dataSet_ref', dataSet_ref);
+provide('vat', vat);
 
 watch(dataSet_ref, async () => {
-	if (dataSet_ref.value === 'dataset-full')
-		products_ref.value = await idb.products.toArray()
-	if (dataSet_ref.value === 'dataset-total')
+	if (dataSet_ref.value === 'dataset-full') {
+		products_ref.value = await idb.products.toArray();
+	}
+	if (dataSet_ref.value === 'dataset-total') {
 		products_ref.value = await idb.products
 			.where('tCub')
 			.above(0)
-			.sortBy('id')
-	if (dataSet_ref.value === 'dataset-aviable')
+			.sortBy('id');
+	}
+	if (dataSet_ref.value === 'dataset-aviable') {
 		products_ref.value = await idb.products
 			.where('aCub')
 			.above(0)
-			.sortBy('id')
+			.sortBy('id');
+	}
 
-	console.log(products_ref.value)
-})
+	// console.log(products_ref.value);
+});
 
 const filteredProducts = computed(() => {
 	let data = products_ref.value.filter(row =>
 		`${row.code} ${row.name}`.match(new RegExp(filter_ref.value, 'i'))
-	)
+	);
 
 	if (sortParams.value) {
-		const [column, direction] = sortParams.value
+		const [column, direction] = sortParams.value;
 		data = data.sort((a, b) => {
-			a = a[column]
-			b = b[column]
-			return (a === b ? 0 : a > b ? 1 : -1) * direction
-		})
+			a = a[column];
+			b = b[column];
+			return (a === b ? 0 : a > b ? 1 : -1) * direction;
+		});
 	}
 
-	const pageSize = pageSize_ref.value
-	const pageNumber = pageNumber_ref.value
-	const filterCount = data.length
-	const validPageSize = pageSize < 1 ? 1 : pageSize
-	const pageCount = Math.ceil(filterCount / validPageSize)
-	const validPageNumber = pageNumber > pageCount ? pageCount : pageNumber || 1
-	const start = validPageNumber * validPageSize - validPageSize
-	const end = validPageNumber * validPageSize
-	data = data.slice(start, end)
+	const pageSize = pageSize_ref.value;
+	const pageNumber = pageNumber_ref.value;
+	const filterCount = data.length;
+	const validPageSize = pageSize < 1 ? 1 : pageSize;
+	const pageCount = Math.ceil(filterCount / validPageSize);
+	const validPageNumber = pageNumber > pageCount ? pageCount : pageNumber || 1;
+	const start = validPageNumber * validPageSize - validPageSize;
+	const end = validPageNumber * validPageSize;
+	data = data.slice(start, end);
 
 	// Update UI
-	pageCount_ref.value = pageCount
-	pageNumber_ref.value = validPageNumber
-	filterCount_ref.value = filterCount
+	pageCount_ref.value = pageCount;
+	pageNumber_ref.value = validPageNumber;
+	filterCount_ref.value = filterCount;
 
-	return data
-})
+	return data;
+});
 
-console.timeEnd('DataTable')
+console.timeEnd('DataTable');
 </script>
 
 <template>
@@ -104,30 +110,16 @@ console.timeEnd('DataTable')
 			<div style="grid-area: name" class="name">{{ ply.name }}</div>
 			<div style="grid-area: tags" class="tags">search tags</div>
 
-			<div style="grid-area: tCub" class="quantity-total tCub">
-				{{ ply.tCub.toFixed(3) }}<small>m<sup>3</sup></small>
-			</div>
-			<div style="grid-area: tSqr" class="quantity-total tSqr">
-				{{ ply.tSqr.toFixed(2) }}<small>m<sup>2</sup></small>
-			</div>
-			<div style="grid-area: tPcs" class="quantity-total tPcs">
-				{{ ply.tPcs.toFixed(1) }}<small>szt</small>
-			</div>
-
-			<div style="grid-area: aCub" class="quantity-aviable aCub">
-				{{ ply.aCub.toFixed(3) }}<small>m<sup>3</sup></small>
-			</div>
-			<div style="grid-area: aSqr" class="quantity-aviable aSqr">
-				{{ ply.aSqr.toFixed(2) }}<small>m<sup>2</sup></small>
-			</div>
-			<div style="grid-area: aPcs" class="quantity-aviable aPcs">
-				{{ ply.aPcs.toFixed(1) }}<small>szt</small>
-			</div>
-
-			<div style="grid-area: buyp" class="price buyp">
-				{{ ply.pCub.toFixed(2) }}<small>zł/m<sup>3</sup></small>
-			</div>
-			<PriceCalc :plySize="ply.size" :buyPrice="ply.pCub" />
+			<Quantities
+				:quants="[
+					ply.tCub,
+					ply.tSqr,
+					ply.tPcs,
+					ply.aCub,
+					ply.aSqr,
+					ply.aPcs,
+				]" />
+			<PriceCalculator :plySize="ply.size" :buyPrice="ply.pCub" />
 		</li>
 	</ul>
 	<p v-else>Nie znaleziono produktów.</p>
