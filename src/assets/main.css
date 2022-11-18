@@ -65,8 +65,8 @@ body {
 	/* background: var(--bg-color); */
 	line-height: 1.6;
 	font-family: 'Rajdhani', sans-serif;
-	/* font-weight: 400; */
-	font-size: calc(18px + (24 - 18) * ((100vw - 320px) / (3840 - 320)));
+	font-size: 18px;
+	/* font-size: calc(18px + (22 - 18) * ((100vw - 320px) / (3840 - 320))); */
 	/* font-variation-settings: 'YOPQ' 80, 'GRAD' -100; */
 	line-height: 1.5em;
 	/* text-rendering: optimizeLegibility; */

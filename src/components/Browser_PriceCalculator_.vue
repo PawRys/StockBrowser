@@ -21,32 +21,27 @@ const priceColor = computed(() => {
 	</div>
 	<Field
 		style="grid-area: pCub"
-		class="price pCub"
-		:class="priceColor"
+		:class="['price', 'pCub', priceColor]"
 		:size="props.plySize"
 		:unit="'pCub'" />
 	<Field
 		style="grid-area: pSqr"
-		class="price pSqr"
-		:class="priceColor"
+		:class="['price', 'pSqr', priceColor]"
 		:size="props.plySize"
 		:unit="'pSqr'" />
 	<Field
 		style="grid-area: pPcs"
-		class="price pPcs"
-		:class="priceColor"
+		:class="['price', 'pPcs', priceColor]"
 		:size="props.plySize"
 		:unit="'pPcs'" />
 	<Field
 		style="grid-area: marg"
-		class="price marg"
-		:class="priceColor"
+		:class="['price', 'marg', priceColor]"
 		:size="props.plySize"
 		:unit="'marg'" />
 	<Field
 		style="grid-area: perc"
-		class="price perc"
-		:class="priceColor"
+		:class="['price', 'perc', priceColor]"
 		:size="props.plySize"
 		:unit="'perc'" />
 </template>

@@ -47,10 +47,11 @@ const calcValues = computed(() => {
 	}
 	if (props.unit === 'perc') {
 		result = ((root - buyPrice) / buyPrice) * 100;
-		result = isFinite(result) ? result : 0;
-		return result.toFixed(1);
 	}
-	return result.toFixed(2);
+	if (isNaN(result) || !isFinite(result)) {
+		result = 0;
+	}
+	return props.unit === 'perc' ? result.toFixed(1) : result.toFixed(2);
 });
 
 const pfix = computed(() => {

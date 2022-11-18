@@ -17,9 +17,7 @@ const pageCount_ref = ref(1);
 const pageNumber_ref = ref(1);
 const sortParams = ref(['code', 1]);
 const dataSet_ref = ref('dataset-total');
-const products_ref = ref(
-	await idb.products.where('tCub').above(0).sortBy('id')
-);
+const products_ref = ref(await idb.products.where('tCub').above(0).sortBy('id'));
 const vat = reactive({ m3: 1, m2: 1, szt: 1.23 });
 
 provide('pageSize_ref', pageSize_ref);
@@ -34,25 +32,21 @@ watch(dataSet_ref, async () => {
 		products_ref.value = await idb.products.toArray();
 	}
 	if (dataSet_ref.value === 'dataset-total') {
-		products_ref.value = await idb.products
-			.where('tCub')
-			.above(0)
-			.sortBy('id');
+		products_ref.value = await idb.products.where('tCub').above(0).sortBy('id');
 	}
 	if (dataSet_ref.value === 'dataset-aviable') {
-		products_ref.value = await idb.products
-			.where('aCub')
-			.above(0)
-			.sortBy('id');
+		products_ref.value = await idb.products.where('aCub').above(0).sortBy('id');
 	}
 
 	// console.log(products_ref.value);
 });
 
 const filteredProducts = computed(() => {
-	let data = products_ref.value.filter(row =>
-		`${row.code} ${row.name}`.match(new RegExp(filter_ref.value, 'i'))
-	);
+	let data = products_ref.value.filter(row => {
+		const err = row.error.reduce((a, c) => `${a} ${c}`, '');
+		const str = `${row.code} ${row.tags} ${row.name} ${err}`;
+		return str.match(new RegExp(filter_ref.value, 'i'));
+	});
 
 	if (sortParams.value) {
 		const [column, direction] = sortParams.value;
@@ -89,11 +83,7 @@ console.timeEnd('DataTable');
 	<section>
 		<DataSettings />
 		<label for="filter">
-			Szukaj:<input
-				type="search"
-				name="filter"
-				id="filter"
-				v-model="filter_ref" />
+			Szukaj:<input type="search" name="filter" id="filter" v-model="filter_ref" />
 		</label>
 		<div class="counter" style="grid-area: count">
 			Rekordów: {{ filterCount_ref }} z {{ products_ref.length }}
@@ -108,17 +98,12 @@ console.timeEnd('DataTable');
 		<li v-for="ply in filteredProducts" :key="ply.code" class="list-item">
 			<div style="grid-area: code" class="code">{{ ply.code }}</div>
 			<div style="grid-area: name" class="name">{{ ply.name }}</div>
-			<div style="grid-area: tags" class="tags">search tags</div>
+			<div style="grid-area: tags" class="tags">{{ ply.tags }}</div>
+			<div style="grid-area: err" v-if="ply.error.length">
+				<span v-for="error of ply.error">{{ error }}</span>
+			</div>
 
-			<Quantities
-				:quants="[
-					ply.tCub,
-					ply.tSqr,
-					ply.tPcs,
-					ply.aCub,
-					ply.aSqr,
-					ply.aPcs,
-				]" />
+			<Quantities :total="ply.tCub" :aviable="ply.aCub" :size="ply.size" />
 			<PriceCalculator :plySize="ply.size" :buyPrice="ply.pCub" />
 		</li>
 	</ul>
@@ -129,6 +114,10 @@ console.timeEnd('DataTable');
 </template>
 
 <style>
+#filter {
+	width: 100%;
+}
+
 .header {
 	display: grid;
 	align-items: center;
@@ -164,13 +153,18 @@ console.timeEnd('DataTable');
 	grid-template-columns: repeat(2, 2fr) repeat(6, minmax(max-content, 11ch));
 	grid-template-areas:
 		'code tags tCub tSqr tPcs pCub pSqr pPcs'
-		'name name aCub aSqr aPcs buyp marg perc';
+		'name name aCub aSqr aPcs buyp marg perc'
+		'err  err  err  err  err  err  err  err  ';
 }
 
 [class*='price'],
 [class*='quantity'] {
 	text-align: right;
 	/* color: tomato; */
+}
+
+:is(.code, .tags) {
+	font-weight: 300;
 }
 
 /* [class*='price']:not(.buyp) { */

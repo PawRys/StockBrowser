@@ -25,8 +25,7 @@ export function validate(input) {
 	}
 
 	const isPrices = /Stany magazynowe towarów/i.test(input);
-	const isCorrectPriceColumns =
-		/Kod towaru		nazwa towaru		jm		stan	cena	wartość		/i.test(input);
+	const isCorrectPriceColumns = /Kod towaru		nazwa towaru		jm		stan	cena	wartość		/i.test(input);
 	if (isPrices && isCorrectPriceColumns) {
 		dataType = 'prices';
 		message = `💵 Rozpoznano ceny zakupowe towarów.`;
@@ -56,13 +55,13 @@ export function validate(input) {
 
 export function prepareData(input, dataType) {
 	const linesArray = input.match(/[^\r\n]+/g);
-	const garbageWords =
-		/\b(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/i;
+	const garbageWords = /\b(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/i;
 	let output = [];
 
 	for (let line of linesArray) {
 		const lineChunks = line.match(/[^\t]+/g);
 		// Ommit garbage
+		if (!lineChunks) continue;
 		if (garbageWords.test(lineChunks[0])) continue;
 		if (dataType === 'products' && lineChunks.length !== 2) continue;
 		if (dataType === 'prices' && lineChunks.length !== 6) continue;
@@ -77,20 +76,43 @@ export function prepareData(input, dataType) {
 }
 
 export async function updateProducts(currentData, updates, dataType) {
+	if (dataType === 'prices') {
+		currentData.map(row => {
+			row.pCub = 0;
+		});
+	}
+
+	if (dataType === 'stocks') {
+		currentData.map(row => {
+			row.tCub = 0;
+			row.tSqr = 0;
+			row.tPcs = 0;
+			row.aCub = 0;
+			row.aSqr = 0;
+			row.aPcs = 0;
+		});
+	}
+
 	for (let newProduct of updates) {
-		const productId = newProduct[0];
+		const productCode = newProduct[0];
 		const productName = newProduct[1];
-		const productIndex = currentData.findIndex(row => row.code === productId);
+		const productIndex = currentData.findIndex(row => row.code === productCode);
 		const currentProduct = productIndex < 0 ? {} : currentData[productIndex];
-		const size = getProductSize(`${productId} ${productName}`).replace(
-			',',
-			'.'
-		);
+		const size = getProductSize(productName).replace(',', '.');
+		const sizeTags = getProductSizeTags(size);
+		const familyTags = getProductTags(`${productCode} ${productName}`);
+		let errors = [];
+
+		if (size === '0') {
+			errors.push('Błąd: Brak prawidłowego wymiaru w opisie. Obliczenia niemożliwe.');
+		}
 
 		Object.assign(currentProduct, {
-			code: productId,
+			code: productCode,
 			name: productName,
 			size: size,
+			tags: `${sizeTags} ${familyTags}`,
+			error: errors,
 		});
 
 		if (productIndex < 0) {
@@ -138,7 +160,6 @@ export async function updateProducts(currentData, updates, dataType) {
 		message = '📦 Zaktualizowano ilości ✔';
 	}
 
-	console.log(currentData);
 	return { data: currentData, message: message };
 }
 
@@ -161,7 +182,7 @@ export async function fetchProducts(fetchURL, pinCode) {
 		return await response.json();
 	} catch (error) {
 		console.error(error);
-		return { message: 'Problem z połączeniem ⛔' };
+		return { message: 'Problem z połączeniem ❌' };
 	}
 }
 
@@ -172,60 +193,104 @@ export function calcQuant(size, value, from, to) {
 	if (!to) return 0;
 	size = size.split('x');
 	if (from === 'm3') {
-		if (to === 'm2') value = value / (size[0] / 1000);
-		if (to === 'szt')
+		if (to === 'm2') {
+			value = value / (size[0] / 1000);
+		}
+		if (to === 'szt') {
 			value = value / (size[0] / 1000) / (size[1] / 1000) / (size[2] / 1000);
+		}
 	}
 	if (from === 'm2') {
-		if (to === 'm3') value = value * (size[0] / 1000);
-		if (to === 'szt') value = value / (size[1] / 1000) / (size[2] / 1000);
+		if (to === 'm3') {
+			value = value * (size[0] / 1000);
+		}
+		if (to === 'szt') {
+			value = value / (size[1] / 1000) / (size[2] / 1000);
+		}
 	}
 	if (from === 'szt') {
-		if (to === 'm3')
+		if (to === 'm3') {
 			value = value * (size[0] / 1000) * (size[1] / 1000) * (size[2] / 1000);
-		if (to === 'm2') value = value * (size[1] / 1000) * (size[2] / 1000);
+		}
+		if (to === 'm2') {
+			value = value * (size[1] / 1000) * (size[2] / 1000);
+		}
 	}
-	// if (to === 'm3') return value.toFixed(3)
-	// if (to === 'm2') return value.toFixed(2)
-	// if (to === 'szt') return value.toFixed(1)
 	return value * 1;
 }
 
 export function calcPrice(size, value, from, to) {
-	if (size == 0) return 0;
-	if (!size) return 0;
+	if (!size || size === '0') return 0;
 	if (!value) return 0;
 	if (!from) return 0;
 	if (!to) return 0;
 
-	try {
-		size = size.split('x');
-	} catch {
-		console.log(`Variable: ${typeof value}: ${value}`);
-	}
-
 	if (from === 'm3') {
-		if (to === 'm2') value = value * (size[0] / 1000);
-		if (to === 'szt')
+		if (to === 'm2') {
+			value = value * (size[0] / 1000);
+		}
+		if (to === 'szt') {
 			value = value * (size[0] / 1000) * (size[1] / 1000) * (size[2] / 1000);
+		}
 	}
 
 	if (from === 'm2') {
-		if (to === 'm3') value = value / (size[0] / 1000);
-		if (to === 'szt') value = value * (size[1] / 1000) * (size[2] / 1000);
+		if (to === 'm3') {
+			value = value / (size[0] / 1000);
+		}
+		if (to === 'szt') {
+			value = value * (size[1] / 1000) * (size[2] / 1000);
+		}
 	}
 
 	if (from === 'szt') {
-		if (to === 'm3')
+		if (to === 'm3') {
 			value = value / (size[0] / 1000) / (size[1] / 1000) / (size[2] / 1000);
-		if (to === 'm2') value = value / (size[1] / 1000) / (size[2] / 1000);
+		}
+		if (to === 'm2') {
+			value = value / (size[1] / 1000) / (size[2] / 1000);
+		}
 	}
 
-	// value = value * GLOBAL.vat[to]
 	return value * 1;
 }
 
 function getProductSize(line) {
 	const fullSizeB = line.match(/\d+[,\.]?\d*x\d+x\d+/i);
 	return fullSizeB ? fullSizeB[0] : '0';
+}
+
+function getProductSizeTags(size) {
+	const chunks = size.split('x');
+	let result = '';
+	if (chunks.length === 3) {
+		let d = 1;
+		if (chunks[0] >= 5) d = 3;
+		if (chunks[0] >= 30) d = 5;
+		const a = Math.round(chunks[0] / d) * d;
+		const b = Math.round(chunks[1] / 300);
+		const c = Math.round(chunks[2] / 300);
+		result = `-${a}-${b}-${c}-`;
+	}
+	return result.trim();
+}
+
+function getProductTags(input) {
+	let tags = [];
+
+	if (/osb/i.test(input)) tags.push('OSB');
+	if (/ppl/i.test(input)) tags.push('PPL');
+	if (/poli/i.test(input)) tags.push('Poliform');
+	if (/heksa/i.test(input)) tags.push('HEKSA');
+	if (/topol/i.test(input)) tags.push('China');
+	if (/wodo|wd|ext/i.test(input)) tags.push('WD');
+	if (/such|mr|int/i.test(input)) tags.push('MR');
+	if (/mel|\bM\/M\b/i.test(input)) tags.push('MEL');
+	if (/folio|\bF\/F\b/i.test(input)) tags.push('FF');
+	if (/c\.less|transp/i.test(input)) tags.push('C.less');
+	if (/anty|\bF\/W\b|\bW\/W\b/i.test(input)) tags.push('FW');
+
+	tags.sort();
+	const result = tags.reduce((a, c) => `${a} ${c}`, '');
+	return result.trim();
 }

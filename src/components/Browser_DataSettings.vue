@@ -1,8 +1,12 @@
 <script setup>
-import { ref, computed, watch, inject } from 'vue'
+import { ref, computed, watch, inject } from 'vue';
+import { db as idb } from '../assets/dexiedb.js';
 
-const dataSet_ref = inject('dataSet_ref')
-const pageSize_ref = inject('pageSize_ref')
+const dataSet_ref = inject('dataSet_ref');
+
+const one = await idb.products.count();
+const two = await idb.products.where('tCub').above(0).count();
+const tre = await idb.products.where('aCub').above(0).count();
 </script>
 
 <template>
@@ -15,6 +19,7 @@ const pageSize_ref = inject('pageSize_ref')
 				id="dataset-full"
 				value="dataset-full"
 				v-model="dataSet_ref" />
+			({{ one }})
 		</label>
 		<label for="dataset-total">
 			Stany całkowite:
@@ -25,6 +30,7 @@ const pageSize_ref = inject('pageSize_ref')
 				value="dataset-total"
 				v-model="dataSet_ref"
 				checked />
+			({{ two }})
 		</label>
 		<label for="dataset-aviable">
 			Stany handlowe:
@@ -34,6 +40,7 @@ const pageSize_ref = inject('pageSize_ref')
 				id="dataset-aviable"
 				value="dataset-aviable"
 				v-model="dataSet_ref" />
+			({{ tre }})
 		</label>
 	</div>
 </template>

@@ -1,6 +1,13 @@
 <script setup>
-const props = defineProps(['quants']);
-const [tCub, tSqr, tPcs, aCub, aSqr, aPcs] = props.quants;
+import { calcQuant } from './DataCollector_Scripts.js';
+
+const props = defineProps(['total', 'aviable', 'size']);
+const tCub = props.total;
+const tSqr = calcQuant(props.size, props.total, 'm3', 'm2');
+const tPcs = calcQuant(props.size, props.total, 'm3', 'szt');
+const aCub = props.aviable;
+const aSqr = calcQuant(props.size, props.aviable, 'm3', 'm2');
+const aPcs = calcQuant(props.size, props.aviable, 'm3', 'szt');
 </script>
 
 <template>
