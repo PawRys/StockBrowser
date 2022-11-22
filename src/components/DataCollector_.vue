@@ -86,9 +86,7 @@ async function bulkAddIDB() {
 			rows="10"
 			v-model="textareaData"
 			@input="checkValidation"></textarea>
-		<p
-			class="messageBox"
-			:class="{ visible: messageBox, hidden: !messageBox }">
+		<p class="messageBox" :class="{ visible: messageBox, hidden: !messageBox }">
 			{{ messageBox }}
 		</p>
 		<button class="button" @click="textareaClear">

@@ -91,11 +91,7 @@ function logger(x) {
 
 <template>
 	<div :class="vatClass">
-		<span
-			v-if="!isEdited"
-			class="result"
-			contenteditable="true"
-			@focus="focusHandler"
+		<span v-if="!isEdited" class="result" contenteditable="true" @focus="focusHandler"
 			>{{ pfix }}{{ calcValues }}<small v-html="sfix"></small
 		></span>
 		<input

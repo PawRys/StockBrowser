@@ -7,6 +7,7 @@ import Pagination from './Browser_Pagination.vue';
 import Quantities from './Browser_Quantities.vue';
 import DataSettings from './Browser_DataSettings.vue';
 import PriceCalculator from './Browser_PriceCalculator_.vue';
+import { calcPrice, calcQuant } from './DataCollector_Scripts.js';
 
 console.time('DataTable');
 
@@ -51,8 +52,27 @@ const filteredProducts = computed(() => {
 	if (sortParams.value) {
 		const [column, direction] = sortParams.value;
 		data = data.sort((a, b) => {
-			a = a[column];
-			b = b[column];
+			const aSize = a.size;
+			const bSize = b.size;
+			const group = column.slice(0, 1); // First Letter
+			let unit = column.slice(-3); // Unit
+
+			if (!unit.match(/Sqr|Pcs/)) {
+				a = a[column];
+				b = b[column];
+			} else {
+				if (unit === 'Sqr') unit = 'm2';
+				if (unit === 'Pcs') unit = 'szt';
+				if (group === 'p') {
+					a = calcPrice(aSize, a[`${group}Cub`], 'm3', unit);
+					b = calcPrice(bSize, b[`${group}Cub`], 'm3', unit);
+				}
+				if (group === 't' || group === 'a') {
+					a = calcQuant(aSize, a[`${group}Cub`], 'm3', unit);
+					b = calcQuant(bSize, b[`${group}Cub`], 'm3', unit);
+				}
+			}
+
 			return (a === b ? 0 : a > b ? 1 : -1) * direction;
 		});
 	}

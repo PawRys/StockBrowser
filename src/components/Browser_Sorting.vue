@@ -1,37 +1,40 @@
 <script setup>
-import { ref, computed, reactive, inject, onUpdated } from 'vue'
+import { ref, computed, reactive, inject, onUpdated } from 'vue';
 
-const sortParams = inject('sortParams')
-const ascText = 'od małych ilości'
-const dscText = 'od dużych ilości'
+const sortParams = inject('sortParams');
+const ascText = 'od małych ilości';
+const dscText = 'od dużych ilości';
 const sortKeys = reactive({
 	code: [1, 'Kod', 'od początku', 'od końca'],
 	// name: [0, 'Nazwa', 'A...Z', 'Z...A'],
-	pCub: [0, 'Cena zakupu', 'od tanich', 'od drogich'],
+	pCub: [0, 'Cena zakupu m<sup>3</sup>', 'od tanich', 'od drogich'],
+	pSqr: [0, 'Cena zakupu m<sup>2</sup>', 'od tanich', 'od drogich'],
+	pPcs: [0, 'Cena zakupu szt', 'od tanich', 'od drogich'],
 	// tCub: [0, 'Stan całkowity m<sup>3</sup>', ascText, dscText],
 	// tSqr: [0, 'Stan całkowity m<sup>2</sup>', ascText, dscText],
 	// tPcs: [0, 'Stan całkowity szt', ascText, dscText],
 	// aCub: [0, 'Stan handlowy m<sup>3</sup>', ascText, dscText],
 	// aSqr: [0, 'Stan handlowy m<sup>2</sup>', ascText, dscText],
 	// aPcs: [0, 'Stan handlowy szt', ascText, dscText],
-})
+});
 
 const currentSorting = computed(() => {
-	const [currentId] = sortParams.value
-	const [dir, text, ascText, dscText] = sortKeys[currentId]
-	return `Sortowanie: ${text} - ${dir > 0 ? ascText : dscText}`
-})
+	const [currentId] = sortParams.value;
+	const [dir, text, ascText, dscText] = sortKeys[currentId];
+	return `Sortowanie: ${text} - ${dir > 0 ? ascText : dscText}`;
+});
 
 function setSortParams(currentId) {
-	const [prevId] = sortParams.value
-	if (currentId !== prevId) sortKeys[prevId][0] = 0
-	sortKeys[currentId][0] = sortKeys[currentId][0] == 0 ? 1 : (sortKeys[currentId][0] *= -1)
-	sortParams.value = [currentId, sortKeys[currentId][0]]
+	const [prevId] = sortParams.value;
+	if (currentId !== prevId) sortKeys[prevId][0] = 0;
+	sortKeys[currentId][0] =
+		sortKeys[currentId][0] == 0 ? 1 : (sortKeys[currentId][0] *= -1);
+	sortParams.value = [currentId, sortKeys[currentId][0]];
 }
 
 function logme(el) {
-	console.log(`update`)
-	console.log(el)
+	console.log(`update`);
+	console.log(el);
 }
 </script>
 
