@@ -95,10 +95,10 @@ export async function updateProducts(currentData, updates, dataType) {
 		const productIndex = currentData.findIndex(row => row.code === productCode);
 		const currentProduct = productIndex < 0 ? {} : currentData[productIndex];
 		const size = getProductSize(productName).replace(',', '.');
-		const sizeTags = getProductSizeTags(size);
-		const familyTags = getProductTags(`${productCode} ${productName}`);
-		const grades = getProductGrade(`${productCode} ${productName}`);
-		console.log(`${productCode} --- ${grades}`);
+		const tags = getProductTags(`${productCode} ${productName}`);
+		// const sizeTags = getProductSizeTags(size);
+		// const grades = getProductGrade(`${productCode} ${productName}`);
+		// console.log(`${productCode} --- ${grades}`);
 		let errors = [];
 
 		if (size === '0') {
@@ -109,7 +109,7 @@ export async function updateProducts(currentData, updates, dataType) {
 			code: productCode,
 			name: productName,
 			size: size,
-			tags: `${sizeTags} --- ${familyTags} --- ${grades}`,
+			tags: tags,
 			error: errors,
 		});
 
@@ -249,28 +249,26 @@ function getProductSizeTags(size) {
 function getProductTags(input) {
 	let tags = [];
 
+	if (/ppl/i.test(input)) tags.push('PPL');
+	if (/osb/i.test(input)) tags.push('OSB');
+	if (/topol/i.test(input)) tags.push('China');
+	if (/honey/i.test(input)) tags.push('Honey');
 	if (/wodo|wd|ext/i.test(input)) tags.push('WD');
 	if (/such|mr|int/i.test(input)) tags.push('MR');
-	if (/folio|\bF\/F\b/i.test(input)) tags.push('FF');
-	if (/anty|\bF\/W\b|\bW\/W\b/i.test(input)) tags.push('FW');
-	if (/heksa|F\/WH/i.test(input)) tags.push('Heksa');
-
-	if (/mel|\bM\/M\b/i.test(input)) tags.push('MEL');
-	if (/c\.less|transp/i.test(input)) tags.push('C.less');
-	if (/honey/i.test(input)) tags.push('Honey');
-
-	if (/osb/i.test(input)) tags.push('OSB');
-	if (/ppl/i.test(input)) tags.push('PPL');
+	if (/mel|\bM\/M\b/i.test(input)) tags.push('MM');
 	if (/PF|poli/i.test(input)) tags.push('Poliform');
-	if (/topol/i.test(input)) tags.push('China');
+	if (/heksa|F\/WH/i.test(input)) tags.push('Heksa');
+	if (/folio|\bF\/F\b/i.test(input)) tags.push('FF');
+	if (/c\.less|transp/i.test(input)) tags.push('C.less');
+	if (/anty|\bF\/W\b|\bW\/W\b/i.test(input)) tags.push('FW');
 
-	// tags.sort();
+	tags.sort();
 	const result = tags.reduce((a, c) => `${a} ${c}`, '');
 	return result.trim();
 }
 
 function getProductGrade(input) {
 	const exp = '(KILO|BB|B|CP|C|WGE|WG|PQ|PF|F|WH|W|M)';
-	const grade = input.match(new RegExp(`${exp}{1}(\/${exp}){0,1}`, 'i'));
+	const grade = input.match(new RegExp(`\\b${exp}{1}(\/${exp}){0,1}\\b`, 'gi'));
 	return grade ? grade[0] : '??';
 }

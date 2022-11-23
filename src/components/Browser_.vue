@@ -47,40 +47,47 @@ watch(dataSet_ref, async () => {
 });
 
 const filteredProducts = computed(() => {
-	let data = products_ref.value.filter(row => {
+	return products_ref.value.filter(row => {
 		const err = row.error.reduce((a, c) => `${a} ${c}`, '');
 		const str = `${row.code} ${row.tags} ${row.name} ${err}`;
 		return str.match(new RegExp(filter_ref.value, 'i'));
 	});
+});
+provide('filteredProducts', filteredProducts);
 
-	if (sortParams.value) {
-		const [column, direction] = sortParams.value;
-		data = data.sort((a, b) => {
-			const aSize = a.size;
-			const bSize = b.size;
-			const group = column.slice(0, 1); // First Letter
-			let unit = column.slice(-3); // Unit
+const sortedProducts = computed(() => {
+	if (!sortParams.value) sortParams.value = ['code', 1];
+	const [column, direction] = sortParams.value;
+	let data = filteredProducts.value;
+	data = data.sort((a, b) => {
+		const aSize = a.size;
+		const bSize = b.size;
+		const group = column.slice(0, 1);
+		let unit = column.slice(-3);
 
-			if (!unit.match(/Sqr|Pcs/)) {
-				a = a[column];
-				b = b[column];
-			} else {
-				if (unit === 'Sqr') unit = 'm2';
-				if (unit === 'Pcs') unit = 'szt';
-				if (group === 'p') {
-					a = calcPrice(aSize, a[`${group}Cub`], 'm3', unit);
-					b = calcPrice(bSize, b[`${group}Cub`], 'm3', unit);
-				}
-				if (group === 't' || group === 'a') {
-					a = calcQuant(aSize, a[`${group}Cub`], 'm3', unit);
-					b = calcQuant(bSize, b[`${group}Cub`], 'm3', unit);
-				}
+		if (!unit.match(/Sqr|Pcs/)) {
+			a = a[column];
+			b = b[column];
+		} else {
+			if (unit === 'Sqr') unit = 'm2';
+			if (unit === 'Pcs') unit = 'szt';
+			if (group === 'p') {
+				a = calcPrice(aSize, a[`${group}Cub`], 'm3', unit);
+				b = calcPrice(bSize, b[`${group}Cub`], 'm3', unit);
 			}
+			if (group === 't' || group === 'a') {
+				a = calcQuant(aSize, a[`${group}Cub`], 'm3', unit);
+				b = calcQuant(bSize, b[`${group}Cub`], 'm3', unit);
+			}
+		}
 
-			return (a === b ? 0 : a > b ? 1 : -1) * direction;
-		});
-	}
+		return (a === b ? 0 : a > b ? 1 : -1) * direction;
+	});
+	return data;
+});
 
+const paginatedProducts = computed(() => {
+	let data = sortedProducts.value;
 	const pageSize = pageSize_ref.value;
 	const pageNumber = pageNumber_ref.value;
 	const filterCount = data.length;
@@ -98,7 +105,6 @@ const filteredProducts = computed(() => {
 
 	return data;
 });
-provide('filteredProducts', filteredProducts);
 
 console.timeEnd('DataTable');
 </script>
@@ -107,6 +113,13 @@ console.timeEnd('DataTable');
 	<h2 id="pageTop">Main Table</h2>
 	<section>
 		<DataSettings />
+
+		<label for="filter">
+			Szukaj:<input type="search" name="filter" id="filter" v-model="filter_ref" />
+		</label>
+		<div class="counter" style="grid-area: count">
+			Rekordów: {{ filterCount_ref }} z {{ products_ref.length }}
+		</div>
 	</section>
 	<header class="header">
 		<Filters style="grid-area: fter" />
@@ -114,8 +127,8 @@ console.timeEnd('DataTable');
 		<VatSetup style="grid-area: vats" />
 		<Pagination style="grid-area: page" />
 	</header>
-	<ul class="list-container" v-if="filteredProducts.length">
-		<li v-for="ply in filteredProducts" :key="ply.code" class="list-item">
+	<ul class="list-container" v-if="paginatedProducts.length">
+		<li v-for="ply in paginatedProducts" :key="ply.code" class="list-item">
 			<div style="grid-area: code" class="code">{{ ply.code }}</div>
 			<div style="grid-area: name" class="name">{{ ply.name }}</div>
 			<div style="grid-area: tags" class="tags">{{ ply.tags }}</div>
