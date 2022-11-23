@@ -98,6 +98,7 @@ export async function updateProducts(currentData, updates, dataType) {
 		const sizeTags = getProductSizeTags(size);
 		const familyTags = getProductTags(`${productCode} ${productName}`);
 		const grades = getProductGrade(`${productCode} ${productName}`);
+		console.log(`${productCode} --- ${grades}`);
 		let errors = [];
 
 		if (size === '0') {
@@ -108,7 +109,7 @@ export async function updateProducts(currentData, updates, dataType) {
 			code: productCode,
 			name: productName,
 			size: size,
-			tags: `${sizeTags} || ${familyTags} || ${grades}`,
+			tags: `${sizeTags} --- ${familyTags} --- ${grades}`,
 			error: errors,
 		});
 
@@ -260,7 +261,7 @@ function getProductTags(input) {
 
 	if (/osb/i.test(input)) tags.push('OSB');
 	if (/ppl/i.test(input)) tags.push('PPL');
-	if (/poli/i.test(input)) tags.push('Poliform');
+	if (/PF|poli/i.test(input)) tags.push('Poliform');
 	if (/topol/i.test(input)) tags.push('China');
 
 	// tags.sort();
@@ -269,8 +270,7 @@ function getProductTags(input) {
 }
 
 function getProductGrade(input) {
-	const grade = input.match(
-		/\b(BB|B|CP|C|WG|PQ|F|W|WH)(\/(BB|B|CP|C|WG|PQ|F|W|WH)\b)*/g
-	);
+	const exp = '(KILO|BB|B|CP|C|WGE|WG|PQ|PF|F|WH|W|M)';
+	const grade = input.match(new RegExp(`${exp}{1}(\/${exp}){0,1}`, 'i'));
 	return grade ? grade[0] : '??';
 }

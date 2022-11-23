@@ -1,6 +1,7 @@
 <script setup>
 import { ref, reactive, computed, watch, provide, inject } from 'vue';
 import { db as idb } from '../assets/dexiedb.js';
+import Filters from './Browser_Filter.vue';
 import Sorting from './Browser_Sorting.vue';
 import VatSetup from './Browser_VatSetup.vue';
 import Pagination from './Browser_Pagination.vue';
@@ -21,6 +22,9 @@ const dataSet_ref = ref('dataset-total');
 const products_ref = ref(await idb.products.where('tCub').above(0).sortBy('id'));
 const vat = reactive({ m3: 1, m2: 1, szt: 1.23 });
 
+provide('filter_ref', filter_ref);
+provide('filterCount_ref', filterCount_ref);
+provide('products_ref', products_ref);
 provide('pageSize_ref', pageSize_ref);
 provide('pageCount_ref', pageCount_ref);
 provide('pageNumber_ref', pageNumber_ref);
@@ -94,6 +98,7 @@ const filteredProducts = computed(() => {
 
 	return data;
 });
+provide('filteredProducts', filteredProducts);
 
 console.timeEnd('DataTable');
 </script>
@@ -102,14 +107,9 @@ console.timeEnd('DataTable');
 	<h2 id="pageTop">Main Table</h2>
 	<section>
 		<DataSettings />
-		<label for="filter">
-			Szukaj:<input type="search" name="filter" id="filter" v-model="filter_ref" />
-		</label>
-		<div class="counter" style="grid-area: count">
-			Rekordów: {{ filterCount_ref }} z {{ products_ref.length }}
-		</div>
 	</section>
 	<header class="header">
+		<Filters style="grid-area: fter" />
 		<Sorting style="grid-area: sort" />
 		<VatSetup style="grid-area: vats" />
 		<Pagination style="grid-area: page" />
@@ -144,7 +144,7 @@ console.timeEnd('DataTable');
 	gap: 1ch;
 	grid-template-columns: repeat(3, 1fr);
 	grid-template-areas:
-		'. . .'
+		'fter fter fter'
 		'sort vats page';
 }
 .sorting {
