@@ -253,22 +253,24 @@ function getProductTags(input) {
 	if (/osb/i.test(input)) tags.push('OSB');
 	if (/topol/i.test(input)) tags.push('China');
 	if (/honey/i.test(input)) tags.push('Honey');
+	if (/PF|poli/i.test(input)) tags.push('Poliform');
+	if (/RP|radiata/i.test(input)) tags.push('RP');
 	if (/wodo|wd|ext/i.test(input)) tags.push('WD');
 	if (/such|mr|int/i.test(input)) tags.push('MR');
 	if (/mel|\bM\/M\b/i.test(input)) tags.push('MM');
-	if (/PF|poli/i.test(input)) tags.push('Poliform');
 	if (/heksa|F\/WH/i.test(input)) tags.push('Heksa');
+	if (/less|transp/i.test(input)) tags.push('C.less');
 	if (/folio|\bF\/F\b/i.test(input)) tags.push('FF');
-	if (/c\.less|transp/i.test(input)) tags.push('C.less');
 	if (/anty|\bF\/W\b|\bW\/W\b/i.test(input)) tags.push('FW');
+	if (!tags.length) tags.push('??');
 
 	tags.sort();
 	const result = tags.reduce((a, c) => `${a} ${c}`, '');
 	return result.trim();
 }
 
-function getProductGrade(input) {
-	const exp = '(KILO|BB|B|CP|C|WGE|WG|PQ|PF|F|WH|W|M)';
-	const grade = input.match(new RegExp(`\\b${exp}{1}(\/${exp}){0,1}\\b`, 'gi'));
-	return grade ? grade[0] : '??';
-}
+// function getProductGrade(input) {
+// 	const exp = '(KILO|BB|B|CP|C|WGE|WG|PQ|PF|F|WH|W|M)';
+// 	const grade = input.match(new RegExp(`\\b${exp}{1}(\/${exp}){0,1}\\b`, 'gi'));
+// 	return grade ? grade[0] : '??';
+// }
