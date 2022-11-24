@@ -19,19 +19,25 @@ watchEffect(() => {
 	let grades = new Set();
 	let words = new Set();
 
-	console.clear();
+	// console.clear();
 	for (const row of data.value) {
 		const codename = `${row.code} ${row.name}`;
 
-		if (row.tags) tags.add(...row.tags.split(' '));
+		if (row.tags) {
+			tags.add(...row.tags.split(' '));
+		}
 
-		const [a, b, c] = row.size.split('x');
-		if (a) sizeA.add(a);
-		if (b) sizeB.add(b);
-		if (c) sizeC.add(c);
+		if (row.size) {
+			const [a, b, c] = row.size.split('x');
+			if (a) sizeA.add(a);
+			if (b) sizeB.add(b);
+			if (c) sizeC.add(c);
+		}
 
 		const grade = getProductGrade(codename);
-		if (grade) grades.add(...grade);
+		if (grade) {
+			grades.add(...grade);
+		}
 
 		const chunks = codename.split(/[ \/]/gi);
 		for (const c of chunks) {
@@ -50,7 +56,7 @@ watchEffect(() => {
 		words: Array.from(words).sort(collator),
 	};
 
-	console.log(tagCloud.ref);
+	// console.log(tagCloud.value);
 
 	// console.log(tags);
 	// console.log(sizeA);

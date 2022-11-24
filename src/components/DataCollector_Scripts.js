@@ -94,14 +94,14 @@ export async function updateProducts(currentData, updates, dataType) {
 		const productName = newProduct[1];
 		const productIndex = currentData.findIndex(row => row.code === productCode);
 		const currentProduct = productIndex < 0 ? {} : currentData[productIndex];
-		const size = getProductSize(productName).replace(',', '.');
+		const size = getProductSize(productName);
 		const tags = getProductTags(`${productCode} ${productName}`);
 		// const sizeTags = getProductSizeTags(size);
 		// const grades = getProductGrade(`${productCode} ${productName}`);
 		// console.log(`${productCode} --- ${grades}`);
 		let errors = [];
 
-		if (size === '0') {
+		if (size === null) {
 			errors.push('Błąd: Brak prawidłowego wymiaru w opisie. Obliczenia niemożliwe.');
 		}
 
@@ -201,7 +201,7 @@ export function calcQuant(size, value, from, to) {
 }
 
 export function calcPrice(size, value, from, to) {
-	if (!size || size === '0') return 0;
+	if (!size) return 0;
 	if (!value) return 0;
 	if (!from) return 0;
 	if (!to) return 0;
@@ -228,7 +228,7 @@ export function calcPrice(size, value, from, to) {
 
 function getProductSize(line) {
 	const fullSizeB = line.match(/\d+[,\.]?\d*x\d+x\d+/i);
-	return fullSizeB ? fullSizeB[0] : '0';
+	return fullSizeB ? fullSizeB[0].replace(',', '.') : null;
 }
 
 function getProductSizeTags(size) {

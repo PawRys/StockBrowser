@@ -12,7 +12,7 @@ import { calcPrice, calcQuant } from './DataCollector_Scripts.js';
 
 console.time('DataTable');
 
-const filter_ref = ref();
+const filter_ref = ref('');
 const filterCount_ref = ref(1);
 const pageSize_ref = ref(20);
 const pageCount_ref = ref(1);
@@ -50,7 +50,16 @@ const filteredProducts = computed(() => {
 	return products_ref.value.filter(row => {
 		const err = row.error.reduce((a, c) => `${a} ${c}`, '');
 		const str = `${row.code} ${row.tags} ${row.name} ${err}`;
-		return str.match(new RegExp(filter_ref.value, 'i'));
+		let search = filter_ref.value
+			.split(' ')
+			.map(f => {
+				f = f.replace(/\?/g, '\\?');
+				return `(?=.*(${f}))`;
+			})
+			.join('');
+
+		console.log(search);
+		return str.match(new RegExp(search, 'i'));
 	});
 });
 provide('filteredProducts', filteredProducts);
