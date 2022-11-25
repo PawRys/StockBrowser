@@ -19,7 +19,9 @@ const pageCount_ref = ref(1);
 const pageNumber_ref = ref(1);
 const sortParams = ref(['code', 1]);
 const dataSet_ref = ref('dataset-total');
-const products_ref = ref(await idb.products.where('tCub').above(0).sortBy('id'));
+const products_ref = ref(
+	await idb.products.where('tCub').above(0).sortBy('id')
+);
 const vat = reactive({ m3: 1, m2: 1, szt: 1.23 });
 
 provide('filter_ref', filter_ref);
@@ -37,29 +39,49 @@ watch(dataSet_ref, async () => {
 		products_ref.value = await idb.products.toArray();
 	}
 	if (dataSet_ref.value === 'dataset-total') {
-		products_ref.value = await idb.products.where('tCub').above(0).sortBy('id');
+		products_ref.value = await idb.products
+			.where('tCub')
+			.above(0)
+			.sortBy('id');
 	}
 	if (dataSet_ref.value === 'dataset-aviable') {
-		products_ref.value = await idb.products.where('aCub').above(0).sortBy('id');
+		products_ref.value = await idb.products
+			.where('aCub')
+			.above(0)
+			.sortBy('id');
 	}
 
 	// console.log(products_ref.value);
 });
 
 const filteredProducts = computed(() => {
-	return products_ref.value.filter(row => {
-		const err = row.error.reduce((a, c) => `${a} ${c}`, '');
-		const str = `${row.code} ${row.tags} ${row.name} ${err}`;
-		let search = filter_ref.value
-			.split(' ')
-			.map(f => {
-				f = f.replace(/\?/g, '\\?');
-				return `(?=.*(${f}))`;
-			})
-			.join('');
+	const data = products_ref.value;
+	let query = filter_ref.value
+		.split(' ')
+		.map((filter) => {
+			filter = filter.replace(/\/(?=(x|$))/g, '');
+			filter = filter.replace(/(\?)/g, '\\$1');
+			filter = filter.replace(/\//g, '|');
+			filter = filter.replace('=', '');
+			const isSize = /(?=(\d*x\d*x\d*))(?=\d+)/i.test(filter);
+			const isWholeWord = /=/.test(filter) ? '\\b' : '';
+			let subQuery = '';
+			if (isSize) {
+				filter = filter
+					.split('x')
+					.map((subFilter) => {
+						return subFilter.length > 0 ? `(${subFilter})` : '(\\d+)';
+					})
+					.join('x');
+			}
+			subQuery = `(?=.*${isWholeWord}(?<!,)(${filter})${isWholeWord})`;
+			return subQuery;
+		})
+		.join('');
 
-		console.log(search);
-		return str.match(new RegExp(search, 'i'));
+	return data.filter((row) => {
+		const str = `${row.code} ${row.tags} ${row.name}`;
+		return str.match(new RegExp(query, 'i'));
 	});
 });
 provide('filteredProducts', filteredProducts);
@@ -124,7 +146,11 @@ console.timeEnd('DataTable');
 		<DataSettings />
 
 		<label for="filter">
-			Szukaj:<input type="search" name="filter" id="filter" v-model="filter_ref" />
+			Szukaj:<input
+				type="search"
+				name="filter"
+				id="filter"
+				v-model="filter_ref" />
 		</label>
 		<div class="counter" style="grid-area: count">
 			Rekordów: {{ filterCount_ref }} z {{ products_ref.length }}
