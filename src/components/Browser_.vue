@@ -59,14 +59,15 @@ const filteredProducts = computed(() => {
 	let query = filter_ref.value
 		.split(' ')
 		.map((filter) => {
-			filter = filter.replace(/\/(?=(x|$))/g, '');
-			filter = filter.replace(/(\?)/g, '\\$1');
-			filter = filter.replace(/\//g, '|');
-			filter = filter.replace('=', '');
+			console.log(filter);
 			const isSize = /(?=(\d*x\d*x\d*))(?=\d+)/i.test(filter);
 			const isWholeWord = /=/.test(filter) ? '\\b' : '';
+			filter = filter.replace(/\|(?=(x|$))/g, '');
+			filter = filter.replace(/(\?)/g, '\\$1');
+			filter = filter.replace('=', '');
 			let subQuery = '';
 			if (isSize) {
+				// filter = filter.replace(/\//g, '|');
 				filter = filter
 					.split('x')
 					.map((subFilter) => {
@@ -79,6 +80,7 @@ const filteredProducts = computed(() => {
 		})
 		.join('');
 
+	console.log(query);
 	return data.filter((row) => {
 		const str = `${row.code} ${row.tags} ${row.name}`;
 		return str.match(new RegExp(query, 'i'));
