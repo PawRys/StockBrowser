@@ -1,136 +1,50 @@
 <script setup>
-import { ref, reactive, computed, watch, provide, inject } from 'vue';
+import { ref, reactive, watch, provide, watchEffect } from 'vue';
 import { db as idb } from '../assets/dexiedb.js';
-import Filters from './Browser_Filter.vue';
+import Filters from './Browser_Filter_.vue';
 import Sorting from './Browser_Sorting.vue';
 import VatSetup from './Browser_VatSetup.vue';
 import Pagination from './Browser_Pagination.vue';
 import Quantities from './Browser_Quantities.vue';
 import DataSettings from './Browser_DataSettings.vue';
 import PriceCalculator from './Browser_PriceCalculator_.vue';
-import { calcPrice, calcQuant } from './DataCollector_Scripts.js';
 
 console.time('DataTable');
 
-const filter_ref = ref('');
-const filterCount_ref = ref(1);
-const pageSize_ref = ref(20);
-const pageCount_ref = ref(1);
-const pageNumber_ref = ref(1);
-const sortParams = ref(['code', 1]);
-const dataSet_ref = ref('dataset-total');
-const products_ref = ref(await idb.products.where('tCub').above(0).sortBy('id'));
+const productsSet = ref('dataset-total');
+const unfilteredProducts = ref(await idb.products.where('tCub').above(0).sortBy('id'));
+const filteredProducts = ref();
+const sortedProducts = ref();
+const pagedProducts = ref();
+const showProducts = ref();
 const vat = reactive({ m3: 1, m2: 1, szt: 1.23 });
 
-provide('filter_ref', filter_ref);
-provide('filterCount_ref', filterCount_ref);
-provide('products_ref', products_ref);
-provide('pageSize_ref', pageSize_ref);
-provide('pageCount_ref', pageCount_ref);
-provide('pageNumber_ref', pageNumber_ref);
-provide('sortParams', sortParams);
-provide('dataSet_ref', dataSet_ref);
+provide('unfilteredProducts', unfilteredProducts);
+provide('filteredProducts', filteredProducts);
+provide('sortedProducts', sortedProducts);
+provide('pagedProducts', pagedProducts);
+provide('dataSet_ref', productsSet);
 provide('vat', vat);
 
-watch(dataSet_ref, async () => {
-	if (dataSet_ref.value === 'dataset-full') {
-		products_ref.value = await idb.products.toArray();
-	}
-	if (dataSet_ref.value === 'dataset-total') {
-		products_ref.value = await idb.products.where('tCub').above(0).sortBy('id');
-	}
-	if (dataSet_ref.value === 'dataset-aviable') {
-		products_ref.value = await idb.products.where('aCub').above(0).sortBy('id');
-	}
-
-	// console.log(products_ref.value);
+watchEffect(() => {
+	showProducts.value =
+		pagedProducts.value ||
+		sortedProducts.value ||
+		filteredProducts.value ||
+		unfilteredProducts.value ||
+		null;
 });
 
-const filteredProducts = computed(() => {
-	const data = products_ref.value;
-	let query = filter_ref.value
-		.split(' ')
-		.map(filter => {
-			// console.log(filter);
-			const removePipes = /\|(?!\b)|(?!\b)\|/g;
-			const isSize = /\d*x[\d\|]*x\d*/i.test(filter);
-			// console.log(isSize);
-			const isWholeWord = isSize || /=/.test(filter) ? '\\b' : '';
-			filter = filter.replace(removePipes, '');
-			filter = filter.replace(/(\?)/g, '\\$1');
-			filter = filter.replace('=', '');
-			let subQuery = '';
-			if (isSize) {
-				filter = filter
-					.split('x')
-					.map(subFilter => {
-						subFilter = subFilter.replace(removePipes, '');
-						return subFilter.length > 0 ? `(${subFilter})` : '(\\d+)';
-					})
-					.join('x');
-			}
-			subQuery = `(?=.*${isWholeWord}(?<!,)(${filter})${isWholeWord})`;
-			return subQuery;
-		})
-		.join('');
-
-	// console.log(query);
-	return data.filter(row => {
-		const str = `${row.code} ${row.tags} ${row.name}`;
-		return str.match(new RegExp(query, 'i'));
-	});
-});
-provide('filteredProducts', filteredProducts);
-
-const sortedProducts = computed(() => {
-	if (!sortParams.value) sortParams.value = ['code', 1];
-	const [column, direction] = sortParams.value;
-	let data = filteredProducts.value;
-	data = data.sort((a, b) => {
-		const aSize = a.size;
-		const bSize = b.size;
-		const group = column.slice(0, 1);
-		let unit = column.slice(-3);
-
-		if (!unit.match(/Sqr|Pcs/)) {
-			a = a[column];
-			b = b[column];
-		} else {
-			if (unit === 'Sqr') unit = 'm2';
-			if (unit === 'Pcs') unit = 'szt';
-			if (group === 'p') {
-				a = calcPrice(aSize, a[`${group}Cub`], 'm3', unit);
-				b = calcPrice(bSize, b[`${group}Cub`], 'm3', unit);
-			}
-			if (group === 't' || group === 'a') {
-				a = calcQuant(aSize, a[`${group}Cub`], 'm3', unit);
-				b = calcQuant(bSize, b[`${group}Cub`], 'm3', unit);
-			}
-		}
-
-		return (a === b ? 0 : a > b ? 1 : -1) * direction;
-	});
-	return data;
-});
-
-const paginatedProducts = computed(() => {
-	let data = sortedProducts.value;
-	const pageSize = pageSize_ref.value;
-	const pageNumber = pageNumber_ref.value;
-	const filterCount = data.length;
-	const validPageSize = pageSize < 1 ? 1 : pageSize;
-	const pageCount = Math.ceil(filterCount / validPageSize);
-	const validPageNumber = pageNumber > pageCount ? pageCount : pageNumber || 1;
-	const start = validPageNumber * validPageSize - validPageSize;
-	const end = validPageNumber * validPageSize;
-	data = data.slice(start, end);
-
-	// Update UI
-	pageCount_ref.value = pageCount;
-	pageNumber_ref.value = validPageNumber;
-	filterCount_ref.value = filterCount;
-
-	return data;
+watch(productsSet, async () => {
+	if (productsSet.value === 'dataset-full') {
+		unfilteredProducts.value = await idb.products.toArray();
+	}
+	if (productsSet.value === 'dataset-total') {
+		unfilteredProducts.value = await idb.products.where('tCub').above(0).sortBy('id');
+	}
+	if (productsSet.value === 'dataset-aviable') {
+		unfilteredProducts.value = await idb.products.where('aCub').above(0).sortBy('id');
+	}
 });
 
 console.timeEnd('DataTable');
@@ -142,17 +56,17 @@ console.timeEnd('DataTable');
 		<DataSettings />
 	</section>
 	<header class="header">
-		<Filters style="grid-area: fter" />
-		<Sorting style="grid-area: sort" />
-		<VatSetup style="grid-area: vats" />
-		<Pagination style="grid-area: page" />
+		<Filters />
+		<Sorting />
+		<VatSetup />
+		<Pagination />
 	</header>
-	<ul class="list-container" v-if="paginatedProducts.length">
-		<li v-for="ply in paginatedProducts" :key="ply.code" class="list-item">
+	<ul class="list-container" v-if="showProducts">
+		<li v-for="ply in showProducts" :key="ply.code" class="list-item">
 			<div style="grid-area: code" class="code">{{ ply.code }}</div>
 			<div style="grid-area: name" class="name">{{ ply.name }}</div>
 			<div style="grid-area: tags" class="tags">{{ ply.tags }}</div>
-			<div style="grid-area: err" v-if="ply.error.length">
+			<div style="grid-area: err" v-if="ply.error">
 				<span v-for="error of ply.error">{{ error }}</span>
 			</div>
 
@@ -162,7 +76,7 @@ console.timeEnd('DataTable');
 	</ul>
 	<p v-else>Nie znaleziono produktów.</p>
 	<footer style="display: flex">
-		<Pagination style="margin-left: auto" />
+		<!-- <Pagination style="margin-left: auto" /> -->
 	</footer>
 </template>
 

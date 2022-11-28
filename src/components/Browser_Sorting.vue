@@ -1,9 +1,10 @@
 <script setup>
-import { ref, computed, reactive, inject, onUpdated } from 'vue';
+import { ref, computed, reactive, inject, watchEffect } from 'vue';
+import { calcPrice, calcQuant } from './DataCollector_Scripts.js';
 
-const sortParams = inject('sortParams');
-const ascText = 'od małych ilości';
-const dscText = 'od dużych ilości';
+const filteredData = inject('filteredProducts');
+const returnToParent = inject('sortedProducts');
+const sortParams = ref(['code', 1]);
 const sortKeys = reactive({
 	code: [1, 'Kod', 'od początku', 'od końca'],
 	// name: [0, 'Nazwa', 'A...Z', 'Z...A'],
@@ -17,8 +18,40 @@ const sortKeys = reactive({
 	// aSqr: [0, 'Stan handlowy m<sup>2</sup>', ascText, dscText],
 	// aPcs: [0, 'Stan handlowy szt', ascText, dscText],
 });
+const ascText = 'od małych ilości';
+const dscText = 'od dużych ilości';
 
-const currentSorting = computed(() => {
+watchEffect(() => {
+	const [column, direction] = sortParams.value;
+	let data = filteredData.value;
+	data = data.sort((a, b) => {
+		const aSize = a.size;
+		const bSize = b.size;
+		const group = column.slice(0, 1);
+		let unit = column.slice(-3);
+
+		if (!unit.match(/Sqr|Pcs/)) {
+			a = a[column];
+			b = b[column];
+		} else {
+			if (unit === 'Sqr') unit = 'm2';
+			if (unit === 'Pcs') unit = 'szt';
+			if (group === 'p') {
+				a = calcPrice(aSize, a[`${group}Cub`], 'm3', unit);
+				b = calcPrice(bSize, b[`${group}Cub`], 'm3', unit);
+			}
+			if (group === 't' || group === 'a') {
+				a = calcQuant(aSize, a[`${group}Cub`], 'm3', unit);
+				b = calcQuant(bSize, b[`${group}Cub`], 'm3', unit);
+			}
+		}
+		return (a === b ? 0 : a > b ? 1 : -1) * direction;
+	});
+
+	returnToParent.value = data;
+});
+
+const showSortingInfo = computed(() => {
 	const [currentId] = sortParams.value;
 	const [dir, text, ascText, dscText] = sortKeys[currentId];
 	return `Sortowanie: ${text} - ${dir > 0 ? ascText : dscText}`;
@@ -39,7 +72,7 @@ function logme(el) {
 </script>
 
 <template>
-	<section class="sorting">
+	<section class="sorting" style="grid-area: sort">
 		<!-- <h2 v-html="currentSorting"></h2> -->
 		<div class="filterKeys">
 			<button

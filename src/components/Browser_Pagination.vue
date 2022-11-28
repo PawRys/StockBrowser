@@ -1,20 +1,41 @@
 <script setup>
-import { ref, computed, watch, inject } from 'vue'
+import { ref, inject, watchEffect } from 'vue';
 
-const pageSize_ref = inject('pageSize_ref')
-const pageCount_ref = inject('pageCount_ref')
-const pageNumber_ref = inject('pageNumber_ref')
+const sortedProducts = inject(['sortedProducts']);
+const returnToParent = inject(['pagedProducts']);
+
+const pageSize_ref = ref(20);
+const pageCount_ref = ref(1);
+const pageNumber_ref = ref(1);
+
+watchEffect(() => {
+	let data = sortedProducts.value;
+	const pageSize = pageSize_ref.value;
+	const pageNumber = pageNumber_ref.value;
+	const filterCount = data.length;
+	const validPageSize = pageSize < 1 ? 1 : pageSize;
+	const pageCount = Math.ceil(filterCount / validPageSize);
+	const validPageNumber = pageNumber > pageCount ? pageCount : pageNumber || 1;
+	const start = validPageNumber * validPageSize - validPageSize;
+	const end = validPageNumber * validPageSize;
+	data = data.slice(start, end);
+
+	// Update UI
+	pageCount_ref.value = pageCount;
+	pageNumber_ref.value = validPageNumber;
+	returnToParent.value = data;
+});
 
 function setPrevPage() {
-	pageNumber_ref.value -= 1
+	pageNumber_ref.value -= 1;
 }
 function setNextPage() {
-	pageNumber_ref.value += 1
+	pageNumber_ref.value += 1;
 }
 </script>
 
 <template>
-	<section class="pagination">
+	<section class="pagination" style="grid-area: page">
 		<!-- <div>
 			Wielkość:
 			<select name="pageSize" v-model="pageSize_ref">
@@ -24,7 +45,10 @@ function setNextPage() {
 			</select>
 		</div> -->
 		<div class="page-selector" v-if="pageCount_ref > 1">
-			<a class="select-prev material-symbols-outlined" href="#pageTop" @click="setPrevPage()">
+			<a
+				class="select-prev material-symbols-outlined"
+				href="#pageTop"
+				@click="setPrevPage()">
 				navigate_before
 			</a>
 			<select name="pagenum" class="select-pagenum" v-model="pageNumber_ref">
@@ -33,7 +57,10 @@ function setNextPage() {
 				</template>
 			</select>
 			<span class="page-count"> z {{ pageCount_ref }}</span>
-			<a class="select-next material-symbols-outlined" href="#pageTop" @click="setNextPage()">
+			<a
+				class="select-next material-symbols-outlined"
+				href="#pageTop"
+				@click="setNextPage()">
 				navigate_next
 			</a>
 		</div>

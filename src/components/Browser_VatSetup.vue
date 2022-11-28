@@ -1,11 +1,11 @@
 <script setup>
-import { inject } from 'vue'
+import { inject } from 'vue';
 
-const vat = inject('vat')
+const vat = inject('vat');
 </script>
 
 <template>
-	<section class="vatsetup">
+	<section class="vatsetup" style="grid-area: vats">
 		<label for="vatCub" class="button small">
 			<input
 				type="checkbox"
