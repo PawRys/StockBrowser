@@ -133,6 +133,10 @@ h6 {
 	background-color: var(--accent-color);
 }
 
+.button.active {
+	box-shadow: inset 0px -2px 0px 0px var(--accent-color);
+}
+
 @media (hover: hover) {
 	.button:hover {
 		cursor: pointer;
