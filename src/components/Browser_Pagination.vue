@@ -7,7 +7,7 @@ const pageSize_global = inject(['pageSize_global']);
 const pageCount_global = inject(['pageCount_global']);
 const pageNumber_global = inject(['pageNumber_global']);
 
-watch(sortedProducts, () => {
+watch([sortedProducts, pageSize_global, pageCount_global, pageNumber_global], () => {
 	let data = sortedProducts.value;
 	if (!data) return;
 

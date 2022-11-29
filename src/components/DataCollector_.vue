@@ -46,7 +46,7 @@ async function textareaPaste(e) {
 }
 
 async function bulkAddIDB() {
-	console.time('bulkAddIDB');
+	console.time('dexie-bulkAdd');
 	let result;
 	messageBox.value = 'Loading... ⏳';
 
@@ -72,7 +72,7 @@ async function bulkAddIDB() {
 			console.error(err);
 		}
 	}
-	console.timeEnd('bulkAddIDB');
+	console.timeEnd('dexie-bulkAdd');
 }
 </script>
 

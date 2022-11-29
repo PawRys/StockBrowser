@@ -9,8 +9,6 @@ import Pagination from './Browser_Pagination.vue';
 import Quantities from './Browser_Quantities.vue';
 import PriceCalculator from './Browser_PriceCalculator_.vue';
 
-console.time('DataTable');
-
 const unfilteredProducts = ref();
 const filteredProducts = ref();
 const sortedProducts = ref();
@@ -45,8 +43,6 @@ watchEffect(async () => {
 
 const vat = reactive({ m3: 1, m2: 1, szt: 1.23 });
 provide('vat', vat);
-
-console.timeEnd('DataTable');
 </script>
 
 <template>
