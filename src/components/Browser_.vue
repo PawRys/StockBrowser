@@ -1,51 +1,50 @@
 <script setup>
-import { ref, reactive, watch, provide, watchEffect } from 'vue';
+import { ref, reactive, provide, watchEffect } from 'vue';
 import { db as idb } from '../assets/dexiedb.js';
+import DataSet from './Browser_DataSet.vue';
 import Filters from './Browser_Filter_.vue';
 import Sorting from './Browser_Sorting.vue';
 import VatSetup from './Browser_VatSetup.vue';
 import Pagination from './Browser_Pagination.vue';
 import Quantities from './Browser_Quantities.vue';
-import DataSettings from './Browser_DataSettings.vue';
 import PriceCalculator from './Browser_PriceCalculator_.vue';
 
 console.time('DataTable');
 
-const productsSet = ref('dataset-total');
-const unfilteredProducts = ref(await idb.products.where('tCub').above(0).sortBy('id'));
+const unfilteredProducts = ref();
 const filteredProducts = ref();
 const sortedProducts = ref();
 const pagedProducts = ref();
-const showProducts = ref();
-const vat = reactive({ m3: 1, m2: 1, szt: 1.23 });
-
 provide('unfilteredProducts', unfilteredProducts);
 provide('filteredProducts', filteredProducts);
 provide('sortedProducts', sortedProducts);
 provide('pagedProducts', pagedProducts);
-provide('dataSet_ref', productsSet);
-provide('vat', vat);
 
-watchEffect(() => {
-	showProducts.value =
-		pagedProducts.value ||
-		sortedProducts.value ||
-		filteredProducts.value ||
-		unfilteredProducts.value ||
-		null;
-});
+const pageSize_global = ref(20);
+const pageCount_global = ref(1);
+const pageNumber_global = ref(1);
+provide('pageSize_global', pageSize_global);
+provide('pageCount_global', pageCount_global);
+provide('pageNumber_global', pageNumber_global);
 
-watch(productsSet, async () => {
-	if (productsSet.value === 'dataset-full') {
+const dataSet = ref('dataset-total');
+provide('dataSet_ref', dataSet);
+watchEffect(async () => {
+	console.time('change-dataset');
+	if (dataSet.value === 'dataset-full') {
 		unfilteredProducts.value = await idb.products.toArray();
 	}
-	if (productsSet.value === 'dataset-total') {
-		unfilteredProducts.value = await idb.products.where('tCub').above(0).sortBy('id');
+	if (dataSet.value === 'dataset-total') {
+		unfilteredProducts.value = await idb.products.where('tCub').above(0).toArray();
 	}
-	if (productsSet.value === 'dataset-aviable') {
-		unfilteredProducts.value = await idb.products.where('aCub').above(0).sortBy('id');
+	if (dataSet.value === 'dataset-aviable') {
+		unfilteredProducts.value = await idb.products.where('aCub').above(0).toArray();
 	}
+	console.timeEnd('change-dataset');
 });
+
+const vat = reactive({ m3: 1, m2: 1, szt: 1.23 });
+provide('vat', vat);
 
 console.timeEnd('DataTable');
 </script>
@@ -53,16 +52,16 @@ console.timeEnd('DataTable');
 <template>
 	<h2 id="pageTop">Main Table</h2>
 	<section>
-		<DataSettings />
+		<DataSet />
 	</section>
 	<header class="header">
+		<VatSetup />
 		<Filters />
 		<Sorting />
-		<VatSetup />
 		<Pagination />
 	</header>
-	<ul class="list-container" v-if="showProducts">
-		<li v-for="ply in showProducts" :key="ply.code" class="list-item">
+	<ul class="list-container" v-if="pagedProducts && pagedProducts.length">
+		<li v-for="ply in pagedProducts" :key="ply.code" class="list-item">
 			<div style="grid-area: code" class="code">{{ ply.code }}</div>
 			<div style="grid-area: name" class="name">{{ ply.name }}</div>
 			<div style="grid-area: tags" class="tags">{{ ply.tags }}</div>
@@ -76,7 +75,7 @@ console.timeEnd('DataTable');
 	</ul>
 	<p v-else>Nie znaleziono produktów.</p>
 	<footer style="display: flex">
-		<!-- <Pagination style="margin-left: auto" /> -->
+		<Pagination style="margin-left: auto" />
 	</footer>
 </template>
 

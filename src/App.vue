@@ -35,15 +35,18 @@ watchEffect(() => {
 		<button
 			v-for="(tab, i) of tabs"
 			:key="i"
-			:class="['button', { active: currentTab === i }]"
+			:class="['button', { active: currentTab == i }]"
 			@click="currentTab = i">
 			{{ tab.name }}
 			<component :is="tab.icon"></component>
 		</button>
 	</div>
+	<!-- <KeepAlive> -->
 	<Suspense>
 		<component :is="tabs[currentTab].id"></component>
+		<template #fallback>Loading...</template>
 	</Suspense>
+	<!-- </KeepAlive> -->
 
 	<!-- <Suspense> <BrowserTab v-if="panelName === 'tablePanel'" /></Suspense>
 	<DataCollectorTab v-if="panelName === 'loadPanel'" />

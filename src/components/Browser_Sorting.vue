@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, reactive, inject, watchEffect } from 'vue';
+import { ref, computed, reactive, inject, watch } from 'vue';
 import { calcPrice, calcQuant } from './DataCollector_Scripts.js';
 
 const filteredData = inject('filteredProducts');
@@ -21,9 +21,11 @@ const sortKeys = reactive({
 const ascText = 'od małych ilości';
 const dscText = 'od dużych ilości';
 
-watchEffect(() => {
+watch([sortParams, filteredData], () => {
 	const [column, direction] = sortParams.value;
 	let data = filteredData.value;
+	if (!data) return;
+
 	data = data.sort((a, b) => {
 		const aSize = a.size;
 		const bSize = b.size;
@@ -79,8 +81,7 @@ function logme(el) {
 				v-for="([dir, name, ascText, dscText], index) in sortKeys"
 				:key="index"
 				:id="index"
-				class="button small"
-				:class="dir != 0 ? 'active' : ''"
+				:class="['button small', { active: dir != 0 ? true : false }]"
 				:style="`grid-area: ${index}`"
 				@click="setSortParams(index)">
 				<span v-html="`${name}`"></span>

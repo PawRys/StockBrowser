@@ -6,9 +6,10 @@ const returnToParent = inject('filteredProducts');
 const userFilter = ref('');
 
 // watch(userFilter, () => {
-watchEffect(() => {
-	console.time('filtering');
+watch([userFilter, unfilteredData], () => {
 	let data = unfilteredData.value;
+	if (!data) return;
+
 	let query = userFilter.value;
 	query = query.split(' ');
 	query = query.map(filter => {
@@ -39,7 +40,6 @@ watchEffect(() => {
 	});
 
 	returnToParent.value = data;
-	console.timeEnd('filtering');
 });
 </script>
 
@@ -49,7 +49,8 @@ watchEffect(() => {
 			Szukaj:<input type="search" name="filter" id="filter" v-model="userFilter" />
 		</label>
 		<div class="counter" style="grid-area: count">
-			Rekordów: {{ returnToParent.length }} z {{ unfilteredData.length }}
+			Rekordów: {{ returnToParent ? returnToParent.length : 0 }} z
+			{{ unfilteredData ? unfilteredData.length : 0 }}
 		</div>
 	</section>
 </template>
