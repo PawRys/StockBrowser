@@ -1,8 +1,9 @@
 <script setup>
-import { inject } from 'vue';
+import { inject, watchEffect } from 'vue';
 import { db as idb } from '../assets/dexiedb.js';
 
-const dataSet_ref = inject('dataSet_ref');
+const unfilteredData = inject('unfilteredData_global');
+const dataSet = inject('dataSet_global');
 
 console.time('count-dataset');
 const sets = {
@@ -20,18 +21,27 @@ const sets = {
 	},
 };
 console.timeEnd('count-dataset');
+
+watchEffect(async () => {
+	console.time('change-dataset');
+	if (dataSet.value === 'dataset-full') {
+		unfilteredData.value = await idb.products.toArray();
+	}
+	if (dataSet.value === 'dataset-total') {
+		unfilteredData.value = await idb.products.where('tCub').above(0).toArray();
+	}
+	if (dataSet.value === 'dataset-aviable') {
+		unfilteredData.value = await idb.products.where('aCub').above(0).toArray();
+	}
+	console.timeEnd('change-dataset');
+});
 </script>
 
 <template>
 	<section class="data-set">
 		<label v-for="(attr, set) in sets" :for="set">
 			{{ attr.label }}:
-			<input
-				type="radio"
-				name="dataset"
-				:id="set"
-				:value="set"
-				v-model="dataSet_ref" />
+			<input type="radio" name="dataset" :id="set" :value="set" v-model="dataSet" />
 			({{ attr.count }})
 		</label>
 	</section>

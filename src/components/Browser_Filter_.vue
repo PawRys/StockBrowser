@@ -1,18 +1,17 @@
 <script setup>
 import { ref, inject, watchEffect, watch } from 'vue';
 
-const unfilteredData = inject('unfilteredProducts');
-const returnToParent = inject('filteredProducts');
+const unfilteredData = inject('unfilteredData_global');
+const filteredData = inject('filteredData_global');
 const userFilter = ref('');
 
-// watch(userFilter, () => {
 watch([userFilter, unfilteredData], () => {
 	let data = unfilteredData.value;
 	if (!data) return;
 
 	let query = userFilter.value;
 	query = query.split(' ');
-	query = query.map((filter) => {
+	query = query.map(filter => {
 		const trimPipes = /^\|+|\|+$/g;
 		const isSize = /\d*x[\d\|]*x\d*/i.test(filter);
 		const wholeWordsOnly = /=/.test(filter) || isSize ? '\\b' : '';
@@ -23,7 +22,7 @@ watch([userFilter, unfilteredData], () => {
 		if (isSize) {
 			filter = filter
 				.split('x')
-				.map((subFilter) => {
+				.map(subFilter => {
 					subFilter = subFilter.replace(trimPipes, '');
 					return subFilter.length > 0 ? `(${subFilter})` : '(\\d+)';
 				})
@@ -34,26 +33,22 @@ watch([userFilter, unfilteredData], () => {
 	});
 	query = query.join('');
 
-	data = data.filter((row) => {
+	data = data.filter(row => {
 		const str = `${row.code} ${row.tags} ${row.name}`;
 		return str.match(new RegExp(query, 'i'));
 	});
 
-	returnToParent.value = data;
+	filteredData.value = data;
 });
 </script>
 
 <template>
 	<section class="filters" style="grid-area: fter">
 		<label for="filter">
-			Szukaj:<input
-				type="search"
-				name="filter"
-				id="filter"
-				v-model="userFilter" />
+			Szukaj:<input type="search" name="filter" id="filter" v-model="userFilter" />
 		</label>
 		<div class="counter" style="grid-area: count">
-			Rekordów: {{ returnToParent ? returnToParent.length : 0 }} z
+			Rekordów: {{ filteredData ? filteredData.length : 0 }} z
 			{{ unfilteredData ? unfilteredData.length : 0 }}
 		</div>
 	</section>

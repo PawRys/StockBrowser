@@ -1,21 +1,14 @@
 <script setup>
-import {
-	ref,
-	computed,
-	reactive,
-	inject,
-	watch,
-	watchEffect,
-	unref,
-} from 'vue';
+import { ref, computed, reactive, inject, watch, watchEffect, unref } from 'vue';
 import { calcPrice, calcQuant } from './DataCollector_Scripts.js';
 
-const filteredData = inject('filteredProducts');
-const returnToParent = inject('sortedProducts');
+const filteredData = inject('filteredData_global');
+const sortedData = inject('sortedData_global');
 const sortParams = ref(['code', 1]);
+const ascText = 'od małych ilości';
+const dscText = 'od dużych ilości';
 const sortKeys = reactive({
 	code: [1, 'Kod', 'od początku', 'od końca'],
-	// name: [0, 'Nazwa', 'A...Z', 'Z...A'],
 	pCub: [0, 'Cena zakupu m<sup>3</sup>', 'od tanich', 'od drogich'],
 	pSqr: [0, 'Cena zakupu m<sup>2</sup>', 'od tanich', 'od drogich'],
 	pPcs: [0, 'Cena zakupu szt', 'od tanich', 'od drogich'],
@@ -26,48 +19,37 @@ const sortKeys = reactive({
 	// aSqr: [0, 'Stan handlowy m<sup>2</sup>', ascText, dscText],
 	// aPcs: [0, 'Stan handlowy szt', ascText, dscText],
 });
-const ascText = 'od małych ilości';
-const dscText = 'od dużych ilości';
 
-// watchEffect(
-watch(
-	[sortParams, filteredData],
-	() => {
-		const [column, direction] = sortParams.value;
-		let data = unref(filteredData);
-		if (!data) return;
+watch([sortParams, filteredData], () => {
+	const [column, direction] = sortParams.value;
+	let data = unref(filteredData);
+	if (!data) return;
 
-		data = data.sort((a, b) => {
-			const aSize = a.size;
-			const bSize = b.size;
-			const group = column.slice(0, 1);
-			let unit = column.slice(-3);
+	data = data.sort((a, b) => {
+		const aSize = a.size;
+		const bSize = b.size;
+		const group = column.slice(0, 1);
+		let unit = column.slice(-3);
 
-			if (!unit.match(/Sqr|Pcs/)) {
-				a = a[column];
-				b = b[column];
-			} else {
-				if (unit === 'Sqr') unit = 'm2';
-				if (unit === 'Pcs') unit = 'szt';
-				if (group === 'p') {
-					a = calcPrice(aSize, a[`${group}Cub`], 'm3', unit);
-					b = calcPrice(bSize, b[`${group}Cub`], 'm3', unit);
-				}
-				if (group === 't' || group === 'a') {
-					a = calcQuant(aSize, a[`${group}Cub`], 'm3', unit);
-					b = calcQuant(bSize, b[`${group}Cub`], 'm3', unit);
-				}
+		if (!unit.match(/Sqr|Pcs/)) {
+			a = a[column];
+			b = b[column];
+		} else {
+			if (unit === 'Sqr') unit = 'm2';
+			if (unit === 'Pcs') unit = 'szt';
+			if (group === 'p') {
+				a = calcPrice(aSize, a[`${group}Cub`], 'm3', unit);
+				b = calcPrice(bSize, b[`${group}Cub`], 'm3', unit);
 			}
-			return (a === b ? 0 : a > b ? 1 : -1) * direction;
-		});
-		returnToParent.value = data;
-	},
-	{
-		// onTrigger(e) {
-		// 	console.log(e.target);
-		// },
-	}
-);
+			if (group === 't' || group === 'a') {
+				a = calcQuant(aSize, a[`${group}Cub`], 'm3', unit);
+				b = calcQuant(bSize, b[`${group}Cub`], 'm3', unit);
+			}
+		}
+		return (a === b ? 0 : a > b ? 1 : -1) * direction;
+	});
+	sortedData.value = data;
+});
 
 const showSortingInfo = computed(() => {
 	const [currentId] = sortParams.value;
@@ -110,16 +92,20 @@ function logme(el) {
 </template>
 
 <style scoped>
-/* #filterKeys {
-   display: grid;
+.filterKeys {
+	display: grid;
 	gap: 0.3ch 0.3ch;
-	grid-template-columns: repeat(3, 25ch);
+	grid-template-columns: repeat(3, 1fr);
 	grid-template-areas:
-		'code tCub aCub'
-		'name tSqr aSqr'
-		'pCub tPcs aPcs';
-} */
+		'code last drop'
+		'tCub tSqr tPcs'
+		'aCub aSqr aPcs'
+		'pCub pSqr pPcs';
+}
 
+/* :is(.button, button) {
+	display: flex;
+} */
 .material-symbols-outlined {
 	font-size: 1rem;
 }

@@ -111,7 +111,8 @@ h6 {
 
 .button {
 	display: inline-grid;
-	grid-template-columns: max-content 1fr;
+	grid-template-columns: max-content min-content;
+	justify-content: space-between;
 	gap: 0.8ex;
 
 	margin: 0.1ex;
