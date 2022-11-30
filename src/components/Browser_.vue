@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, provide, watchEffect } from 'vue';
+import { ref, reactive, provide, watchEffect, shallowRef, watch } from 'vue';
 import { db as idb } from '../assets/dexiedb.js';
 import DataSet from './Browser_DataSet.vue';
 import Filters from './Browser_Filter_.vue';
@@ -33,10 +33,16 @@ watchEffect(async () => {
 		unfilteredProducts.value = await idb.products.toArray();
 	}
 	if (dataSet.value === 'dataset-total') {
-		unfilteredProducts.value = await idb.products.where('tCub').above(0).toArray();
+		unfilteredProducts.value = await idb.products
+			.where('tCub')
+			.above(0)
+			.toArray();
 	}
 	if (dataSet.value === 'dataset-aviable') {
-		unfilteredProducts.value = await idb.products.where('aCub').above(0).toArray();
+		unfilteredProducts.value = await idb.products
+			.where('aCub')
+			.above(0)
+			.toArray();
 	}
 	console.timeEnd('change-dataset');
 });
@@ -71,7 +77,7 @@ provide('vat', vat);
 	</ul>
 	<p v-else>Nie znaleziono produktów.</p>
 	<footer style="display: flex">
-		<Pagination style="margin-left: auto" />
+		<!-- <Pagination style="margin-left: auto" /> -->
 	</footer>
 </template>
 

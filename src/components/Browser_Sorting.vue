@@ -1,5 +1,13 @@
 <script setup>
-import { ref, computed, reactive, inject, watch } from 'vue';
+import {
+	ref,
+	computed,
+	reactive,
+	inject,
+	watch,
+	watchEffect,
+	unref,
+} from 'vue';
 import { calcPrice, calcQuant } from './DataCollector_Scripts.js';
 
 const filteredData = inject('filteredProducts');
@@ -21,37 +29,45 @@ const sortKeys = reactive({
 const ascText = 'od małych ilości';
 const dscText = 'od dużych ilości';
 
-watch([sortParams, filteredData], () => {
-	const [column, direction] = sortParams.value;
-	let data = filteredData.value;
-	if (!data) return;
+// watchEffect(
+watch(
+	[sortParams, filteredData],
+	() => {
+		const [column, direction] = sortParams.value;
+		let data = unref(filteredData);
+		if (!data) return;
 
-	data = data.sort((a, b) => {
-		const aSize = a.size;
-		const bSize = b.size;
-		const group = column.slice(0, 1);
-		let unit = column.slice(-3);
+		data = data.sort((a, b) => {
+			const aSize = a.size;
+			const bSize = b.size;
+			const group = column.slice(0, 1);
+			let unit = column.slice(-3);
 
-		if (!unit.match(/Sqr|Pcs/)) {
-			a = a[column];
-			b = b[column];
-		} else {
-			if (unit === 'Sqr') unit = 'm2';
-			if (unit === 'Pcs') unit = 'szt';
-			if (group === 'p') {
-				a = calcPrice(aSize, a[`${group}Cub`], 'm3', unit);
-				b = calcPrice(bSize, b[`${group}Cub`], 'm3', unit);
+			if (!unit.match(/Sqr|Pcs/)) {
+				a = a[column];
+				b = b[column];
+			} else {
+				if (unit === 'Sqr') unit = 'm2';
+				if (unit === 'Pcs') unit = 'szt';
+				if (group === 'p') {
+					a = calcPrice(aSize, a[`${group}Cub`], 'm3', unit);
+					b = calcPrice(bSize, b[`${group}Cub`], 'm3', unit);
+				}
+				if (group === 't' || group === 'a') {
+					a = calcQuant(aSize, a[`${group}Cub`], 'm3', unit);
+					b = calcQuant(bSize, b[`${group}Cub`], 'm3', unit);
+				}
 			}
-			if (group === 't' || group === 'a') {
-				a = calcQuant(aSize, a[`${group}Cub`], 'm3', unit);
-				b = calcQuant(bSize, b[`${group}Cub`], 'm3', unit);
-			}
-		}
-		return (a === b ? 0 : a > b ? 1 : -1) * direction;
-	});
-
-	returnToParent.value = data;
-});
+			return (a === b ? 0 : a > b ? 1 : -1) * direction;
+		});
+		returnToParent.value = data;
+	},
+	{
+		// onTrigger(e) {
+		// 	console.log(e.target);
+		// },
+	}
+);
 
 const showSortingInfo = computed(() => {
 	const [currentId] = sortParams.value;
