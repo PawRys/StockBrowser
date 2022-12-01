@@ -20,11 +20,12 @@ import IconCalendar from './components/icons/IconCalendar.vue';
 const lasttab = localStorage.StockBrowser_LastUsedPanel || 0;
 const currentTab = ref(lasttab);
 const tabs = [
-	{ id: BrowserTab, name: 'Tabela', icon: IconGrid },
-	{ id: DataCollectorTab, name: 'Załadauj', icon: IconDisk },
-	{ id: DataShareTab, name: 'Udostępnij', icon: IconCloud },
-	{ id: TestTab, name: 'Test' },
+	{ id: BrowserTab, name: 'Lista', icon: 'bi bi-list-ul' },
+	{ id: DataCollectorTab, name: 'Załadauj', icon: 'bi bi-download' },
+	{ id: DataShareTab, name: 'Udostępnij', icon: 'bi bi-cloud-arrow-up' },
+	{ id: TestTab, name: 'Test', icon: 'bi bi-bug-fill' },
 ];
+
 watchEffect(() => {
 	localStorage.StockBrowser_LastUsedPanel = currentTab.value;
 });
@@ -38,7 +39,7 @@ watchEffect(() => {
 			:class="['button', { active: currentTab == i }]"
 			@click="currentTab = i">
 			{{ tab.name }}
-			<component :is="tab.icon"></component>
+			<i :class="tab.icon"></i>
 		</button>
 	</div>
 	<!-- <KeepAlive> -->
@@ -58,6 +59,9 @@ watchEffect(() => {
 </template>
 
 <style>
+.button > i {
+	font-size: 1.1em;
+}
 .flex {
 	display: flex;
 }

@@ -39,21 +39,15 @@ provide('vat', vat);
 	</section>
 	<header class="header grid-layout">
 		<div class="background"></div>
+		<!-- Correct order (for keyboard navigation): FPSV -->
 		<Filters />
-		<Sorting />
 		<Pagination />
+		<Sorting />
 		<VatSetup />
 	</header>
-	<ul
-		class="list-container"
-		v-if="pagedData_global && pagedData_global.length">
-		<li
-			v-for="ply in pagedData_global"
-			:key="ply.code"
-			class="list-item grid-layout">
-			<div style="grid-area: code" class="code">
-				{{ ply.code }} - {{ ply.tags }}
-			</div>
+	<ul class="list-container" v-if="pagedData_global && pagedData_global.length">
+		<li v-for="ply in pagedData_global" :key="ply.code" class="list-item grid-layout">
+			<div style="grid-area: code" class="code">{{ ply.code }} - {{ ply.tags }}</div>
 			<div style="grid-area: name" class="name">{{ ply.name }}</div>
 			<!-- <div style="grid-area: tags" class="tags">{{ ply.tags }}</div> -->
 			<div class="error" style="grid-area: err" v-if="ply.error">
@@ -71,16 +65,21 @@ provide('vat', vat);
 </template>
 
 <style>
+.background {
+	grid-area: code / code / vat1 / vat1;
+	position: absolute;
+	inset: -0.5rem;
+	background-color: var(--bg-color);
+}
+
 .grid-layout {
 	--cols: 10;
 	display: grid;
 	align-items: center;
 	justify-content: space-evenly;
-	gap: 0.2rem;
-	grid-template-columns: repeat(
-		var(--cols),
-		minmax(calc(100% / var(--cols)), 10ch)
-	);
+	gap: 1ch;
+	grid-template-columns: repeat(var(--cols), 12ch);
+	/* grid-template-columns: repeat(var(--cols), minmax(11ch, calc(100% / var(--cols)))); */
 }
 .header {
 	grid-template-areas:
@@ -97,7 +96,7 @@ provide('vat', vat);
 		'err  err  err  err  err  err  err  err  err  err ';
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1245px) {
 	.grid-layout {
 		--cols: 6;
 	}
@@ -118,7 +117,7 @@ provide('vat', vat);
 	}
 }
 
-@media (max-width: 540px) {
+@media (max-width: 745px) {
 	.grid-layout {
 		--cols: 3;
 	}

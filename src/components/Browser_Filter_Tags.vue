@@ -1,6 +1,11 @@
 <script setup>
-import { watchEffect } from 'vue';
-watchEffect(() => {
+import { inject, watch } from 'vue';
+const tagCloud = ref({});
+const userFilter = inject('userFilter');
+const data = inject('pagedData_global');
+
+watch(userFilter, () => {
+	// watchEffect(() => {
 	const collator = (a, b) => {
 		return new Intl.Collator(undefined, { numeric: true }).compare(a, b);
 	};
@@ -49,7 +54,7 @@ watchEffect(() => {
 		words: Array.from(words).sort(collator),
 	};
 
-	// console.log(tagCloud.value);
+	console.log(tagCloud.value);
 
 	// console.log(tags);
 	// console.log(sizeA);

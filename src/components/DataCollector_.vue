@@ -104,7 +104,7 @@ async function bulkAddIDB() {
 	</div>
 
 	<hr />
-	<ExampleData />
+	<!-- <ExampleData /> -->
 </template>
 
 <style scoped>

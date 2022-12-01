@@ -1,13 +1,5 @@
 <script setup>
-import {
-	ref,
-	computed,
-	reactive,
-	inject,
-	watch,
-	watchEffect,
-	unref,
-} from 'vue';
+import { ref, computed, reactive, inject, watch, watchEffect, unref } from 'vue';
 import { calcPrice, calcQuant } from './DataCollector_Scripts.js';
 
 const filteredData = inject('filteredData_global');
@@ -16,13 +8,14 @@ const sortParams = ref(['code', 1]);
 const ascText = 'od małych ilości';
 const dscText = 'od dużych ilości';
 const sortKeys = reactive({
+	// Correct order (for keyboard navigation): ctpa
 	code: [1, 'Kod towaru', 'od początku', 'od końca'],
-	pCub: [0, 'Cena m<sup>3</sup>', 'od tanich', 'od drogich'],
-	pSqr: [0, 'Cena m<sup>2</sup>', 'od tanich', 'od drogich'],
-	pPcs: [0, 'Cena szt', 'od tanich', 'od drogich'],
 	tCub: [0, 'Stan cał. m<sup>3</sup>', ascText, dscText],
 	tSqr: [0, 'Stan cał. m<sup>2</sup>', ascText, dscText],
 	tPcs: [0, 'Stan cał. szt', ascText, dscText],
+	pCub: [0, 'Cena zł/m<sup>3</sup>', 'od tanich', 'od drogich'],
+	pSqr: [0, 'Cena zł/m<sup>2</sup>', 'od tanich', 'od drogich'],
+	pPcs: [0, 'Cena zł/szt', 'od tanich', 'od drogich'],
 	aCub: [0, 'Stan han. m<sup>3</sup>', ascText, dscText],
 	aSqr: [0, 'Stan han. m<sup>2</sup>', ascText, dscText],
 	aPcs: [0, 'Stan han. szt', ascText, dscText],

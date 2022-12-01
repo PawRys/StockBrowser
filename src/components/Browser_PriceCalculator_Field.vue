@@ -111,11 +111,11 @@ function logger(x) {
 <style scoped>
 .result {
 	cursor: pointer;
-	/* border-bottom: dashed 1px var(--font-color); */
 	box-shadow: 0px 0px 0px 1px #ddd;
 	padding: 0ch 0.5ch;
-	/* width: 100%; */
 	display: flow-root;
+	overflow: hidden;
+	text-overflow: clip;
 }
 
 .vatApplied {
