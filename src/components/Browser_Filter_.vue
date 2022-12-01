@@ -11,7 +11,7 @@ watch([userFilter, unfilteredData], () => {
 
 	let query = userFilter.value;
 	query = query.split(' ');
-	query = query.map(filter => {
+	query = query.map((filter) => {
 		const trimPipes = /^\|+|\|+$/g;
 		const isSize = /\d*x[\d\|]*x\d*/i.test(filter);
 		const wholeWordsOnly = /=/.test(filter) || isSize ? '\\b' : '';
@@ -22,7 +22,7 @@ watch([userFilter, unfilteredData], () => {
 		if (isSize) {
 			filter = filter
 				.split('x')
-				.map(subFilter => {
+				.map((subFilter) => {
 					subFilter = subFilter.replace(trimPipes, '');
 					return subFilter.length > 0 ? `(${subFilter})` : '(\\d+)';
 				})
@@ -33,7 +33,7 @@ watch([userFilter, unfilteredData], () => {
 	});
 	query = query.join('');
 
-	data = data.filter(row => {
+	data = data.filter((row) => {
 		const str = `${row.code} ${row.tags} ${row.name}`;
 		return str.match(new RegExp(query, 'i'));
 	});
@@ -43,9 +43,13 @@ watch([userFilter, unfilteredData], () => {
 </script>
 
 <template>
-	<section class="filters" style="grid-area: fter">
+	<section class="filters" style="grid-area: fltr">
 		<label for="filter">
-			Szukaj:<input type="search" name="filter" id="filter" v-model="userFilter" />
+			Szukaj:<input
+				type="search"
+				name="filter"
+				id="filter"
+				v-model="userFilter" />
 		</label>
 		<div class="counter" style="grid-area: count">
 			Rekordów: {{ filteredData ? filteredData.length : 0 }} z
@@ -55,8 +59,12 @@ watch([userFilter, unfilteredData], () => {
 </template>
 
 <style scoped>
-section {
-	display: grid;
-	/* grid-area: fter; */
+#filter {
+	width: 100%;
+}
+
+.filters {
+	margin-top: 1rem;
+	margin-bottom: 3rem;
 }
 </style>

@@ -1,5 +1,13 @@
 <script setup>
-import { ref, computed, reactive, inject, watch, watchEffect, unref } from 'vue';
+import {
+	ref,
+	computed,
+	reactive,
+	inject,
+	watch,
+	watchEffect,
+	unref,
+} from 'vue';
 import { calcPrice, calcQuant } from './DataCollector_Scripts.js';
 
 const filteredData = inject('filteredData_global');
@@ -8,16 +16,16 @@ const sortParams = ref(['code', 1]);
 const ascText = 'od małych ilości';
 const dscText = 'od dużych ilości';
 const sortKeys = reactive({
-	code: [1, 'Kod', 'od początku', 'od końca'],
-	pCub: [0, 'Cena zakupu m<sup>3</sup>', 'od tanich', 'od drogich'],
-	pSqr: [0, 'Cena zakupu m<sup>2</sup>', 'od tanich', 'od drogich'],
-	pPcs: [0, 'Cena zakupu szt', 'od tanich', 'od drogich'],
-	// tCub: [0, 'Stan całkowity m<sup>3</sup>', ascText, dscText],
-	// tSqr: [0, 'Stan całkowity m<sup>2</sup>', ascText, dscText],
-	// tPcs: [0, 'Stan całkowity szt', ascText, dscText],
-	// aCub: [0, 'Stan handlowy m<sup>3</sup>', ascText, dscText],
-	// aSqr: [0, 'Stan handlowy m<sup>2</sup>', ascText, dscText],
-	// aPcs: [0, 'Stan handlowy szt', ascText, dscText],
+	code: [1, 'Kod towaru', 'od początku', 'od końca'],
+	pCub: [0, 'Cena m<sup>3</sup>', 'od tanich', 'od drogich'],
+	pSqr: [0, 'Cena m<sup>2</sup>', 'od tanich', 'od drogich'],
+	pPcs: [0, 'Cena szt', 'od tanich', 'od drogich'],
+	tCub: [0, 'Stan cał. m<sup>3</sup>', ascText, dscText],
+	tSqr: [0, 'Stan cał. m<sup>2</sup>', ascText, dscText],
+	tPcs: [0, 'Stan cał. szt', ascText, dscText],
+	aCub: [0, 'Stan han. m<sup>3</sup>', ascText, dscText],
+	aSqr: [0, 'Stan han. m<sup>2</sup>', ascText, dscText],
+	aPcs: [0, 'Stan han. szt', ascText, dscText],
 });
 
 watch([sortParams, filteredData], () => {
@@ -72,23 +80,24 @@ function logme(el) {
 </script>
 
 <template>
-	<section class="sorting" style="grid-area: sort">
-		<!-- <h2 v-html="currentSorting"></h2> -->
-		<div class="filterKeys">
-			<button
-				v-for="([dir, name, ascText, dscText], index) in sortKeys"
-				:key="index"
-				:id="index"
-				:class="['button small', { active: dir != 0 ? true : false }]"
-				:style="`grid-area: ${index}`"
-				@click="setSortParams(index)">
-				<span v-html="`${name}`"></span>
-				<span v-if="dir != 0" class="material-symbols-outlined">{{
-					dir > 0 ? 'arrow_downward' : 'arrow_upward'
-				}}</span>
-			</button>
-		</div>
-	</section>
+	<!-- <section class="sorting" style="grid-area: sort"> -->
+	<!-- <h2 v-html="currentSorting"></h2> -->
+	<!-- <div class="filterKeys"> -->
+	<button
+		v-for="([dir, name, ascText, dscText], index) in sortKeys"
+		:key="index"
+		:id="index"
+		:class="['button small', { active: dir != 0 ? true : false }]"
+		:style="`grid-area: ${index}`"
+		@click="setSortParams(index)">
+		<span v-html="`${name}`"></span>
+		<span v-if="dir != 0">
+			<i v-if="dir > 0" class="bi bi-sort-down-alt"></i>
+			<i v-else class="bi bi-sort-down"></i>
+		</span>
+	</button>
+	<!-- </div> -->
+	<!-- </section> -->
 </template>
 
 <style scoped>

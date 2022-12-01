@@ -37,15 +37,23 @@ provide('vat', vat);
 	<section>
 		<DataSet />
 	</section>
-	<header class="header">
+	<header class="header grid-layout">
+		<div class="background"></div>
 		<Filters />
 		<Sorting />
 		<Pagination />
 		<VatSetup />
 	</header>
-	<ul class="list-container" v-if="pagedData_global && pagedData_global.length">
-		<li v-for="ply in pagedData_global" :key="ply.code" class="list-item">
-			<div style="grid-area: code" class="code">{{ ply.code }} - {{ ply.tags }}</div>
+	<ul
+		class="list-container"
+		v-if="pagedData_global && pagedData_global.length">
+		<li
+			v-for="ply in pagedData_global"
+			:key="ply.code"
+			class="list-item grid-layout">
+			<div style="grid-area: code" class="code">
+				{{ ply.code }} - {{ ply.tags }}
+			</div>
 			<div style="grid-area: name" class="name">{{ ply.name }}</div>
 			<!-- <div style="grid-area: tags" class="tags">{{ ply.tags }}</div> -->
 			<div class="error" style="grid-area: err" v-if="ply.error">
@@ -63,56 +71,44 @@ provide('vat', vat);
 </template>
 
 <style>
-#filter {
-	width: 100%;
-}
-
-.header {
+.grid-layout {
+	--cols: 10;
 	display: grid;
 	align-items: center;
-	gap: 1ch;
-	grid-template-columns: repeat(3, 1fr);
+	justify-content: space-evenly;
+	gap: 0.2rem;
+	grid-template-columns: repeat(
+		var(--cols),
+		minmax(calc(100% / var(--cols)), 10ch)
+	);
+}
+.header {
 	grid-template-areas:
-		'fter fter fter'
-		'sort . page'
-		'sort . vats';
+		'fltr fltr fltr fltr fltr fltr fltr fltr fltr fltr'
+		'.    .    .    .    .    .    .    .    page page'
+		'code .    .    .    tCub tSqr tPcs pCub pSqr pPcs'
+		'.    .    .    .    aCub aSqr aPcs vat3 vat2 vat1';
 }
-.sorting {
-	justify-self: left;
-}
-.pagination {
-	justify-self: right;
-}
-.vatsetup {
-	justify-self: right;
-}
-.counter {
-	justify-self: center;
-}
-
-.list-container {
-	padding: 0;
-}
-
 .list-item {
 	margin-block: 1rem;
-	padding: 0.5ex 1ex;
-
-	display: grid;
-	justify-content: space-evenly;
-	gap: 0.5ch;
-	grid-template-columns:
-		repeat(2, 2fr)
-		repeat(6, minmax(max-content, 11ch));
 	grid-template-areas:
-		'code tags tCub tSqr tPcs pCub pSqr pPcs'
-		'name name aCub aSqr aPcs buyp marg perc'
-		'err  err  err  err  err  err  err  err  ';
+		'code .    .    .    tCub tSqr tPcs pCub pSqr pPcs'
+		'name name name name aCub aSqr aPcs buyp marg perc'
+		'err  err  err  err  err  err  err  err  err  err ';
 }
 
 @media (max-width: 1080px) {
+	.grid-layout {
+		--cols: 6;
+	}
+	.header {
+		grid-template-areas:
+			'fltr fltr fltr fltr fltr fltr'
+			'code .    .    .    page page'
+			'tCub tSqr tPcs pCub pSqr pPcs'
+			'aCub aSqr aPcs vat3 vat2 vat1';
+	}
 	.list-item {
-		grid-template-columns: repeat(6, minmax(min-content, 11ch));
 		grid-template-areas:
 			'code code code tags tags tags'
 			'name name name name name name'
@@ -123,8 +119,19 @@ provide('vat', vat);
 }
 
 @media (max-width: 540px) {
+	.grid-layout {
+		--cols: 3;
+	}
+	.header {
+		grid-template-areas:
+			'fltr fltr fltr'
+			'code page page'
+			'tCub tSqr tPcs '
+			'aCub aSqr aPcs '
+			'pCub pSqr pPcs'
+			'vat3 vat2 vat1';
+	}
 	.list-item {
-		grid-template-columns: repeat(3, minmax(min-content, 11ch));
 		grid-template-areas:
 			'code .    tags'
 			'name name name'
@@ -139,30 +146,16 @@ provide('vat', vat);
 [class*='price'],
 [class*='quantity'] {
 	text-align: right;
-	/* color: tomato; */
 }
-
-:is(.code, .tags) {
-	font-weight: 300;
-}
-
-/* [class*='price']:not(.buyp) { */
-/* background-color: whitesmoke;
-	box-shadow: 0 0 0 5px; */
-/* font-style: italic; */
-/* font-weight: 300; */
-/* color: cadetblue; */
-/* } */
-
 [class*='total'] {
 	font-weight: 600;
 }
-
-.flex-column {
-	display: flex;
-	flex-direction: column;
+.pagination {
+	justify-self: right;
 }
-
+.list-container {
+	padding: 0;
+}
 .error {
 	color: crimson;
 }

@@ -268,7 +268,8 @@ function getProductTags(input) {
 	if (/such|mr|int/i.test(input)) tags.push('MR');
 	if (/mel|\bM\/M\b/i.test(input)) tags.push('MM');
 	if (/heksa|F\/WH/i.test(input)) tags.push('Heksa');
-	if (/less|transp/i.test(input)) tags.push('C.less');
+	else tags.push('Tex');
+	if (/less|transpa/i.test(input)) tags.push('C.less');
 	if (/folio|\bF\/F\b/i.test(input)) tags.push('FF');
 	if (/anty|\bF\/W\b|\bW\/W\b/i.test(input)) tags.push('FW');
 	if (!tags.length) tags.push('??');
