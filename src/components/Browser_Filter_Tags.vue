@@ -1,15 +1,22 @@
 <script setup>
-import { inject, watch } from 'vue';
-const tagCloud = ref({});
+import { ref, inject, watch, watchEffect } from 'vue';
+let tagCloud_obj = {};
+const tagCloud_ref = ref({
+	tags: [],
+	sizeA: [],
+	sizeB: [],
+	sizeC: [],
+	grades: [],
+	words: [],
+});
 const userFilter = inject('userFilter');
-const data = inject('pagedData_global');
+const data = inject('filteredData_global');
+const collator = (a, b) => {
+	return new Intl.Collator(undefined, { numeric: true }).compare(a, b);
+};
 
-watch(userFilter, () => {
-	// watchEffect(() => {
-	const collator = (a, b) => {
-		return new Intl.Collator(undefined, { numeric: true }).compare(a, b);
-	};
-
+// watch(userFilter, () => {
+watchEffect(() => {
 	let tags = new Set();
 	let sizeA = new Set();
 	let sizeB = new Set();
@@ -44,17 +51,16 @@ watch(userFilter, () => {
 			words.add(c.toLowerCase().replace(/\.$/gi, ''));
 		}
 	}
-
-	tagCloud.value = {
+	Object.assign(tagCloud_ref.value, {
 		tags: Array.from(tags),
 		sizeA: Array.from(sizeA).sort(collator),
 		sizeB: Array.from(sizeB).sort(collator),
 		sizeC: Array.from(sizeC).sort(collator),
 		grades: Array.from(grades).sort(collator),
 		words: Array.from(words).sort(collator),
-	};
+	});
 
-	console.log(tagCloud.value);
+	console.log(tagCloud_ref.value);
 
 	// console.log(tags);
 	// console.log(sizeA);
@@ -73,4 +79,6 @@ function getProductGrade(input) {
 }
 </script>
 
-<template></template>
+<template>
+	<pre>{{ tagCloud_obj }}</pre>
+</template>

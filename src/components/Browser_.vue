@@ -73,32 +73,30 @@ provide('vat', vat);
 }
 
 .grid-layout {
-	--cols: 10;
 	display: grid;
-	align-items: center;
+	align-items: baseline;
 	justify-content: space-evenly;
-	gap: 1ch;
-	grid-template-columns: repeat(var(--cols), 12ch);
-	/* grid-template-columns: repeat(var(--cols), minmax(11ch, calc(100% / var(--cols)))); */
+	gap: 0.5ch;
+	grid-template-columns: 1fr 1fr repeat(6, 12ch);
 }
 .header {
 	grid-template-areas:
-		'fltr fltr fltr fltr fltr fltr fltr fltr fltr fltr'
-		'.    .    .    .    .    .    .    .    page page'
-		'code .    .    .    tCub tSqr tPcs pCub pSqr pPcs'
-		'.    .    .    .    aCub aSqr aPcs vat3 vat2 vat1';
+		'fltr fltr fltr fltr fltr fltr fltr fltr'
+		'.    .    .    .    .    .    page page'
+		'code .    tCub tSqr tPcs pCub pSqr pPcs'
+		'.    .    aCub aSqr aPcs vat3 vat2 vat1';
 }
 .list-item {
 	margin-block: 1rem;
 	grid-template-areas:
-		'code .    .    .    tCub tSqr tPcs pCub pSqr pPcs'
-		'name name name name aCub aSqr aPcs buyp marg perc'
-		'err  err  err  err  err  err  err  err  err  err ';
+		'code .    tCub tSqr tPcs pCub pSqr pPcs'
+		'name name aCub aSqr aPcs buyp marg perc'
+		'err  err  err  err  err  err  err  err ';
 }
 
-@media (max-width: 1245px) {
+@media (max-width: 1080px) {
 	.grid-layout {
-		--cols: 6;
+		grid-template-columns: repeat(6, 12ch);
 	}
 	.header {
 		grid-template-areas:
@@ -117,9 +115,9 @@ provide('vat', vat);
 	}
 }
 
-@media (max-width: 745px) {
+@media (max-width: 730px) {
 	.grid-layout {
-		--cols: 3;
+		grid-template-columns: repeat(3, 12ch);
 	}
 	.header {
 		grid-template-areas:
