@@ -264,11 +264,10 @@ function getProductTags(input) {
 	if (/honey/i.test(input)) tags.push('Honey');
 	if (/PF|poli/i.test(input)) tags.push('Poliform');
 	if (/RP|radiata/i.test(input)) tags.push('RP');
-	if (/wodo|wd|ext/i.test(input)) tags.push('WD');
+	if (/wodo|wd|ext|\bE\b/i.test(input)) tags.push('WD');
 	if (/such|mr|int/i.test(input)) tags.push('MR');
 	if (/mel|\bM\/M\b/i.test(input)) tags.push('MM');
 	if (/heksa|F\/WH/i.test(input)) tags.push('Heksa');
-	else tags.push('Tex');
 	if (/less|transpa/i.test(input)) tags.push('C.less');
 	if (/folio|\bF\/F\b/i.test(input)) tags.push('FF');
 	if (/anty|\bF\/W\b|\bW\/W\b/i.test(input)) tags.push('FW');

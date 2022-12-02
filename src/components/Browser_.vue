@@ -45,9 +45,16 @@ provide('vat', vat);
 		<Sorting />
 		<VatSetup />
 	</header>
-	<ul class="list-container" v-if="pagedData_global && pagedData_global.length">
-		<li v-for="ply in pagedData_global" :key="ply.code" class="list-item grid-layout">
-			<div style="grid-area: code" class="code">{{ ply.code }} - {{ ply.tags }}</div>
+	<ul
+		class="list-container"
+		v-if="pagedData_global && pagedData_global.length">
+		<li
+			v-for="ply in pagedData_global"
+			:key="ply.code"
+			class="list-item grid-layout">
+			<div style="grid-area: code" class="code">
+				{{ ply.code }} - {{ ply.tags }}
+			</div>
 			<div style="grid-area: name" class="name">{{ ply.name }}</div>
 			<!-- <div style="grid-area: tags" class="tags">{{ ply.tags }}</div> -->
 			<div class="error" style="grid-area: err" v-if="ply.error">
@@ -87,7 +94,7 @@ provide('vat', vat);
 		'.    .    aCub aSqr aPcs vat3 vat2 vat1';
 }
 .list-item {
-	margin-block: 1rem;
+	margin-block: 1rem 2rem;
 	grid-template-areas:
 		'code .    tCub tSqr tPcs pCub pSqr pPcs'
 		'name name aCub aSqr aPcs buyp marg perc'
@@ -146,6 +153,9 @@ provide('vat', vat);
 }
 [class*='total'] {
 	font-weight: 600;
+}
+.name {
+	font-size: 1.15em;
 }
 .pagination {
 	justify-self: right;
