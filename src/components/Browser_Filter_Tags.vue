@@ -1,6 +1,5 @@
 <script setup>
 import { ref, inject, watch, watchEffect } from 'vue';
-let tagCloud_obj = {};
 const tagCloud_ref = ref({
 	tags: [],
 	thick: [],
@@ -70,41 +69,86 @@ function getProductGrade(input) {
 	return grade;
 	// return grade ? grade : ['??/??'];
 }
-
+const checkedIputs = ref({
+	tags: [],
+	thick: [],
+	sizeA: [],
+	sizeB: [],
+	grades: [],
+	words: [],
+});
 function serialize(formData) {
-	let checked = document.querySelectorAll(
-		'#tag-selector input[type="checkbox"]:checked'
-	);
+	const form = document.querySelector('#tag-selector');
+	const data = new FormData(form);
+	let tags = data.getAll('tags');
+	let thick = data.getAll('thick');
+	let sizeA = data.getAll('sizeA');
+	let sizeB = data.getAll('sizeB');
+	let grades = data.getAll('grades');
+	let words = data.getAll('words');
+	const eq = grades.length ? '=' : '';
+	const x = thick.length || sizeA.length || sizeB.length ? 'x' : '';
 
-	checked = Array.from(checked).map((checkbox) => {
-		// Array.map is wrong
-		// Make Array.reduce to String
+	checkedIputs.value = {
+		tags: tags,
+		thick: thick,
+		sizeA: sizeA,
+		sizeB: sizeB,
+		grades: grades,
+		words: words,
+	};
 
-		checkbox.value;
-	});
+	tags = tags.join('|');
+	thick = thick.join('|');
+	sizeA = sizeA.join('|');
+	sizeB = sizeB.join('|');
+	grades = grades.join('|');
+	words = words.join('|');
 
-	console.log(checked.join(' '));
+	const result =
+		`${tags} ${thick}${x}${sizeA}${x}${sizeB} ${eq}${grades} ${words}`.trim();
+	userFilter.value = result;
+	console.log(checkedIputs.value);
+}
+
+function isChecked(colId, tag) {
+	return checkedIputs.value[colId].findIndex((e) => e === tag) >= 0
+		? true
+		: false;
 }
 </script>
 
 <template>
+	<button @click="serialize">OK</button>
 	<form id="tag-selector">
 		<fieldset
-			v-for="(columnTags, colIndex) in tagCloud_ref"
-			class="search-tags"
-			:key="colIndex">
+			v-for="(columnTags, colId) in tagCloud_ref"
+			:key="colId"
+			:class="['search-tags', colId]">
+			<h3>
+				{{ colId }}
+			</h3>
 			<label
 				v-for="(tag, tagIndex) in columnTags"
-				:key="tagIndex"
-				:for="`tag-${tagIndex}`">
+				:key="`${colId}-${tagIndex}`"
+				:for="`${colId}-${tagIndex}`">
 				<input
 					type="checkbox"
-					:name="colIndex"
-					:id="`tag-${tagIndex}`"
-					:value="tag"
-					@input="serialize" />
+					:checked="isChecked(colId, tag)"
+					:name="colId"
+					:id="`${colId}-${tagIndex}`"
+					:value="tag" />
 				{{ tag }}
 			</label>
 		</fieldset>
 	</form>
 </template>
+
+<style scoped>
+form {
+	display: flex;
+}
+label {
+	display: block;
+}
+</style>
