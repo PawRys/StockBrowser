@@ -7,9 +7,6 @@ import {
 	fetchProducts,
 	updateProducts,
 } from './DataCollector_Scripts.js';
-import IconBroom from './icons/IconBroom.vue';
-import IconCheck from './icons/IconCheck.vue';
-import IconDisk from './icons/IconDisk.vue';
 import ExampleData from './DataCollector_ExampleData.vue';
 
 const textareaData = ref();
@@ -39,7 +36,7 @@ async function textareaPaste(e) {
 	} else {
 		const clipboardData = await navigator.clipboard
 			.readText()
-			.catch((reason) => console.error(reason));
+			.catch(reason => console.error(reason));
 		textareaData.value = clipboardData;
 		checkValidation();
 	}
@@ -86,22 +83,20 @@ async function bulkAddIDB() {
 			rows="10"
 			v-model="textareaData"
 			@input="checkValidation"></textarea>
-		<p
-			class="messageBox"
-			:class="{ visible: messageBox, hidden: !messageBox }">
+		<p class="messageBox" :class="{ visible: messageBox, hidden: !messageBox }">
 			{{ messageBox }}
 		</p>
 		<button class="button" @click="textareaClear">
 			Wyczyść
-			<IconBroom />
+			<i class="bi bi-backspace"></i>
 		</button>
 		<button class="button" @click="textareaPaste">
 			Schowek
-			<IconDisk />
+			<i class="bi bi-save"></i>
 		</button>
 		<button class="button accent" @click="bulkAddIDB" v-if="dataType">
 			Zatwierdź
-			<IconCheck />
+			<i class="bi bi-check2"></i>
 		</button>
 	</div>
 

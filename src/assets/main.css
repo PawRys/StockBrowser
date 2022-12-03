@@ -123,16 +123,30 @@ h3 {
 	transition-duration: var(--transition-duration);
 }
 
-.button.small {
+:is(.button, button):is(.small) {
 	padding: 0.5ch 1ch;
 }
 
-.button.accent {
-	background-color: var(--accent-color);
+:is(.button, button):is(.inline) {
+	padding: 0ch 0.5ch;
+	margin-inline: 1ch;
 }
 
-.button.active {
+:is(.button, button):is(.accent) {
+	background-color: var(--accent-color);
+	color: var(--bg-color);
+}
+
+:is(.button, button):is(.active) {
 	box-shadow: inset 0px -3px 0px 0px var(--accent-color);
+}
+
+:is(.button, button):is(.disabled) {
+	color: silver;
+}
+:is(.button, button):is(.disabled):hover {
+	cursor: auto;
+	box-shadow: none;
 }
 
 @media (hover: hover) {

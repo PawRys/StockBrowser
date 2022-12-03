@@ -1,6 +1,8 @@
 <script setup>
 import { ref, inject, watch, watchEffect, unref } from 'vue';
-const filteredProducts_Tags = ref({
+const userFilter = inject('userFilter');
+const filteredData = inject('filteredData_global');
+const filteredData_Tags = ref({
 	tags: [],
 	thick: [],
 	sizeA: [],
@@ -16,15 +18,19 @@ const checkedInputs = ref({
 	grades: [],
 	words: [],
 });
-
-const userFilter = inject('userFilter');
-const data = inject('filteredData_global');
+const columnNames = {
+	tags: 'Grupa',
+	thick: 'Grubość',
+	sizeA: 'Wymiar A',
+	sizeB: 'Wymiar B',
+	grades: 'Klasa',
+	words: 'Opis',
+};
 const collator = (a, b) => {
 	return new Intl.Collator(undefined, { numeric: true }).compare(a, b);
 };
 
-watch([userFilter, data], () => {
-	// watchEffect(() => {
+watch([userFilter, filteredData], () => {
 	let tags = new Set();
 	let thick = new Set();
 	let sizeA = new Set();
@@ -32,35 +38,30 @@ watch([userFilter, data], () => {
 	let grades = new Set();
 	let words = new Set();
 
-	// console.clear();
-	for (const row of data.value) {
+	for (const row of filteredData.value) {
 		const codename = `${row.code} ${row.name}`;
-
+		const chunks = codename.split(/[ \/]/gi);
+		const grade = getProductGrade(codename);
 		if (row.tags) {
 			row.tags.split(' ').map(s => tags.add(s));
 		}
-
 		if (row.size) {
 			const [t, a, b] = row.size.split('x');
 			if (t) thick.add(t);
 			if (a) sizeA.add(a);
 			if (b) sizeB.add(b);
 		}
-
-		const grade = getProductGrade(codename);
 		if (grade) {
 			grade.map(s => grades.add(s));
 		}
-
-		const chunks = codename.split(/[ \/]/gi);
-		for (const c of chunks) {
-			if (/\d/.test(c)) continue;
-			if (c.length < 3) continue;
-			words.add(c.toLowerCase().replace(/\.$/gi, ''));
+		for (const chunk of chunks) {
+			if (/\d/.test(chunk)) continue;
+			if (chunk.length < 3) continue;
+			words.add(chunk.toLowerCase().replace(/\.$/gi, ''));
 		}
 	}
 
-	filteredProducts_Tags.value = {
+	filteredData_Tags.value = {
 		tags: Array.from(tags).sort(collator),
 		thick: Array.from(thick).sort(collator),
 		sizeA: Array.from(sizeA).sort(collator),
@@ -71,10 +72,7 @@ watch([userFilter, data], () => {
 });
 
 watchEffect(() => {
-	// watch(checkedInputs, () => {
-	console.log(`watch checkedInputs`);
 	const inputs = unref(checkedInputs);
-	console.log(inputs);
 	const eq = inputs.grades.length ? '=' : '';
 	const x = inputs.thick.length || inputs.sizeA.length || inputs.sizeB.length ? 'x' : '';
 	let tags = inputs.tags.join('|');
@@ -95,33 +93,39 @@ function getProductGrade(input) {
 	return grade;
 }
 
-function getAllCheckedBoxes() {
+function getAllCheckedBoxes(colId, tag) {
 	const form = document.querySelector('#tag-selector');
-	const data = new FormData(form);
-	let tags = data.getAll('tags');
-	let thick = data.getAll('thick');
-	let sizeA = data.getAll('sizeA');
-	let sizeB = data.getAll('sizeB');
-	let grades = data.getAll('grades');
-	let words = data.getAll('words');
-
-	checkedInputs.value = {
-		tags: tags,
-		thick: thick,
-		sizeA: sizeA,
-		sizeB: sizeB,
-		grades: grades,
-		words: words,
+	const formData = new FormData(form);
+	let checkedBoxes = {
+		tags: formData.getAll('tags'),
+		thick: formData.getAll('thick'),
+		sizeA: formData.getAll('sizeA'),
+		sizeB: formData.getAll('sizeB'),
+		grades: formData.getAll('grades'),
+		words: formData.getAll('words'),
 	};
-	// console.log(unref(checkedInputs));
+	// Add checkbox in direct filtering (label pressed)
+	if (colId && tag) {
+		checkedBoxes[colId].push(tag);
+	}
+	Object.assign(checkedInputs.value, checkedBoxes);
 }
 
 function clearCheckboxesInGroup(groupName) {
-	console.log(checkedInputs.value);
 	const inputs = unref(checkedInputs);
 	inputs[groupName] = [];
 	checkedInputs.value = inputs;
-	console.log(checkedInputs.value);
+}
+
+function clearAllCheckboxes() {
+	checkedInputs.value = {
+		tags: [],
+		thick: [],
+		sizeA: [],
+		sizeB: [],
+		grades: [],
+		words: [],
+	};
 }
 
 function isChecked(colId, tag) {
@@ -136,31 +140,44 @@ function vnodelog(x) {
 </script>
 
 <template>
-	<button class="button accent" @click="getAllCheckedBoxes">OK</button>
+	<button :class="['button']" @click="clearAllCheckboxes()">
+		<span>Usuń wszystkie</span><i class="bi bi-trash3"></i>
+	</button>
+
 	<form id="tag-selector" action="javascript:void(0);">
 		<fieldset
-			v-for="(columnTags, colId) in filteredProducts_Tags"
+			v-for="(columnTags, colId) in filteredData_Tags"
 			:key="colId"
 			:class="['search-tags', colId]">
 			<h3>
-				{{ colId }}
+				{{ columnNames[colId] }}
 			</h3>
-			<button class="button accent" @click="getAllCheckedBoxes">Dodaj filtr</button>
-			<button class="button" @click="clearCheckboxesInGroup(colId)">
+
+			<button
+				:class="['button', { disabled: checkedInputs[colId].length ? false : true }]"
+				@click="clearCheckboxesInGroup(colId)">
 				<span>Usuń</span><i class="bi bi-trash3"></i>
 			</button>
+
 			<label
 				v-for="(tag, tagIndex) in columnTags"
 				:key="`${colId}-${tag}`"
-				:for="`${colId}-${tagIndex}`">
+				:for="`${colId}-${tagIndex}`"
+				@click.prevent="getAllCheckedBoxes(colId, tag)">
 				<input
 					type="checkbox"
 					:checked="isChecked(colId, tag)"
 					:name="colId"
 					:id="`${colId}-${tagIndex}`"
-					:value="tag" />
-				{{ tag }}
+					:value="tag"
+					@click.stop="" />
+
+				<span class="button inline">{{ tag }}</span>
 			</label>
+
+			<button class="button accent" @click="getAllCheckedBoxes">
+				<span>Filtruj</span><i class="bi bi-funnel"></i>
+			</button>
 		</fieldset>
 	</form>
 </template>
@@ -171,9 +188,15 @@ form {
 }
 label {
 	display: block;
+	flex-direction: row;
+	flex-wrap: nowrap;
 	user-select: none;
 }
-.button > i {
+label > input {
+	cursor: pointer;
+	/* outline: solid 1px tomato; */
+}
+:is(.button, button) i {
 	font-size: 1em;
 }
 </style>

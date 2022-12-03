@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import { db as idb } from '../assets/dexiedb.js';
 
 export function timeout(ms) {
-	return new Promise((resolve) => setTimeout(resolve, ms));
+	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export function validate(input) {
@@ -25,8 +25,7 @@ export function validate(input) {
 	}
 
 	const isPrices = /Stany magazynowe towarów/i.test(input);
-	const isCorrectPriceColumns =
-		/Kod towaru		nazwa towaru		jm		stan	cena	wartość		/i.test(input);
+	const isCorrectPriceColumns = /Kod towaru		nazwa towaru		jm		stan	cena	wartość		/i.test(input);
 	if (isPrices && isCorrectPriceColumns) {
 		dataType = 'prices';
 		message = `💵 Rozpoznano ceny zakupowe towarów.`;
@@ -56,15 +55,14 @@ export function validate(input) {
 
 export function prepareData(input, dataType) {
 	const linesArray = input.match(/[^\r\n]+/g);
-	const garbageWords =
-		/\b(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/i;
+	const garbageWords = /\b(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/gi;
 	let output = [];
 
 	for (let line of linesArray) {
 		const lineChunks = line.match(/[^\t]+/g);
 		// Ommit garbage
 		if (!lineChunks) continue;
-		if (garbageWords.test(lineChunks[0])) continue;
+		if (garbageWords.test(line)) continue;
 		if (dataType === 'products' && lineChunks.length !== 2) continue;
 		if (dataType === 'prices' && lineChunks.length !== 6) continue;
 		if (dataType === 'stocks' && lineChunks.length !== 7) continue;
@@ -79,13 +77,13 @@ export function prepareData(input, dataType) {
 
 export async function updateProducts(currentData, updates, dataType) {
 	if (dataType === 'prices') {
-		currentData.map((row) => {
+		currentData.map(row => {
 			row.pCub = 0;
 		});
 	}
 
 	if (dataType === 'stocks') {
-		currentData.map((row) => {
+		currentData.map(row => {
 			row.tCub = 0;
 			row.aCub = 0;
 		});
@@ -94,9 +92,7 @@ export async function updateProducts(currentData, updates, dataType) {
 	for (let newProduct of updates) {
 		const productCode = newProduct[0];
 		const productName = newProduct[1];
-		const productIndex = currentData.findIndex(
-			(row) => row.code === productCode
-		);
+		const productIndex = currentData.findIndex(row => row.code === productCode);
 		const currentProduct = productIndex < 0 ? {} : currentData[productIndex];
 		const size = getProductSize(productName);
 		const tags = getProductTags(
@@ -108,9 +104,7 @@ export async function updateProducts(currentData, updates, dataType) {
 		let errors = [];
 
 		if (size === null) {
-			errors.push(
-				'Błąd: Brak prawidłowego wymiaru w opisie. Obliczenia niemożliwe.'
-			);
+			errors.push('Błąd: Brak prawidłowego wymiaru w opisie. Obliczenia niemożliwe.');
 		}
 
 		Object.assign(currentProduct, {
