@@ -43,7 +43,7 @@ watch([userFilter, filteredData], () => {
 		const chunks = codename.split(/[ \/]/gi);
 		const grade = getProductGrade(codename);
 		if (row.tags) {
-			row.tags.split(' ').map(s => tags.add(s));
+			row.tags.split(' ').map((s) => tags.add(s));
 		}
 		if (row.size) {
 			const [t, a, b] = row.size.split('x');
@@ -52,12 +52,12 @@ watch([userFilter, filteredData], () => {
 			if (b) sizeB.add(b);
 		}
 		if (grade) {
-			grade.map(s => grades.add(s));
+			grade.map((s) => grades.add(s));
 		}
 		for (const chunk of chunks) {
 			if (/\d/.test(chunk)) continue;
 			if (chunk.length < 3) continue;
-			words.add(chunk.toLowerCase().replace(/\.$/gi, ''));
+			words.add(chunk.toLowerCase().replace(/[\.,]$/gi, ''));
 		}
 	}
 
@@ -74,7 +74,10 @@ watch([userFilter, filteredData], () => {
 watchEffect(() => {
 	const inputs = unref(checkedInputs);
 	const eq = inputs.grades.length ? '=' : '';
-	const x = inputs.thick.length || inputs.sizeA.length || inputs.sizeB.length ? 'x' : '';
+	const x =
+		inputs.thick.length || inputs.sizeA.length || inputs.sizeB.length
+			? 'x'
+			: '';
 	let tags = inputs.tags.join('|');
 	let thick = inputs.thick.join('|');
 	let sizeA = inputs.sizeA.join('|');
@@ -87,7 +90,7 @@ watchEffect(() => {
 });
 
 function getProductGrade(input) {
-	const part = 'KILO|BB|B|CP|C|WGE|WG|PQF|PQ|PF|F|WH|W|M';
+	const part = 'KILO|BB|B|CP|CC|C|WGE|WG|PQF|PQ|PF|F|WH|W|M';
 	const pattern = `\\b(${part}){1}(\/(${part})){0,1}(?!\\.)\\b`;
 	const grade = input.toUpperCase().match(new RegExp(pattern, 'gi'));
 	return grade;
@@ -130,7 +133,7 @@ function clearAllCheckboxes() {
 
 function isChecked(colId, tag) {
 	const inputs = unref(checkedInputs);
-	const test = inputs[colId].findIndex(e => e === tag) < 0 ? false : true;
+	const test = inputs[colId].findIndex((e) => e === tag) < 0 ? false : true;
 	return test;
 }
 
@@ -154,7 +157,10 @@ function vnodelog(x) {
 			</h3>
 
 			<button
-				:class="['button', { disabled: checkedInputs[colId].length ? false : true }]"
+				:class="[
+					'button',
+					{ disabled: checkedInputs[colId].length ? false : true },
+				]"
 				@click="clearCheckboxesInGroup(colId)">
 				<span>Usuń</span><i class="bi bi-trash3"></i>
 			</button>
