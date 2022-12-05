@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { onUpdated, ref } from 'vue';
 import { db as idb } from '../assets/dexiedb.js';
 
 export function timeout(ms) {
@@ -270,6 +270,22 @@ function getProductTags(input) {
 	tags.sort();
 	const result = tags.reduce((a, c) => `${a} ${c}`, '');
 	return result.trim();
+}
+
+export function animateScrollTo(input) {
+	const el = document.querySelector(input);
+	// const ev = window.addEventListener('scroll', () => {
+	// 	console.log(el.offsetTop);
+	// });
+
+	// onUpdated(() => {
+	window.scrollTo({
+		top: el.offsetTop,
+		behavior: 'smooth',
+	});
+	// });
+
+	// console.log(el.offsetTop);
 }
 
 // function getProductGrade(input) {

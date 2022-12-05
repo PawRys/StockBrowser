@@ -1,5 +1,6 @@
 <script setup>
 import { inject, watch, watchEffect } from 'vue';
+import { animateScrollTo } from './DataCollector_Scripts.js';
 
 const pagedData = inject(['pagedData_global']);
 const sortedProducts = inject(['sortedData_global']);
@@ -47,24 +48,30 @@ function setNextPage() {
 			</select>
 		</div> -->
 		<div class="page-selector" v-if="pageCount_global > 1">
-			<a
-				class="select-prev material-symbols-outlined"
-				href="#pageTop"
-				@click="setPrevPage()">
-				navigate_before
-			</a>
-			<select name="pagenum" class="select-pagenum" v-model="pageNumber_global">
+			<button
+				class="button small"
+				@click="[setPrevPage(), animateScrollTo('#results')]">
+				<i class="bi bi-chevron-left"></i>
+			</button>
+
+			<select
+				name="pagenum"
+				class="select-pagenum"
+				v-model="pageNumber_global"
+				@input="animateScrollTo('#results')">
 				<template v-for="n in pageCount_global">
-					<option :value="n || 1">{{ n }}</option>
+					<option :value="n || 1">
+						{{ n }}
+					</option>
 				</template>
 			</select>
 			<span class="page-count"> z {{ pageCount_global }}</span>
-			<a
-				class="select-next material-symbols-outlined"
-				href="#pageTop"
-				@click="setNextPage()">
-				navigate_next
-			</a>
+
+			<button
+				class="button small"
+				@click="[setNextPage(), animateScrollTo('#results')]">
+				<i class="bi bi-chevron-right"></i>
+			</button>
 		</div>
 	</section>
 </template>

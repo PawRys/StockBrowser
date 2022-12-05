@@ -1,5 +1,6 @@
 <script setup>
 import { ref, inject, watch, watchEffect, unref } from 'vue';
+import { animateScrollTo } from './DataCollector_Scripts.js';
 const userFilter = inject('userFilter');
 const filteredData = inject('filteredData_global');
 const filteredData_Tags = ref({
@@ -43,7 +44,7 @@ watch([userFilter, filteredData], () => {
 		const chunks = codename.split(/[ \/]/gi);
 		const grade = getProductGrade(codename);
 		if (row.tags) {
-			row.tags.split(' ').map((s) => tags.add(s));
+			row.tags.split(' ').map(s => tags.add(s));
 		}
 		if (row.size) {
 			const [t, a, b] = row.size.split('x');
@@ -52,7 +53,7 @@ watch([userFilter, filteredData], () => {
 			if (b) sizeB.add(b);
 		}
 		if (grade) {
-			grade.map((s) => grades.add(s));
+			grade.map(s => grades.add(s));
 		}
 		for (const chunk of chunks) {
 			if (/\d/.test(chunk)) continue;
@@ -74,10 +75,7 @@ watch([userFilter, filteredData], () => {
 watchEffect(() => {
 	const inputs = unref(checkedInputs);
 	const eq = inputs.grades.length ? '=' : '';
-	const x =
-		inputs.thick.length || inputs.sizeA.length || inputs.sizeB.length
-			? 'x'
-			: '';
+	const x = inputs.thick.length || inputs.sizeA.length || inputs.sizeB.length ? 'x' : '';
 	let tags = inputs.tags.join('|');
 	let thick = inputs.thick.join('|');
 	let sizeA = inputs.sizeA.join('|');
@@ -133,8 +131,20 @@ function clearAllCheckboxes() {
 
 function isChecked(colId, tag) {
 	const inputs = unref(checkedInputs);
-	const test = inputs[colId].findIndex((e) => e === tag) < 0 ? false : true;
+	const test = inputs[colId].findIndex(e => e === tag) < 0 ? false : true;
 	return test;
+}
+
+function addListener(evName, el) {
+	// listner added to onUpdated hook because when regular 'click' happens
+	// #results.offsetTop changes height witch resulting in scrolling to wrong position.
+	el.addEventListener(
+		evName,
+		() => {
+			animateScrollTo('#results');
+		},
+		{ once: true }
+	);
 }
 
 function vnodelog(x) {
@@ -143,30 +153,29 @@ function vnodelog(x) {
 </script>
 
 <template>
-	<button :class="['button']" @click="clearAllCheckboxes()">
-		<span>Usuń wszystkie</span><i class="bi bi-trash3"></i>
-	</button>
-
 	<form id="tag-selector" action="javascript:void(0);">
 		<fieldset
 			v-for="(columnTags, colId) in filteredData_Tags"
 			:key="colId"
-			:class="['search-tags', colId]">
-			<h3>
-				{{ columnNames[colId] }}
-			</h3>
-
-			<button
-				:class="[
-					'button',
-					{ disabled: checkedInputs[colId].length ? false : true },
-				]"
-				@click="clearCheckboxesInGroup(colId)">
-				<span>Usuń</span><i class="bi bi-trash3"></i>
-			</button>
+			:class="['tag-group', colId]">
+			<header>
+				<h3>
+					{{ columnNames[colId] }}
+				</h3>
+				<button
+					:class="[
+						'button delete',
+						{ disabled: checkedInputs[colId].length ? false : true },
+					]"
+					@click="clearCheckboxesInGroup(colId)">
+					<span>Usuń</span>
+					<i class="bi bi-trash3"></i>
+				</button>
+			</header>
 
 			<label
 				v-for="(tag, tagIndex) in columnTags"
+				class="tag"
 				:key="`${colId}-${tag}`"
 				:for="`${colId}-${tagIndex}`"
 				@click.prevent="getAllCheckedBoxes(colId, tag)">
@@ -181,17 +190,73 @@ function vnodelog(x) {
 				<span class="button inline">{{ tag }}</span>
 			</label>
 
-			<button class="button accent" @click="getAllCheckedBoxes">
-				<span>Filtruj</span><i class="bi bi-funnel"></i>
-			</button>
+			<!-- <button class="button accent" @click="getAllCheckedBoxes">
+				<span>Filtruj</span>
+				<i class="bi bi-funnel"></i>
+			</button> -->
 		</fieldset>
 	</form>
+
+	<footer>
+		<button :class="['button']" @click="clearAllCheckboxes()">
+			<span>Usuń wszystkie</span>
+			<i class="bi bi-trash3"></i>
+		</button>
+		<button
+			href="#results"
+			id="show-results"
+			class="button accent"
+			@vnode-updated="addListener('click', $event.el)"
+			@click="getAllCheckedBoxes">
+			<span>Pokaż wyniki</span>
+			<i class="bi bi-check-square"></i>
+		</button>
+	</footer>
 </template>
 
 <style scoped>
-form {
+#tag-selector {
 	display: flex;
+	max-width: 100vw;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	/* background-color: aliceblue; */
 }
+#tag-selector + footer {
+	position: sticky;
+	bottom: 0.2rem;
+
+	display: flex;
+	align-items: center;
+	gap: 0.4ch;
+
+	margin: 0.5rem;
+	margin-inline: auto;
+	padding: 0.3ch 0.4ch;
+	width: fit-content;
+	border-radius: 0.4ch;
+	background: var(--bg-color);
+}
+
+.tag-group {
+	border: none;
+	min-width: 20ch;
+	scroll-snap-align: center;
+}
+
+.tag-group > header {
+	position: sticky;
+	top: 0.5rem;
+
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	width: 100%;
+}
+.tag-group .delete.button > span {
+	display: none;
+}
+
 label {
 	display: block;
 	flex-direction: row;

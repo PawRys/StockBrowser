@@ -36,25 +36,17 @@ provide('vat', vat);
 	<h2 id="pageTop">Main Table</h2>
 	<section>
 		<DataSet />
-	</section>
-	<header class="header grid-layout">
-		<div class="background"></div>
-		<!-- Correct order (for keyboard navigation): FPSV -->
 		<Filters />
+	</section>
+	<header id="results" class="header grid-layout">
+		<!-- Correct order (for keyboard navigation): FPSV -->
 		<Pagination />
 		<Sorting />
 		<VatSetup />
 	</header>
-	<ul
-		class="list-container"
-		v-if="pagedData_global && pagedData_global.length">
-		<li
-			v-for="ply in pagedData_global"
-			:key="ply.code"
-			class="list-item grid-layout">
-			<div style="grid-area: code" class="code">
-				{{ ply.code }} - {{ ply.tags }}
-			</div>
+	<ul class="list-container" v-if="pagedData_global && pagedData_global.length">
+		<li v-for="ply in pagedData_global" :key="ply.code" class="list-item grid-layout">
+			<div style="grid-area: code" class="code">{{ ply.code }} - {{ ply.tags }}</div>
 			<div style="grid-area: name" class="name">{{ ply.name }}</div>
 			<!-- <div style="grid-area: tags" class="tags">{{ ply.tags }}</div> -->
 			<div class="error" style="grid-area: err" v-if="ply.error">
