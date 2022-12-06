@@ -67,7 +67,6 @@ function setSortParams(currentId) {
 }
 
 function logme(el) {
-	console.log(`update`);
 	console.log(el);
 }
 </script>
@@ -88,6 +87,7 @@ function logme(el) {
 			<i v-if="dir > 0" class="bi bi-sort-down-alt"></i>
 			<i v-else class="bi bi-sort-down"></i>
 		</span>
+		<!-- <span v-else><i class="bi bi-arrow-down-short"></i></span> -->
 	</button>
 	<!-- </div> -->
 	<!-- </section> -->

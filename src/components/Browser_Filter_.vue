@@ -11,47 +11,51 @@ watch([userFilter, unfilteredData], () => {
 	let data = unfilteredData.value;
 	if (!data) return;
 
-	let query = userFilter.value;
-	query = query.split(' ');
-	query = query.map((filter) => {
-		const trimPipes = /^\|+|\|+$/g;
-		const isSize = /\d*x[\d\|]*x\d*/i.test(filter);
-		const wholeWordsOnly = /=/.test(filter) || isSize ? '\\b' : '';
-		filter = filter.replace(trimPipes, '');
-		filter = filter.replace(/(\?)/g, '\\$1');
-		filter = filter.replace('=', '');
-		let subQuery = '';
-		if (isSize) {
-			filter = filter
-				.split('x')
-				.map((subFilter) => {
-					subFilter = subFilter.replace(trimPipes, '');
-					return subFilter.length > 0 ? `(${subFilter})` : '(\\d+)';
-				})
-				.join('x');
-		}
-		subQuery = `(?=.*${wholeWordsOnly}(?<!,)(${filter})(${wholeWordsOnly}|mm))`;
-		return subQuery;
-	});
-	query = query.join('');
+	let filterString = userFilter.value;
+	let fliterRegexp = convertStringToRegexp(filterString);
+	console.log(fliterRegexp);
 
-	data = data.filter((row) => {
+	data = data.filter(row => {
 		const str = `${row.code} ${row.tags} ${row.name}`;
-		return str.match(new RegExp(query, 'i'));
+		return str.match(new RegExp(fliterRegexp, 'i'));
 	});
 
 	filteredData.value = data;
 });
+
+function convertStringToRegexp(str) {
+	return str
+		.split(' ')
+		.map(filter => {
+			const trimPipes = /^\|+|\|+$/g;
+			const isDimension = /\d*x[\d\|]*x\d*/i.test(filter);
+			const wholeWordsOnly = /=/.test(filter) ? '\\b' : '';
+			let subQuery = '';
+
+			filter = filter.replace('=', '');
+			filter = filter.replace(trimPipes, '');
+			filter = filter.replace(/(\?)/g, '\\$1');
+			if (isDimension) {
+				filter = filter
+					.split('x')
+					.map(subFilter => {
+						subFilter = subFilter.replace(trimPipes, '');
+						return subFilter.length > 0 ? `(${subFilter})` : '(\\d+)';
+					})
+					.join('x');
+				filter = `(?<!,)${filter}(mm)?`;
+			}
+			subQuery = `(?=.*${wholeWordsOnly}(${filter})${wholeWordsOnly})`;
+			return subQuery;
+		})
+		.join('');
+}
 </script>
 
 <template>
 	<section class="filters" style="grid-area: fltr">
 		<label for="filter">
-			Szukaj:<input
-				type="search"
-				name="filter"
-				id="filter"
-				v-model="userFilter" />
+			Szukaj:<input type="search" name="filter" id="filter" v-model="userFilter" />
 		</label>
 		<span class="counter" style="grid-area: count">
 			Rekordów: {{ filteredData ? filteredData.length : 0 }} z

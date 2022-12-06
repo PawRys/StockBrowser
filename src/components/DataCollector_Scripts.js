@@ -274,18 +274,10 @@ function getProductTags(input) {
 
 export function animateScrollTo(input) {
 	const el = document.querySelector(input);
-	// const ev = window.addEventListener('scroll', () => {
-	// 	console.log(el.offsetTop);
-	// });
-
-	// onUpdated(() => {
 	window.scrollTo({
 		top: el.offsetTop,
 		behavior: 'smooth',
 	});
-	// });
-
-	// console.log(el.offsetTop);
 }
 
 // function getProductGrade(input) {

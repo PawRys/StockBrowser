@@ -3,7 +3,7 @@ import { ref, inject, watch, watchEffect, unref } from 'vue';
 import { animateScrollTo } from './DataCollector_Scripts.js';
 const userFilter = inject('userFilter');
 const filteredData = inject('filteredData_global');
-const filteredData_Tags = ref({
+const searchTags = ref({
 	tags: [],
 	thick: [],
 	sizeA: [],
@@ -31,20 +31,21 @@ const collator = (a, b) => {
 	return new Intl.Collator(undefined, { numeric: true }).compare(a, b);
 };
 
+// Collect search tags
 watch([userFilter, filteredData], () => {
 	let tags = new Set();
 	let thick = new Set();
 	let sizeA = new Set();
 	let sizeB = new Set();
-	let grades = new Set();
+	let grade = new Set();
 	let words = new Set();
 
 	for (const row of filteredData.value) {
 		const codename = `${row.code} ${row.name}`;
 		const chunks = codename.split(/[ \/]/gi);
-		const grade = getProductGrade(codename);
+		const grades = getProductGrade(codename);
 		if (row.tags) {
-			row.tags.split(' ').map((s) => tags.add(s));
+			row.tags.split(' ').map(s => tags.add(s));
 		}
 		if (row.size) {
 			const [t, a, b] = row.size.split('x');
@@ -52,8 +53,8 @@ watch([userFilter, filteredData], () => {
 			if (a) sizeA.add(a);
 			if (b) sizeB.add(b);
 		}
-		if (grade) {
-			grade.map((s) => grades.add(s));
+		if (grades) {
+			grades.map(s => grade.add(s));
 		}
 		for (const chunk of chunks) {
 			if (/\d/.test(chunk)) continue;
@@ -62,37 +63,38 @@ watch([userFilter, filteredData], () => {
 		}
 	}
 
-	filteredData_Tags.value = {
+	searchTags.value = {
 		tags: Array.from(tags).sort(collator),
 		thick: Array.from(thick).sort(collator),
 		sizeA: Array.from(sizeA).sort(collator),
 		sizeB: Array.from(sizeB).sort(collator),
-		grades: Array.from(grades).sort(collator),
+		grades: Array.from(grade).sort(collator),
 		words: Array.from(words).sort(collator),
 	};
 });
 
+// Build filter string from checked inputs
 watchEffect(() => {
 	const inputs = unref(checkedInputs);
-	const eq = inputs.grades.length ? '=' : '';
-	const x =
-		inputs.thick.length || inputs.sizeA.length || inputs.sizeB.length
-			? 'x'
-			: '';
+	const x = inputs.thick.length || inputs.sizeA.length || inputs.sizeB.length ? 'x' : '';
+	// const eq = x.length || inputs.tags.length || inputs.grades.length ? '=' : '';
 	let tags = inputs.tags.join('|');
 	let thick = inputs.thick.join('|');
 	let sizeA = inputs.sizeA.join('|');
 	let sizeB = inputs.sizeB.join('|');
+	let dimension = '';
 	let grades = inputs.grades.join('|');
 	let words = inputs.words.join('|');
+	if (tags) tags = `=${tags} `;
+	if (grades) grades = `=${grades} `;
+	if (x.length) dimension = `=${thick}${x}${sizeA}${x}${sizeB} `;
 
-	userFilter.value =
-		`${tags} ${thick}${x}${sizeA}${x}${sizeB} ${eq}${grades} ${words}`.trim();
+	userFilter.value = `${tags}${dimension}${grades}${words}`.trim();
 });
 
 function getProductGrade(input) {
-	const part = 'KILO|BB|B|CP|CC|C|WGE|WG|PQF|PQ|PF|F|WH|W|M';
-	const pattern = `\\b(${part}){1}(\/(${part})){0,1}(?!\\.)\\b`;
+	const className = 'KILO|BB|B|CP|CC|C|WGE|WG|PQF|PQ|PF|F|WH|W|M';
+	const pattern = `\\b(${className}){1}(\/(${className})){0,1}(?!\\.)\\b`;
 	const grade = input.toUpperCase().match(new RegExp(pattern, 'gi'));
 	return grade;
 }
@@ -134,7 +136,7 @@ function clearAllCheckboxes() {
 
 function isChecked(colId, tag) {
 	const inputs = unref(checkedInputs);
-	const test = inputs[colId].findIndex((e) => e === tag) < 0 ? false : true;
+	const test = inputs[colId].findIndex(e => e === tag) < 0 ? false : true;
 	return test;
 }
 
@@ -158,7 +160,7 @@ function vnodelog(x) {
 <template>
 	<form id="tag-selector" action="javascript:void(0);">
 		<fieldset
-			v-for="(columnTags, colId) in filteredData_Tags"
+			v-for="(columnTags, colId) in searchTags"
 			:key="colId"
 			:class="['tag-group', colId]">
 			<header>
@@ -214,7 +216,7 @@ function vnodelog(x) {
 			class="button accent"
 			@vnode-updated="addListener('click', $event.el)"
 			@click="getAllCheckedBoxes">
-			<span>Pokaż wyniki</span>
+			<span>Pokaż wyniki ({{ filteredData ? filteredData.length : 0 }})</span>
 			<i class="bi bi-check-square"></i>
 		</button>
 	</footer>
@@ -226,11 +228,10 @@ function vnodelog(x) {
 	max-width: 100vw;
 	overflow-x: auto;
 	scroll-snap-type: x mandatory;
-	/* background-color: aliceblue; */
 }
 #tag-selector + footer {
 	position: sticky;
-	bottom: 0.2rem;
+	bottom: 1rem;
 
 	display: flex;
 	align-items: center;

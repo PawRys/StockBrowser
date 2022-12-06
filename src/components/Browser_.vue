@@ -42,6 +42,7 @@ provide('vat', vat);
 	</section>
 
 	<header id="results" class="header grid-layout">
+		<div class="background"></div>
 		<!-- Correct order (for keyboard navigation): FPSV -->
 		<Pagination />
 		<Sorting />
@@ -49,9 +50,7 @@ provide('vat', vat);
 	</header>
 
 	<section class="list-wrapper">
-		<ul
-			class="list-container"
-			v-if="pagedData_global && pagedData_global.length">
+		<ul class="list-container" v-if="pagedData_global && pagedData_global.length">
 			<li
 				v-for="ply in pagedData_global"
 				:key="ply.code"
@@ -65,14 +64,11 @@ provide('vat', vat);
 					<span v-for="error of ply.error">{{ error }}</span>
 				</div>
 
-				<Quantities
-					:size="ply.size"
-					:total="ply.tCub"
-					:aviable="ply.aCub" />
+				<Quantities :size="ply.size" :total="ply.tCub" :aviable="ply.aCub" />
 				<PriceCalculator :plySize="ply.size" :buyPrice="ply.pCub" />
 			</li>
 		</ul>
-		<p v-else>Nie znaleziono produktów.</p>
+		<p v-else class="empty-list">Nie znaleziono produktów.</p>
 		<button class="search button accent" @click="animateScrollTo('#search')">
 			<span>Szukaj...</span><i class="bi bi-search"></i>
 		</button>
@@ -182,6 +178,11 @@ provide('vat', vat);
 }
 .list-container {
 	padding: 0;
+}
+.empty-list {
+	margin: 5rem;
+	font-size: 1.4rem;
+	text-align: center;
 }
 .error {
 	color: crimson;
