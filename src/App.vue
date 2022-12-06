@@ -20,7 +20,7 @@ watchEffect(() => {
 </script>
 
 <template>
-	<div class="panel-switch flex">
+	<nav class="panel-switch flex">
 		<button
 			v-for="(tab, i) of tabs"
 			:key="i"
@@ -29,12 +29,14 @@ watchEffect(() => {
 			{{ tab.name }}
 			<i :class="tab.icon"></i>
 		</button>
-	</div>
+	</nav>
 
-	<Suspense>
-		<component :is="tabs[currentTab].id"></component>
-		<template #fallback>Loading...</template>
-	</Suspense>
+	<main>
+		<Suspense>
+			<component :is="tabs[currentTab].id"></component>
+			<template #fallback>Loading...</template>
+		</Suspense>
+	</main>
 
 	<footer>
 		<p>The End</p>

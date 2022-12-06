@@ -8,6 +8,7 @@ import VatSetup from './Browser_VatSetup.vue';
 import Pagination from './Browser_Pagination.vue';
 import Quantities from './Browser_Quantities.vue';
 import PriceCalculator from './Browser_PriceCalculator_.vue';
+import { animateScrollTo } from './DataCollector_Scripts.js';
 
 const unfilteredData_global = ref();
 const filteredData_global = ref();
@@ -34,36 +35,63 @@ provide('vat', vat);
 
 <template>
 	<h2 id="pageTop">Main Table</h2>
-	<section>
+
+	<section id="search">
 		<DataSet />
 		<Filters />
 	</section>
+
 	<header id="results" class="header grid-layout">
 		<!-- Correct order (for keyboard navigation): FPSV -->
 		<Pagination />
 		<Sorting />
 		<VatSetup />
 	</header>
-	<ul class="list-container" v-if="pagedData_global && pagedData_global.length">
-		<li v-for="ply in pagedData_global" :key="ply.code" class="list-item grid-layout">
-			<div style="grid-area: code" class="code">{{ ply.code }} - {{ ply.tags }}</div>
-			<div style="grid-area: name" class="name">{{ ply.name }}</div>
-			<!-- <div style="grid-area: tags" class="tags">{{ ply.tags }}</div> -->
-			<div class="error" style="grid-area: err" v-if="ply.error">
-				<span v-for="error of ply.error">{{ error }}</span>
-			</div>
 
-			<Quantities :total="ply.tCub" :aviable="ply.aCub" :size="ply.size" />
-			<PriceCalculator :plySize="ply.size" :buyPrice="ply.pCub" />
-		</li>
-	</ul>
-	<p v-else>Nie znaleziono produktów.</p>
+	<section class="list-wrapper">
+		<ul
+			class="list-container"
+			v-if="pagedData_global && pagedData_global.length">
+			<li
+				v-for="ply in pagedData_global"
+				:key="ply.code"
+				class="list-item grid-layout">
+				<div style="grid-area: code" class="code">
+					{{ ply.code }} - {{ ply.tags }}
+				</div>
+				<div style="grid-area: name" class="name">{{ ply.name }}</div>
+				<!-- <div style="grid-area: tags" class="tags">{{ ply.tags }}</div> -->
+				<div class="error" style="grid-area: err" v-if="ply.error">
+					<span v-for="error of ply.error">{{ error }}</span>
+				</div>
+
+				<Quantities
+					:size="ply.size"
+					:total="ply.tCub"
+					:aviable="ply.aCub" />
+				<PriceCalculator :plySize="ply.size" :buyPrice="ply.pCub" />
+			</li>
+		</ul>
+		<p v-else>Nie znaleziono produktów.</p>
+		<button class="search button accent" @click="animateScrollTo('#search')">
+			<span>Szukaj...</span><i class="bi bi-search"></i>
+		</button>
+	</section>
+
 	<footer style="display: flex">
 		<Pagination style="margin-left: auto" />
 	</footer>
 </template>
 
 <style>
+.list-wrapper {
+	display: grid;
+}
+.search.button {
+	position: sticky;
+	bottom: 1rem;
+	margin-inline: auto;
+}
 .background {
 	grid-area: code / code / vat1 / vat1;
 	position: absolute;

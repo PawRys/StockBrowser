@@ -44,7 +44,7 @@ watch([userFilter, filteredData], () => {
 		const chunks = codename.split(/[ \/]/gi);
 		const grade = getProductGrade(codename);
 		if (row.tags) {
-			row.tags.split(' ').map(s => tags.add(s));
+			row.tags.split(' ').map((s) => tags.add(s));
 		}
 		if (row.size) {
 			const [t, a, b] = row.size.split('x');
@@ -53,7 +53,7 @@ watch([userFilter, filteredData], () => {
 			if (b) sizeB.add(b);
 		}
 		if (grade) {
-			grade.map(s => grades.add(s));
+			grade.map((s) => grades.add(s));
 		}
 		for (const chunk of chunks) {
 			if (/\d/.test(chunk)) continue;
@@ -75,7 +75,10 @@ watch([userFilter, filteredData], () => {
 watchEffect(() => {
 	const inputs = unref(checkedInputs);
 	const eq = inputs.grades.length ? '=' : '';
-	const x = inputs.thick.length || inputs.sizeA.length || inputs.sizeB.length ? 'x' : '';
+	const x =
+		inputs.thick.length || inputs.sizeA.length || inputs.sizeB.length
+			? 'x'
+			: '';
 	let tags = inputs.tags.join('|');
 	let thick = inputs.thick.join('|');
 	let sizeA = inputs.sizeA.join('|');
@@ -131,7 +134,7 @@ function clearAllCheckboxes() {
 
 function isChecked(colId, tag) {
 	const inputs = unref(checkedInputs);
-	const test = inputs[colId].findIndex(e => e === tag) < 0 ? false : true;
+	const test = inputs[colId].findIndex((e) => e === tag) < 0 ? false : true;
 	return test;
 }
 
@@ -162,15 +165,6 @@ function vnodelog(x) {
 				<h3>
 					{{ columnNames[colId] }}
 				</h3>
-				<button
-					:class="[
-						'button delete',
-						{ disabled: checkedInputs[colId].length ? false : true },
-					]"
-					@click="clearCheckboxesInGroup(colId)">
-					<span>Usuń</span>
-					<i class="bi bi-trash3"></i>
-				</button>
 			</header>
 
 			<label
@@ -190,10 +184,22 @@ function vnodelog(x) {
 				<span class="button inline">{{ tag }}</span>
 			</label>
 
-			<!-- <button class="button accent" @click="getAllCheckedBoxes">
-				<span>Filtruj</span>
-				<i class="bi bi-funnel"></i>
-			</button> -->
+			<hr />
+			<footer>
+				<button class="button" @click="getAllCheckedBoxes">
+					<span>Filtruj</span>
+					<i class="bi bi-funnel"></i>
+				</button>
+				<button
+					:class="[
+						'button delete',
+						{ disabled: checkedInputs[colId].length ? false : true },
+					]"
+					@click="clearCheckboxesInGroup(colId)">
+					<span>Usuń</span>
+					<i class="bi bi-trash3"></i>
+				</button>
+			</footer>
 		</fieldset>
 	</form>
 
@@ -245,8 +251,8 @@ function vnodelog(x) {
 }
 
 .tag-group > header {
-	position: sticky;
-	top: 0.5rem;
+	/* position: sticky;
+	top: 0.5rem; */
 
 	display: flex;
 	align-items: baseline;
@@ -255,6 +261,11 @@ function vnodelog(x) {
 }
 .tag-group .delete.button > span {
 	display: none;
+}
+
+.tag-group > footer {
+	display: flex;
+	flex-wrap: nowrap;
 }
 
 label {
