@@ -216,7 +216,7 @@ function vnodelog(x) {
 			class="button accent"
 			@vnode-updated="addListener('click', $event.el)"
 			@click="getAllCheckedBoxes">
-			<span>Pokaż wyniki ({{ filteredData ? filteredData.length : 0 }})</span>
+			<span>Pokaż wyniki ({{ filteredData.length }})</span>
 			<i class="bi bi-check-square"></i>
 		</button>
 	</footer>

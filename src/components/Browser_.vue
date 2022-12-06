@@ -10,10 +10,10 @@ import Quantities from './Browser_Quantities.vue';
 import PriceCalculator from './Browser_PriceCalculator_.vue';
 import { animateScrollTo } from './DataCollector_Scripts.js';
 
-const unfilteredData_global = ref();
-const filteredData_global = ref();
-const sortedData_global = ref();
-const pagedData_global = ref();
+const unfilteredData_global = ref([]);
+const filteredData_global = ref([]);
+const sortedData_global = ref([]);
+const pagedData_global = ref([]);
 provide('unfilteredData_global', unfilteredData_global);
 provide('filteredData_global', filteredData_global);
 provide('sortedData_global', sortedData_global);

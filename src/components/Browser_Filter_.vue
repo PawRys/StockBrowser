@@ -13,7 +13,6 @@ watch([userFilter, unfilteredData], () => {
 
 	let filterString = userFilter.value;
 	let fliterRegexp = convertStringToRegexp(filterString);
-	console.log(fliterRegexp);
 
 	data = data.filter(row => {
 		const str = `${row.code} ${row.tags} ${row.name}`;
