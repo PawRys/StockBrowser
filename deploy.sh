@@ -1,5 +1,9 @@
 #!/usr/bin/env sh
 
+########################################################################
+# https://dev.to/shashannkbawa/deploying-vite-app-to-github-pages-3ane #
+########################################################################
+
 # abort on errors
 set -e
 
