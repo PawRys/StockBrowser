@@ -1,6 +1,6 @@
 <script setup>
 import { ref, inject, watch, watchEffect, unref } from 'vue';
-import { animateScrollTo } from './DataCollector_Scripts.js';
+import { animateScrollTo } from '../assets/handy_functions.js';
 const userFilter = inject('userFilter');
 const filteredData = inject('filteredData_global');
 const searchTags = ref({

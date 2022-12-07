@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, provide } from 'vue';
-import { db as idb } from '../assets/dexiedb.js';
+
 import DataSet from './Browser_DataSet.vue';
 import Filters from './Browser_Filter_.vue';
 import Sorting from './Browser_Sorting.vue';
@@ -8,7 +8,7 @@ import VatSetup from './Browser_VatSetup.vue';
 import Pagination from './Browser_Pagination.vue';
 import Quantities from './Browser_Quantities.vue';
 import PriceCalculator from './Browser_PriceCalculator_.vue';
-import { animateScrollTo } from './DataCollector_Scripts.js';
+import { animateScrollTo } from '../assets/handy_functions.js';
 
 const unfilteredData_global = ref([]);
 const filteredData_global = ref([]);
@@ -41,7 +41,7 @@ provide('vat', vat);
 		<Filters />
 	</section>
 
-	<header id="results" class="header grid-layout">
+	<header id="results" class="list-header grid-layout">
 		<div class="background"></div>
 		<!-- Correct order (for keyboard navigation): FPSV -->
 		<Pagination />
@@ -102,17 +102,17 @@ provide('vat', vat);
 	gap: 0.5ch;
 	grid-template-columns: 1fr 1fr repeat(6, 12ch);
 }
-.header {
+.list-header {
 	grid-template-areas:
 		'fltr fltr fltr fltr fltr fltr fltr fltr'
 		'.    .    .    .    .    .    page page'
-		'code .    tCub tSqr tPcs pCub pSqr pPcs'
+		'code code tCub tSqr tPcs pCub pSqr pPcs'
 		'.    .    aCub aSqr aPcs vat3 vat2 vat1';
 }
 .list-item {
 	margin-block: 1rem 2rem;
 	grid-template-areas:
-		'code .    tCub tSqr tPcs pCub pSqr pPcs'
+		'code code tCub tSqr tPcs pCub pSqr pPcs'
 		'name name aCub aSqr aPcs buyp marg perc'
 		'err  err  err  err  err  err  err  err ';
 }
@@ -121,16 +121,16 @@ provide('vat', vat);
 	.grid-layout {
 		grid-template-columns: repeat(6, 12ch);
 	}
-	.header {
+	.list-header {
 		grid-template-areas:
 			'fltr fltr fltr fltr fltr fltr'
-			'code .    .    .    page page'
+			'code code .    .    page page'
 			'tCub tSqr tPcs pCub pSqr pPcs'
 			'aCub aSqr aPcs vat3 vat2 vat1';
 	}
 	.list-item {
 		grid-template-areas:
-			'code code code tags tags tags'
+			'code code code code code code'
 			'name name name name name name'
 			'tCub tSqr tPcs pCub pSqr pPcs'
 			'aCub aSqr aPcs buyp marg perc'
@@ -142,7 +142,7 @@ provide('vat', vat);
 	.grid-layout {
 		grid-template-columns: repeat(3, 12ch);
 	}
-	.header {
+	.list-header {
 		grid-template-areas:
 			'fltr fltr fltr'
 			'code page page'
@@ -153,7 +153,7 @@ provide('vat', vat);
 	}
 	.list-item {
 		grid-template-areas:
-			'code .    tags'
+			'code code tags'
 			'name name name'
 			'tCub tSqr tPcs'
 			'aCub aSqr aPcs'

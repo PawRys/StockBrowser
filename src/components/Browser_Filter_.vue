@@ -1,5 +1,5 @@
 <script setup>
-import { ref, inject, watchEffect, watch, provide } from 'vue';
+import { ref, inject, watch, provide } from 'vue';
 import SearchTags from './Browser_Filter_Tags.vue';
 
 const unfilteredData = inject('unfilteredData_global');

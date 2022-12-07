@@ -24,9 +24,9 @@ if ($_POST['action'] == 'provide') {
 	$hash = '$2y$10$NVT.pWG0PQWtV9KrsSfEHOHb0j3K.JoroXFGsq3n4B5p1ajMxWtLu';
 
 	if (password_verify($_POST['password'], $hash)) {
-		$msg = '{"message":"Hasło poprawne. Udostępniasz pełne dane. ✔"}';
+		$msg = '{"message":"positive"}';
 	} else {
-		$msg = '{"message":"Hasło niepoprawne. Udostępniasz okrojone dane. ✖"}';
+		$msg = '{"message":"negative"}';
 		foreach ($data as $k => $v) {
 			$data[$k]['pCub'] = 0;
 		}
@@ -40,10 +40,9 @@ if ($_POST['action'] == 'request') {
 	$pinCode = $_POST['pin'];
 	if (file_exists("$VAULT/$pinCode.txt")) {
 		$data = file_get_contents("$VAULT/$pinCode.txt");
-		$message = 'Pobrano dane z chmury ✔';
-		echo '{"message":"📜 Pobrano dane z chmury ✔","data":' . $data . '}';
+		echo '{"message":"positive","data":' . $data . '}';
 		unlink("$VAULT/$pinCode.txt");
 	} else {
-		echo '{"message":"Podany kod jest nieaktualny. ❌"}';
+		echo '{"message":"negative"}';
 	}
 }

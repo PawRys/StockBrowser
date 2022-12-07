@@ -1,6 +1,6 @@
 <script setup>
 import { inject, watch, watchEffect } from 'vue';
-import { animateScrollTo } from './DataCollector_Scripts.js';
+import { animateScrollTo } from '../assets/handy_functions.js';
 
 const pagedData = inject(['pagedData_global']);
 const sortedProducts = inject(['sortedData_global']);

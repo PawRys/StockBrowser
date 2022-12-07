@@ -1,9 +1,5 @@
-import { onUpdated, ref } from 'vue';
-import { db as idb } from '../assets/dexiedb.js';
-
-export function timeout(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
+import { ref } from 'vue';
+import { db as idb } from './dexiedb.js';
 
 export function validate(input) {
 	let dataType, message;
@@ -98,9 +94,6 @@ export async function updateProducts(currentData, updates, dataType) {
 		const tags = getProductTags(
 			`${productCode} ${productName} ${size === null ? 'error' : ''}`
 		);
-		// const sizeTags = getProductSizeTags(size);
-		// const grades = getProductGrade(`${productCode} ${productName}`);
-		// console.log(`${productCode} --- ${grades}`);
 		let errors = [];
 
 		if (size === null) {
@@ -114,7 +107,6 @@ export async function updateProducts(currentData, updates, dataType) {
 			tags: tags,
 			error: errors,
 		});
-
 		if (productIndex < 0) {
 			Object.assign(currentProduct, {
 				pCub: 0,
@@ -122,13 +114,11 @@ export async function updateProducts(currentData, updates, dataType) {
 				aCub: 0,
 			});
 		}
-
 		if (dataType === 'prices') {
 			Object.assign(currentProduct, {
 				pCub: calcPrice(size, newProduct[4], newProduct[2], 'm3'),
 			});
 		}
-
 		if (dataType === 'stocks') {
 			Object.assign(currentProduct, {
 				tCub: calcQuant(size, newProduct[6], newProduct[2], 'm3'),
@@ -178,74 +168,9 @@ export async function fetchProducts(fetchURL, pinCode) {
 	}
 }
 
-export function calcQuant(size, value, from, to) {
-	if (!size) return 0;
-	if (!value) return 0;
-	if (!from) return 0;
-	if (!to) return 0;
-	size = size.split('x');
-	const a = size[0] / 1000;
-	const b = size[1] / 1000;
-	const c = size[2] / 1000;
-	if (from === 'm3') {
-		if (to === 'm2') value = value / a;
-		if (to === 'szt') value = value / a / b / c;
-	}
-	if (from === 'm2') {
-		if (to === 'm3') value = value * a;
-		if (to === 'szt') value = value / b / c;
-	}
-	if (from === 'szt') {
-		if (to === 'm3') value = value * a * b * c;
-		if (to === 'm2') value = value * b * c;
-	}
-	return value * 1;
-}
-
-export function calcPrice(size, value, from, to) {
-	if (!size) return 0;
-	if (!value) return 0;
-	if (!from) return 0;
-	if (!to) return 0;
-	size = size.split('x');
-	const a = size[0] / 1000;
-	const b = size[1] / 1000;
-	const c = size[2] / 1000;
-	if (from === 'm3') {
-		if (to === 'm2') value = value * a;
-		if (to === 'szt') value = value * a * b * c;
-	}
-
-	if (from === 'm2') {
-		if (to === 'm3') value = value / a;
-		if (to === 'szt') value = value * b * c;
-	}
-
-	if (from === 'szt') {
-		if (to === 'm3') value = value / a / b / c;
-		if (to === 'm2') value = value / b / c;
-	}
-	return value * 1;
-}
-
 function getProductSize(line) {
 	const fullSizeB = line.match(/\d+[,\.]?\d*x\d+x\d+/i);
 	return fullSizeB ? fullSizeB[0].replace(',', '.') : null;
-}
-
-function getProductSizeTags(size) {
-	const chunks = size.split('x');
-	let result = '';
-	if (chunks.length === 3) {
-		let d = 1;
-		if (chunks[0] >= 5) d = 3;
-		if (chunks[0] >= 30) d = 5;
-		const a = Math.round(chunks[0] / d) * d;
-		const b = Math.round(chunks[1] / 300);
-		const c = Math.round(chunks[2] / 300);
-		result = `-${a}-${b}-${c}-`;
-	}
-	return result.trim();
 }
 
 function getProductTags(input) {
@@ -271,17 +196,3 @@ function getProductTags(input) {
 	const result = tags.reduce((a, c) => `${a} ${c}`, '');
 	return result.trim();
 }
-
-export function animateScrollTo(input) {
-	const el = document.querySelector(input);
-	window.scrollTo({
-		top: el.offsetTop,
-		behavior: 'smooth',
-	});
-}
-
-// function getProductGrade(input) {
-// 	const exp = '(KILO|BB|B|CP|C|WGE|WG|PQ|PF|F|WH|W|M)';
-// 	const grade = input.match(new RegExp(`\\b${exp}{1}(\/${exp}){0,1}\\b`, 'gi'));
-// 	return grade ? grade[0] : '??';
-// }

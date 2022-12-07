@@ -11,7 +11,7 @@ const tabs = [
 	{ id: BrowserTab, name: 'Lista', icon: 'bi bi-list-ul' },
 	{ id: DataCollectorTab, name: 'Załadauj', icon: 'bi bi-download' },
 	{ id: DataShareTab, name: 'Udostępnij', icon: 'bi bi-cloud-arrow-up' },
-	{ id: TestTab, name: 'Test', icon: 'bi bi-bug-fill' },
+	// { id: TestTab, name: 'Test', icon: 'bi bi-bug-fill' },
 ];
 
 watchEffect(() => {
@@ -20,7 +20,7 @@ watchEffect(() => {
 </script>
 
 <template>
-	<nav class="panel-switch flex">
+	<nav class="tab-switch">
 		<button
 			v-for="(tab, i) of tabs"
 			:key="i"
@@ -39,15 +39,24 @@ watchEffect(() => {
 	</main>
 
 	<footer>
-		<p>The End</p>
+		<p>Wszelkie prawa zastrzeżone - Paweł Ryszkowski</p>
+		<p>
+			Uwagi i pomoc techniczna - Paweł: -
+			<a href="mailto:pawrys.kontakt@gmail.com">pawrys.kontakt@gmail.com</a>
+		</p>
 	</footer>
 </template>
 
-<style>
-.button > i {
+<style scoped>
+.tab-switch {
+	display: flex;
+	gap: 1ch;
+}
+.tab-switch .button > i {
 	font-size: 1.1em;
 }
-.flex {
-	display: flex;
+footer {
+	margin-top: 3rem;
+	border-top: solid 1px var(--accent-shade);
 }
 </style>

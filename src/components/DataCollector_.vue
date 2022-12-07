@@ -6,7 +6,7 @@ import {
 	prepareData,
 	fetchProducts,
 	updateProducts,
-} from './DataCollector_Scripts.js';
+} from '../assets/DataCollector_Scripts.js';
 import ExampleData from './DataCollector_ExampleData.vue';
 
 const textareaData = ref();
@@ -44,12 +44,12 @@ async function textareaPaste(e) {
 
 async function bulkAddIDB() {
 	console.time('dexie-bulkAdd');
-	let result;
 	messageBox.value = 'Loading... ⏳';
+	let result;
 
 	if (dataType.value === 'code') {
-		// const fetchURL = 'https://bossman.hekko24.pl/apps/assets/website/app_stocks/stocks.3.php'
-		const fetchURL = 'http://localhost:3000/api/index.php';
+		const fetchURL = 'https://bossman.hekko24.pl/stock_browser_server/index.php';
+		// const fetchURL = 'http://localhost:3000/stock_browser_server/index.php';
 		result = await fetchProducts(fetchURL, textareaData.value);
 	} else {
 		const oldData = await idb.products.toArray();
@@ -58,7 +58,12 @@ async function bulkAddIDB() {
 	}
 
 	const { data, message } = result;
-	messageBox.value = message;
+	if (message === 'positive') {
+		messageBox.value = '📜 Pobrano dane z chmury ✔';
+	}
+	if (message === 'negative') {
+		messageBox.value = 'Podany kod jest nieaktualny. ❌';
+	}
 
 	if (data) {
 		try {
@@ -100,8 +105,8 @@ async function bulkAddIDB() {
 		</button>
 	</div>
 
-	<hr />
-	<ExampleData />
+	<!-- <hr />
+	<ExampleData /> -->
 </template>
 
 <style scoped>
