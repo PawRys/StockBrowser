@@ -188,13 +188,13 @@ function vnodelog(x) {
 
 			<hr />
 			<footer>
-				<button class="button" @click="getAllCheckedBoxes">
+				<button class="button small" @click="getAllCheckedBoxes">
 					<span>Filtruj</span>
 					<i class="bi bi-funnel"></i>
 				</button>
 				<button
 					:class="[
-						'button delete',
+						'button small delete',
 						{ disabled: checkedInputs[colId].length ? false : true },
 					]"
 					@click="clearCheckboxesInGroup(colId)">
@@ -217,7 +217,7 @@ function vnodelog(x) {
 			@vnode-updated="addListener('click', $event.el)"
 			@click="getAllCheckedBoxes">
 			<span>Pokaż wyniki ({{ filteredData.length }})</span>
-			<i class="bi bi-check-square"></i>
+			<!-- <i class="bi bi-check-square"></i> -->
 		</button>
 	</footer>
 </template>
@@ -225,7 +225,8 @@ function vnodelog(x) {
 <style scoped>
 #tag-selector {
 	display: flex;
-	max-width: 100vw;
+	max-width: 100%;
+	/* max-height: 80vh; */
 	overflow-x: auto;
 	scroll-snap-type: x mandatory;
 }
@@ -234,7 +235,9 @@ function vnodelog(x) {
 	bottom: 1rem;
 
 	display: flex;
+	flex-wrap: nowrap;
 	align-items: center;
+	justify-content: center;
 	gap: 0.4ch;
 
 	margin: 0.5rem;
@@ -242,42 +245,39 @@ function vnodelog(x) {
 	padding: 0.3ch 0.4ch;
 	width: fit-content;
 	border-radius: 0.4ch;
-	background: var(--bg-color);
+	background: var(--bg-shade);
 }
 
 .tag-group {
 	border: none;
-	min-width: 20ch;
 	scroll-snap-align: center;
+	/* overflow-y: auto; */
 }
 
 .tag-group > header {
-	/* position: sticky;
-	top: 0.5rem; */
-
 	display: flex;
+	flex-wrap: wrap;
 	align-items: baseline;
 	justify-content: space-between;
 	width: 100%;
 }
-.tag-group .delete.button > span {
-	display: none;
+
+.tag-group .tag {
+	margin-block: 0.5rem;
 }
 
 .tag-group > footer {
 	display: flex;
-	flex-wrap: nowrap;
+	flex-wrap: wrap;
 }
 
 label {
-	display: block;
-	flex-direction: row;
-	flex-wrap: nowrap;
+	display: flex;
+	width: max-content;
 	user-select: none;
 }
 label > input {
 	cursor: pointer;
-	/* outline: solid 1px tomato; */
 }
 :is(.button, button) i {
 	font-size: 1em;

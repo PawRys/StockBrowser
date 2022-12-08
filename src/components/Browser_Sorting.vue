@@ -72,9 +72,6 @@ function logme(el) {
 </script>
 
 <template>
-	<!-- <section class="sorting" style="grid-area: sort"> -->
-	<!-- <h2 v-html="currentSorting"></h2> -->
-	<!-- <div class="filterKeys"> -->
 	<button
 		v-for="([dir, name, ascText, dscText], index) in sortKeys"
 		:key="index"
@@ -87,27 +84,11 @@ function logme(el) {
 			<i v-if="dir > 0" class="bi bi-sort-down-alt"></i>
 			<i v-else class="bi bi-sort-down"></i>
 		</span>
-		<!-- <span v-else><i class="bi bi-arrow-down-short"></i></span> -->
+		<span v-else><i class="bi bi-arrow-down-short"></i></span>
 	</button>
-	<!-- </div> -->
-	<!-- </section> -->
 </template>
 
 <style scoped>
-.filterKeys {
-	display: grid;
-	gap: 0.3ch 0.3ch;
-	grid-template-columns: repeat(3, 1fr);
-	grid-template-areas:
-		'code last drop'
-		'tCub tSqr tPcs'
-		'aCub aSqr aPcs'
-		'pCub pSqr pPcs';
-}
-
-/* :is(.button, button) {
-	display: flex;
-} */
 .material-symbols-outlined {
 	font-size: 1rem;
 }

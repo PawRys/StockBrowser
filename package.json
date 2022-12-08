@@ -1,7 +1,7 @@
 {
 	"name": "stockbrowser",
 	"version": "1.0.0",
-	"homepage": "https://PawRys.github.io/StockBrowser/",
+	"homepage": "https://pawrys.github.io/StockBrowser/",
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",

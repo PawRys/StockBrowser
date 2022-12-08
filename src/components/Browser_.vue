@@ -92,7 +92,7 @@ provide('vat', vat);
 	grid-area: code / code / vat1 / vat1;
 	position: absolute;
 	inset: -0.5rem;
-	background-color: var(--bg-color);
+	background-color: var(--bg-shade);
 }
 
 .grid-layout {
@@ -100,13 +100,13 @@ provide('vat', vat);
 	align-items: baseline;
 	justify-content: space-evenly;
 	gap: 0.5ch;
-	grid-template-columns: 1fr 1fr repeat(6, 12ch);
+	grid-template-columns: 1fr 1fr repeat(6, minmax(12ch, 1fr));
 }
 .list-header {
 	grid-template-areas:
 		'fltr fltr fltr fltr fltr fltr fltr fltr'
 		'.    .    .    .    .    .    page page'
-		'code code tCub tSqr tPcs pCub pSqr pPcs'
+		'code .    tCub tSqr tPcs pCub pSqr pPcs'
 		'.    .    aCub aSqr aPcs vat3 vat2 vat1';
 }
 .list-item {
@@ -119,7 +119,7 @@ provide('vat', vat);
 
 @media (max-width: 1080px) {
 	.grid-layout {
-		grid-template-columns: repeat(6, 12ch);
+		grid-template-columns: repeat(6, minmax(12ch, 1fr));
 	}
 	.list-header {
 		grid-template-areas:
@@ -140,7 +140,7 @@ provide('vat', vat);
 
 @media (max-width: 730px) {
 	.grid-layout {
-		grid-template-columns: repeat(3, 12ch);
+		grid-template-columns: repeat(3, minmax(12ch, 1fr));
 	}
 	.list-header {
 		grid-template-areas:
