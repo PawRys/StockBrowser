@@ -178,11 +178,13 @@ function getProductTags(input) {
 
 	if (/error/i.test(input)) tags.push('ERROR');
 	if (/ppl/i.test(input)) tags.push('PPL');
+	if (/hpl/i.test(input)) tags.push('HPL');
 	if (/osb/i.test(input)) tags.push('OSB');
 	if (/topol/i.test(input)) tags.push('China');
 	if (/honey/i.test(input)) tags.push('Honey');
 	if (/PF|poli/i.test(input)) tags.push('Poliform');
 	if (/RP|radiata/i.test(input)) tags.push('RP');
+	if (/EUK|eukaliptus/i.test(input)) tags.push('EUK');
 	if (/wodo|wd|ext|\bE\b/i.test(input)) tags.push('WD');
 	if (/such|mr|int/i.test(input)) tags.push('MR');
 	if (/mel|\bM\/M\b/i.test(input)) tags.push('MM');
