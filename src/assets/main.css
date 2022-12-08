@@ -14,6 +14,7 @@
 	--test: #8090bc;
 	--test: #f7f9ff;
 	--test: #e6f4f1;
+	--test: hsl(25, 70%, 55%);
 
 	--font-color: hsl(225, 15%, 30%); /* #414656 */
 	--bg-color: hsl(0, 0%, 100%);
@@ -21,6 +22,8 @@
 
 	--accent-color: hsl(220, 80%, 65%); /* #6495ED */
 	--accent-shade: hsl(220, 80%, 85%);
+	--accent2-color: hsl(25, 70%, 45%);
+	--accent2-shade: hsl(25, 70%, 65%);
 
 	--link-color: hsl(220, 80%, 65%);
 	--link-shade: hsl(220, 30%, 60%);
@@ -36,6 +39,8 @@
 
 		--accent-color: hsl(220, 80%, 65%); /* #6495ED */
 		--accent-shade: hsl(220, 80%, 85%);
+		--accent2-color: hsl(25, 70%, 45%);
+		--accent2-shade: hsl(25, 70%, 65%);
 
 		--link-color: hsl(220, 80%, 65%);
 		--link-shade: hsl(220, 30%, 60%);
@@ -51,9 +56,7 @@
 }
 
 :focus-within {
-	/* outline-style: dashed; */
 	outline-color: var(--accent2-shade);
-	/* outline-color: var(--accent2-color); */
 }
 
 html {
@@ -64,10 +67,9 @@ body {
 	min-height: 100vh;
 	background-color: var(--bg-color);
 	color: var(--font-color);
-	line-height: 1.6;
 	font-family: 'Rajdhani', sans-serif;
-	font-size: 18px;
 	line-height: 1.4em;
+	font-size: 18px;
 }
 
 :is(h1, h2, h3, h4, h5, h6) {

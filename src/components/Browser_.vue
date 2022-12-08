@@ -42,19 +42,16 @@ provide('vat', vat);
 	</section>
 
 	<header id="results" class="list-header grid-layout">
-		<div class="background"></div>
+		<div class="list-header-background"></div>
 		<!-- Correct order (for keyboard navigation): FPSV -->
 		<Pagination />
 		<Sorting />
 		<VatSetup />
 	</header>
 
-	<section class="list-wrapper">
-		<ul class="list-container" v-if="pagedData_global && pagedData_global.length">
-			<li
-				v-for="ply in pagedData_global"
-				:key="ply.code"
-				class="list-item grid-layout">
+	<section class="list-section">
+		<ul class="list-ul" v-if="pagedData_global && pagedData_global.length">
+			<li v-for="ply in pagedData_global" :key="ply.code" class="list-li grid-layout">
 				<div style="grid-area: code" class="code">
 					{{ ply.code }} - {{ ply.tags }}
 				</div>
@@ -80,21 +77,6 @@ provide('vat', vat);
 </template>
 
 <style>
-.list-wrapper {
-	display: grid;
-}
-.search.button {
-	position: sticky;
-	bottom: 1rem;
-	margin-inline: auto;
-}
-.background {
-	grid-area: code / code / vat1 / vat1;
-	position: absolute;
-	inset: -0.5rem;
-	background-color: var(--bg-shade);
-}
-
 .grid-layout {
 	display: grid;
 	align-items: baseline;
@@ -104,12 +86,11 @@ provide('vat', vat);
 }
 .list-header {
 	grid-template-areas:
-		'fltr fltr fltr fltr fltr fltr fltr fltr'
 		'.    .    .    .    .    .    page page'
 		'code .    tCub tSqr tPcs pCub pSqr pPcs'
 		'.    .    aCub aSqr aPcs vat3 vat2 vat1';
 }
-.list-item {
+.list-li {
 	margin-block: 1rem 2rem;
 	grid-template-areas:
 		'code code tCub tSqr tPcs pCub pSqr pPcs'
@@ -123,12 +104,11 @@ provide('vat', vat);
 	}
 	.list-header {
 		grid-template-areas:
-			'fltr fltr fltr fltr fltr fltr'
 			'code code .    .    page page'
 			'tCub tSqr tPcs pCub pSqr pPcs'
 			'aCub aSqr aPcs vat3 vat2 vat1';
 	}
-	.list-item {
+	.list-li {
 		grid-template-areas:
 			'code code code code code code'
 			'name name name name name name'
@@ -144,14 +124,13 @@ provide('vat', vat);
 	}
 	.list-header {
 		grid-template-areas:
-			'fltr fltr fltr'
 			'code page page'
 			'tCub tSqr tPcs '
 			'aCub aSqr aPcs '
 			'pCub pSqr pPcs'
 			'vat3 vat2 vat1';
 	}
-	.list-item {
+	.list-li {
 		grid-template-areas:
 			'code code tags'
 			'name name name'
@@ -163,6 +142,21 @@ provide('vat', vat);
 	}
 }
 
+.list-section {
+	display: grid;
+}
+.search.button {
+	position: sticky;
+	bottom: 1rem;
+	margin-inline: auto;
+}
+.list-header-background {
+	grid-area: 1 / 1 / -1 / -1;
+	position: absolute;
+	inset: -0.5rem;
+	background-color: var(--bg-shade);
+}
+
 [class*='price'],
 [class*='quantity'] {
 	text-align: right;
@@ -170,13 +164,17 @@ provide('vat', vat);
 [class*='total'] {
 	font-weight: 600;
 }
+.code {
+	font-size: 0.85em;
+}
 .name {
 	font-size: 1.15em;
+	font-weight: 500;
 }
 .pagination {
 	justify-self: right;
 }
-.list-container {
+.list-ul {
 	padding: 0;
 }
 .empty-list {

@@ -111,7 +111,7 @@ function logger(x) {
 <style scoped>
 .result {
 	cursor: pointer;
-	box-shadow: 0px 0px 0px 1px #ddd;
+	box-shadow: 0px 0px 0px 1px var(--bg-shade);
 	padding: 0ch 0.5ch;
 	display: flow-root;
 	overflow: hidden;

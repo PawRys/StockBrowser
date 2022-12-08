@@ -205,7 +205,7 @@ function vnodelog(x) {
 		</fieldset>
 	</form>
 
-	<footer>
+	<footer id="footer-buttons">
 		<button :class="['button']" @click="clearAllCheckboxes()">
 			<span>Usuń wszystkie</span>
 			<i class="bi bi-trash3"></i>
@@ -230,7 +230,8 @@ function vnodelog(x) {
 	overflow-x: auto;
 	scroll-snap-type: x mandatory;
 }
-#tag-selector + footer {
+
+#footer-buttons {
 	position: sticky;
 	bottom: 1rem;
 
@@ -240,11 +241,11 @@ function vnodelog(x) {
 	justify-content: center;
 	gap: 0.4ch;
 
-	margin: 0.5rem;
+	margin: 0.1rem;
 	margin-inline: auto;
 	padding: 0.3ch 0.4ch;
 	width: fit-content;
-	border-radius: 0.4ch;
+	border-radius: 0.4rem;
 	background: var(--bg-shade);
 }
 
