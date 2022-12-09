@@ -186,8 +186,7 @@ function vnodelog(x) {
 				<span class="button inline">{{ tag }}</span>
 			</label>
 
-			<hr />
-			<footer>
+			<footer class="tag-group-footer">
 				<button class="button small" @click="getAllCheckedBoxes">
 					<span>Filtruj</span>
 					<i class="bi bi-funnel"></i>
@@ -233,7 +232,7 @@ function vnodelog(x) {
 
 #footer-buttons {
 	position: sticky;
-	bottom: 1rem;
+	bottom: 0.1rem;
 
 	display: flex;
 	flex-wrap: nowrap;
@@ -270,6 +269,7 @@ function vnodelog(x) {
 .tag-group > footer {
 	display: flex;
 	flex-wrap: wrap;
+	border-top: solid 1px var(--bg-shade);
 }
 
 label {

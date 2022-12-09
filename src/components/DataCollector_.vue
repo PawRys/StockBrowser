@@ -58,6 +58,7 @@ async function bulkAddIDB() {
 	}
 
 	const { data, message } = result;
+   messageBox.value = message;
 	if (message === 'positive') {
 		messageBox.value = '📜 Pobrano dane z chmury ✔';
 	}

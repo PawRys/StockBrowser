@@ -147,7 +147,7 @@ provide('vat', vat);
 }
 .search.button {
 	position: sticky;
-	bottom: 1rem;
+	bottom: 0.1rem;
 	margin-inline: auto;
 }
 .list-header-background {

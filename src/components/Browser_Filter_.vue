@@ -13,6 +13,7 @@ watch([userFilter, unfilteredData], () => {
 
 	let filterString = userFilter.value;
 	let fliterRegexp = convertStringToRegexp(filterString);
+	console.log(fliterRegexp);
 
 	data = data.filter(row => {
 		const str = `${row.code} ${row.tags} ${row.name}`;
@@ -39,7 +40,7 @@ function convertStringToRegexp(str) {
 					.split('x')
 					.map(subFilter => {
 						subFilter = subFilter.replace(trimPipes, '');
-						return subFilter.length > 0 ? `(${subFilter})` : '(\\d+)';
+						return subFilter.length > 0 ? `(${subFilter})` : '(\\d+(,\\d+)?)';
 					})
 					.join('x');
 				filter = `(?<!,)${filter}(mm)?`;
