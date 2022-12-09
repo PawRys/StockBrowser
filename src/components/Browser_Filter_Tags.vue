@@ -232,7 +232,7 @@ function vnodelog(x) {
 
 #footer-buttons {
 	position: sticky;
-	bottom: 0.1rem;
+	bottom: 0.2rem;
 
 	display: flex;
 	flex-wrap: nowrap;

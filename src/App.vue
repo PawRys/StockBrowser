@@ -41,7 +41,7 @@ watchEffect(() => {
 	<footer>
 		<p>Wszelkie prawa zastrzeżone - Paweł Ryszkowski</p>
 		<p>
-			Uwagi i pomoc techniczna - Paweł: -
+			Uwagi i pomoc techniczna - Paweł:
 			<a href="mailto:pawrys.kontakt@gmail.com">pawrys.kontakt@gmail.com</a>
 		</p>
 	</footer>

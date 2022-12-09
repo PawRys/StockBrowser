@@ -58,7 +58,7 @@ function wrapText(text) {
 		<ul class="list-ul" v-if="pagedData_global && pagedData_global.length">
 			<li v-for="ply in pagedData_global" :key="ply.code" class="list-li grid-layout">
 				<div style="grid-area: code" class="code">
-					{{ ply.code }} - {{ ply.tags }}
+					<b>{{ ply.code }}</b> - {{ ply.tags }}
 				</div>
 				<div style="grid-area: name" class="name" v-html="wrapText(ply.name)"></div>
 				<!-- <div style="grid-area: tags" class="tags">{{ ply.tags }}</div> -->
@@ -152,7 +152,7 @@ function wrapText(text) {
 }
 .search.button {
 	position: sticky;
-	bottom: 0.1rem;
+	bottom: 0.2rem;
 	margin-inline: auto;
 }
 .list-header-background {
@@ -175,7 +175,7 @@ function wrapText(text) {
 .name {
 	font-size: 1.15em;
 }
-.name > b {
+:is(.code, .name) > b {
 	font-weight: 600;
 }
 .pagination {
