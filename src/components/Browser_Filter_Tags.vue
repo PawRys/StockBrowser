@@ -187,13 +187,13 @@ function vnodelog(x) {
 			</label>
 
 			<footer class="tag-group-footer">
-				<button class="button small" @click="getAllCheckedBoxes">
+				<button class="button" @click="getAllCheckedBoxes">
 					<span>Filtruj</span>
 					<i class="bi bi-funnel"></i>
 				</button>
 				<button
 					:class="[
-						'button small delete',
+						'button delete',
 						{ disabled: checkedInputs[colId].length ? false : true },
 					]"
 					@click="clearCheckboxesInGroup(colId)">
