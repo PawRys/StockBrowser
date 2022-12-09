@@ -31,6 +31,11 @@ provide('dataSet_global', dataSet_global);
 
 const vat = reactive({ m3: 1, m2: 1, szt: 1.23 });
 provide('vat', vat);
+
+function wrapText(text) {
+	return text.replace(/(\d+(,\d+)?x\d+x\d+)/gi, '<b>$1</b>');
+	return text;
+}
 </script>
 
 <template>
@@ -55,7 +60,7 @@ provide('vat', vat);
 				<div style="grid-area: code" class="code">
 					{{ ply.code }} - {{ ply.tags }}
 				</div>
-				<div style="grid-area: name" class="name">{{ ply.name }}</div>
+				<div style="grid-area: name" class="name" v-html="wrapText(ply.name)"></div>
 				<!-- <div style="grid-area: tags" class="tags">{{ ply.tags }}</div> -->
 				<div class="error" style="grid-area: err" v-if="ply.error">
 					<span v-for="error of ply.error">{{ error }}</span>
@@ -169,7 +174,9 @@ provide('vat', vat);
 }
 .name {
 	font-size: 1.15em;
-	font-weight: 500;
+}
+.name > b {
+	font-weight: 600;
 }
 .pagination {
 	justify-self: right;
