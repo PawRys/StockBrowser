@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { db as idb } from '../assets/dexiedb.js';
+import { db as idb } from '../dexiedb.js';
 import { raw_stocks } from '../raw_stocks.js';
 import { raw_prices } from '../raw_prices.js';
 import { raw_products } from '../raw_products.js';

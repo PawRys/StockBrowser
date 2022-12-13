@@ -1,6 +1,6 @@
 <script setup>
 import { inject, watchEffect } from 'vue';
-import { db as idb } from '../assets/dexiedb.js';
+import { db as idb } from '../dexiedb.js';
 
 const unfilteredData = inject('unfilteredData_global');
 const dataSet = inject('dataSet_global');

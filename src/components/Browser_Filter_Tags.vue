@@ -1,7 +1,8 @@
 <script setup>
 import { ref, inject, watch, watchEffect, unref } from 'vue';
-import { animateScrollTo } from '../assets/handy_functions.js';
+import { animateScrollTo } from '../functions.js';
 const userFilter = inject('userFilter');
+const tagFilter = inject('tagFilter');
 const filteredData = inject('filteredData_global');
 const searchTags = ref({
 	tags: [],
@@ -32,7 +33,7 @@ const collator = (a, b) => {
 };
 
 // Collect search tags
-watch([userFilter, filteredData], () => {
+watch([tagFilter, filteredData], () => {
 	let tags = new Set();
 	let thick = new Set();
 	let sizeA = new Set();
@@ -85,11 +86,11 @@ watchEffect(() => {
 	let dimension = '';
 	let grades = inputs.grades.join('|');
 	let words = inputs.words.join('|');
-	if (tags) tags = `=${tags} `;
+	// if (tags) tags = `=${tags} `;
 	if (grades) grades = `=${grades} `;
 	if (x.length) dimension = `=${thick}${x}${sizeA}${x}${sizeB} `;
 
-	userFilter.value = `${tags}${dimension}${grades}${words}`.trim();
+	tagFilter.value = `${tags}${dimension}${grades}${words}`.trim();
 });
 
 function getProductGrade(input) {
@@ -99,7 +100,7 @@ function getProductGrade(input) {
 	return grade;
 }
 
-function getAllCheckedBoxes(colId, tag) {
+function getAllCheckedFilters(colId, tag) {
 	const form = document.querySelector('#tag-selector');
 	const formData = new FormData(form);
 	let checkedBoxes = {
@@ -117,13 +118,14 @@ function getAllCheckedBoxes(colId, tag) {
 	Object.assign(checkedInputs.value, checkedBoxes);
 }
 
-function clearCheckboxesInGroup(groupName) {
+function clearFiltersInGroup(groupName) {
 	const inputs = unref(checkedInputs);
 	inputs[groupName] = [];
 	checkedInputs.value = inputs;
 }
 
-function clearAllCheckboxes() {
+function clearAllFilters() {
+	userFilter.value = '';
 	checkedInputs.value = {
 		tags: [],
 		thick: [],
@@ -174,7 +176,7 @@ function vnodelog(x) {
 				class="tag"
 				:key="`${colId}-${tag}`"
 				:for="`${colId}-${tagIndex}`"
-				@click.prevent="getAllCheckedBoxes(colId, tag)">
+				@click.prevent="getAllCheckedFilters(colId, tag)">
 				<input
 					type="checkbox"
 					:checked="isChecked(colId, tag)"
@@ -187,7 +189,7 @@ function vnodelog(x) {
 			</label>
 
 			<footer class="tag-group-footer">
-				<button class="button" @click="getAllCheckedBoxes">
+				<button class="button" @click="getAllCheckedFilters">
 					<span>Filtruj</span>
 					<i class="bi bi-funnel"></i>
 				</button>
@@ -196,7 +198,7 @@ function vnodelog(x) {
 						'button delete',
 						{ disabled: checkedInputs[colId].length ? false : true },
 					]"
-					@click="clearCheckboxesInGroup(colId)">
+					@click="clearFiltersInGroup(colId)">
 					<span>Usuń</span>
 					<i class="bi bi-trash3"></i>
 				</button>
@@ -205,7 +207,7 @@ function vnodelog(x) {
 	</form>
 
 	<footer id="footer-buttons">
-		<button :class="['button']" @click="clearAllCheckboxes()">
+		<button :class="['button']" @click="clearAllFilters()">
 			<span>Usuń wszystkie</span>
 			<i class="bi bi-trash3"></i>
 		</button>
@@ -214,7 +216,7 @@ function vnodelog(x) {
 			id="show-results"
 			class="button accent"
 			@vnode-updated="addListener('click', $event.el)"
-			@click="getAllCheckedBoxes">
+			@click="getAllCheckedFilters">
 			<span>Pokaż wyniki ({{ filteredData.length }})</span>
 			<!-- <i class="bi bi-check-square"></i> -->
 		</button>

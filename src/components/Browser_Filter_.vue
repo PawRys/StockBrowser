@@ -5,15 +5,16 @@ import SearchTags from './Browser_Filter_Tags.vue';
 const unfilteredData = inject('unfilteredData_global');
 const filteredData = inject('filteredData_global');
 const userFilter = ref('');
+const tagFilter = ref('');
 provide('userFilter', userFilter);
+provide('tagFilter', tagFilter);
 
-watch([userFilter, unfilteredData], () => {
+watch([userFilter, tagFilter, unfilteredData], () => {
 	let data = unfilteredData.value;
 	if (!data) return;
 
-	let filterString = userFilter.value;
+	let filterString = `${tagFilter.value} ${userFilter.value}`;
 	let fliterRegexp = convertStringToRegexp(filterString);
-	console.log(fliterRegexp);
 
 	data = data.filter(row => {
 		const str = `${row.code} ${row.tags} ${row.name}`;

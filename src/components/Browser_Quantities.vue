@@ -1,5 +1,5 @@
 <script setup>
-import { calcQuant } from '../assets/handy_functions.js';
+import { calcQuant } from '../functions.js';
 
 const props = defineProps(['total', 'aviable', 'size']);
 const tCub = props.total;

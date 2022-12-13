@@ -1,12 +1,12 @@
 <script setup>
 import { ref } from 'vue';
-import { db as idb } from '../assets/dexiedb.js';
+import { db as idb } from '../dexiedb.js';
 import {
 	validate,
 	prepareData,
 	fetchProducts,
 	updateProducts,
-} from '../assets/DataCollector_Scripts.js';
+} from './DataCollector_.js';
 import ExampleData from './DataCollector_ExampleData.vue';
 
 const textareaData = ref();
@@ -58,7 +58,7 @@ async function bulkAddIDB() {
 	}
 
 	const { data, message } = result;
-   messageBox.value = message;
+	messageBox.value = message;
 	if (message === 'positive') {
 		messageBox.value = '📜 Pobrano dane z chmury ✔';
 	}

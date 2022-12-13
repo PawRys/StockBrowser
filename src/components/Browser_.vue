@@ -8,7 +8,7 @@ import VatSetup from './Browser_VatSetup.vue';
 import Pagination from './Browser_Pagination.vue';
 import Quantities from './Browser_Quantities.vue';
 import PriceCalculator from './Browser_PriceCalculator_.vue';
-import { animateScrollTo } from '../assets/handy_functions.js';
+import { animateScrollTo } from '../functions.js';
 
 const unfilteredData_global = ref([]);
 const filteredData_global = ref([]);
