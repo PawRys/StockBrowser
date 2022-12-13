@@ -152,7 +152,7 @@ function wrapText(text) {
 }
 .search.button {
 	position: sticky;
-	bottom: 0.2rem;
+	bottom: 0.5rem;
 	margin-inline: auto;
 }
 .list-header-background {

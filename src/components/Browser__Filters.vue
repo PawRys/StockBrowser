@@ -233,6 +233,7 @@ function isDisabled(groupID) {
 
 .tagSelector {
 	display: flex;
+	overflow-x: auto;
 }
 
 .tagSelector__group {
