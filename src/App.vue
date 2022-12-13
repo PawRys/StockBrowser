@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watchEffect } from 'vue';
-import BrowserTab from './components/Browser_.vue';
+import BrowserTab from './components/Browser__.vue';
 import DataCollectorTab from './components/DataCollector_.vue';
 import DataShareTab from './components/DataShare_.vue';
 import TestTab from './components/Test.vue';

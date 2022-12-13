@@ -2,7 +2,7 @@
 import { ref, reactive, provide } from 'vue';
 
 import DataSet from './Browser_DataSet.vue';
-import Filters from './Browser_Filter_.vue';
+import Filters from './Browser__Filters.vue';
 import Sorting from './Browser_Sorting.vue';
 import VatSetup from './Browser_VatSetup.vue';
 import Pagination from './Browser_Pagination.vue';
@@ -19,7 +19,7 @@ provide('filteredData_global', filteredData_global);
 provide('sortedData_global', sortedData_global);
 provide('pagedData_global', pagedData_global);
 
-const pageSize_global = ref(20);
+const pageSize_global = ref(12);
 const pageCount_global = ref(1);
 const pageNumber_global = ref(1);
 provide('pageSize_global', pageSize_global);
