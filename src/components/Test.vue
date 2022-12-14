@@ -12,6 +12,9 @@ function evalMath(expression) {
 	expression = expression ? expression : '';
 	// console.log(expression);
 	expression = expression.replace(/,/gi, '.');
+	expression = expression.replace(/-\+/gi, '-');
+	expression = expression.replace(/--/gi, '+');
+	expression = expression.replace(/\++/gi, '+');
 	expression = expression.replace(/\B\.\B/gi, '0');
 	expression = expression.replace(/(\d)(\()/gi, '$1*$2');
 	expression = expression.replace(/(\))(\d)/gi, '$1*$2');
@@ -20,8 +23,8 @@ function evalMath(expression) {
 	const regexpMultiDiv = /-?\d+(\.\d+)?[\*\/]-?\d+(\.\d+)?/i;
 	const regexpAddSub = /[\+\-]?\d+(\.\d+)?/gi;
 	const isBracket = expression.match(regexpBracket);
-	const isMultiDiv = expression.match(regexpMultiDiv);
-	const isAddSub = expression.match(regexpAddSub);
+	const is2ndLevel = expression.match(regexpMultiDiv);
+	const is1stLevel = expression.match(regexpAddSub);
 	console.log(expression);
 
 	if (isBracket) {
@@ -29,18 +32,18 @@ function evalMath(expression) {
 		return evalMath(evalBracket);
 	}
 
-	if (isMultiDiv) {
-		let evalMultiDiv = expression.replace(regexpMultiDiv, calcMultiDiv(isMultiDiv[0]));
+	if (is2ndLevel) {
+		let evalMultiDiv = expression.replace(regexpMultiDiv, calcMultiDiv(is2ndLevel[0]));
 		return evalMath(evalMultiDiv);
 	}
 
-	return !isAddSub ? 0 : isAddSub.reduce((acc, curr) => curr * 1 + acc * 1);
+	return !is1stLevel ? 0 : is1stLevel.reduce((acc, curr) => curr * 1 + acc * 1);
 
 	function calcMultiDiv(exp) {
 		let [a, b] = exp.split(/[\*\/]/);
 		a *= 1;
 		b *= 1;
-		return /\*/.test(exp) ? a * b : a / b;
+		return /\*/.test(exp) ? `+${a * b}` : `+${a / b}`;
 	}
 }
 </script>
