@@ -213,7 +213,6 @@ function isDisabled(groupID) {
 				<i class="bi bi-trash3"></i>
 			</button>
 			<button
-				href="#results"
 				id="show-results"
 				class="button accent"
 				@vnode-updated="addListener('click', $event.el)"

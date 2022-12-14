@@ -11,23 +11,46 @@ const aPcs = calcQuant(props.size, props.aviable, 'm3', 'szt');
 </script>
 
 <template>
-	<div style="grid-area: tCub" class="quantity-total tCub">
+	<div class="product__tCub">
 		{{ tCub.toFixed(3) }}<small>m<sup>3</sup></small>
 	</div>
-	<div style="grid-area: tSqr" class="quantity-total tSqr">
+	<div class="product__tSqr">
 		{{ tSqr.toFixed(2) }}<small>m<sup>2</sup></small>
 	</div>
-	<div style="grid-area: tPcs" class="quantity-total tPcs">
-		{{ tPcs.toFixed(1) }}<small>szt</small>
-	</div>
+	<div class="product__tPcs">{{ tPcs.toFixed(1) }}<small>szt</small></div>
 
-	<div style="grid-area: aCub" class="quantity-aviable aCub">
+	<div class="product__aCub">
 		{{ aCub.toFixed(3) }}<small>m<sup>3</sup></small>
 	</div>
-	<div style="grid-area: aSqr" class="quantity-aviable aSqr">
+	<div class="product__aSqr">
 		{{ aSqr.toFixed(2) }}<small>m<sup>2</sup></small>
 	</div>
-	<div style="grid-area: aPcs" class="quantity-aviable aPcs">
-		{{ aPcs.toFixed(1) }}<small>szt</small>
-	</div>
+	<div class="product__aPcs">{{ aPcs.toFixed(1) }}<small>szt</small></div>
 </template>
+
+<style scoped>
+.product__tCub {
+	grid-area: tCub;
+}
+.product__tSqr {
+	grid-area: tSqr;
+}
+.product__tPcs {
+	grid-area: tPcs;
+}
+.product__aCub {
+	grid-area: aCub;
+}
+.product__aSqr {
+	grid-area: aSqr;
+}
+.product__aPcs {
+	grid-area: aPcs;
+}
+[class*='product__'] {
+	text-align: right;
+}
+[class*='product__t'] {
+	font-weight: 600;
+}
+</style>

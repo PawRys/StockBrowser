@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, provide } from 'vue';
-import Field from './Browser_PriceCalculator_Field.vue';
+import Field from './Browser__Price_Field.vue';
 
 const props = defineProps(['plySize', 'buyPrice']);
 const priceRoot = ref(props.buyPrice);
@@ -16,37 +16,60 @@ const priceColor = computed(() => {
 </script>
 
 <template>
-	<div style="grid-area: buyp" class="price buyp">
+	<div class="product__buyp">
 		{{ props.buyPrice.toFixed(2) }}<small>zł/m<sup>3</sup></small>
 	</div>
 	<Field
-		style="grid-area: pCub"
-		:class="['price', 'pCub', priceColor]"
+		class="product__pCub"
+		:class="priceColor"
 		:size="props.plySize"
 		:unit="'pCub'" />
 	<Field
-		style="grid-area: pSqr"
-		:class="['price', 'pSqr', priceColor]"
+		class="product__pSqr"
+		:class="priceColor"
 		:size="props.plySize"
 		:unit="'pSqr'" />
 	<Field
-		style="grid-area: pPcs"
-		:class="['price', 'pPcs', priceColor]"
+		class="product__pPcs"
+		:class="priceColor"
 		:size="props.plySize"
 		:unit="'pPcs'" />
 	<Field
-		style="grid-area: marg"
-		:class="['price', 'marg', priceColor]"
+		class="product__marg"
+		:class="priceColor"
 		:size="props.plySize"
 		:unit="'marg'" />
 	<Field
-		style="grid-area: perc"
-		:class="['price', 'perc', priceColor]"
+		class="product__perc"
+		:class="priceColor"
 		:size="props.plySize"
 		:unit="'perc'" />
 </template>
 
 <style scoped>
+.product__buyp {
+	grid-area: buyp;
+}
+.product__pCub {
+	grid-area: pCub;
+}
+.product__pSqr {
+	grid-area: pSqr;
+}
+.product__pPcs {
+	grid-area: pPcs;
+}
+.product__marg {
+	grid-area: marg;
+}
+.product__perc {
+	grid-area: perc;
+}
+
+[class*='product__'] {
+	text-align: right;
+}
+
 .green {
 	color: limegreen;
 }

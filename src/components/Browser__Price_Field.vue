@@ -78,25 +78,29 @@ const vatClass = computed(() => {
 	return text;
 });
 
-function focusHandler() {
-	isEdited.value = true;
-	shadowValue.value = calcValues.value;
-}
+// function focusHandler() {
+// 	isEdited.value = true;
+// 	shadowValue.value = calcValues.value;
+// }
 
-function logger(x) {
-	console.log(x);
-	console.log(`esc`);
-}
+// function logger(x) {
+// 	console.log(x);
+// 	console.log(`esc`);
+// }
 </script>
 
 <template>
 	<div :class="vatClass">
-		<span v-if="!isEdited" class="result" contenteditable="true" @focus="focusHandler"
-			>{{ pfix }}{{ calcValues }}<small v-html="sfix"></small
-		></span>
+		<span
+			v-if="!isEdited"
+			class="price__result"
+			contenteditable="true"
+			@focus="[(isEdited = true), (shadowValue = calcValues)]">
+			{{ pfix }}{{ calcValues }}<small v-html="sfix"></small>
+		</span>
 		<input
 			v-else
-			class="price"
+			class="price__edit"
 			type="number"
 			:value="shadowValue"
 			@input="calcPriceRoot"
@@ -109,21 +113,23 @@ function logger(x) {
 </template>
 
 <style scoped>
-.result {
+.price__result {
 	cursor: pointer;
+	background-color: var(--bg-color);
 	box-shadow: 0px 0px 0px 1px var(--bg-shade);
 	padding: 0ch 0.5ch;
 	display: flow-root;
 	overflow: hidden;
 	text-overflow: clip;
 }
-
+.price__edit {
+	text-align: right;
+	width: 14ch;
+}
 .vatApplied {
 	font-weight: 700;
 }
-input {
-	width: 10ch;
-}
+
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -131,7 +137,6 @@ input::-webkit-inner-spin-button {
 	appearance: none;
 	margin: 0;
 }
-
 /* Firefox */
 input[type='number'] {
 	-moz-appearance: textfield;

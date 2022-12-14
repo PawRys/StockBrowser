@@ -80,9 +80,11 @@ function setNextPage() {
 select {
 	cursor: pointer;
 }
+
 .pagination {
 	display: flex;
 	flex-direction: row;
+	justify-self: right;
 	width: max-content;
 }
 .page-selector {

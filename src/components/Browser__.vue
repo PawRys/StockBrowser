@@ -6,8 +6,8 @@ import Filters from './Browser__Filters.vue';
 import Sorting from './Browser_Sorting.vue';
 import VatSetup from './Browser_VatSetup.vue';
 import Pagination from './Browser_Pagination.vue';
-import Quantities from './Browser_Quantities.vue';
-import PriceCalculator from './Browser_PriceCalculator_.vue';
+import Quantities from './Browser__Quantities.vue';
+import PriceCalculator from './Browser__Prices.vue';
 import { animateScrollTo } from '../functions.js';
 
 const unfilteredData_global = ref([]);
@@ -46,23 +46,22 @@ function wrapText(text) {
 		<Filters />
 	</section>
 
-	<header id="results" class="list-header grid-layout">
-		<div class="list-header-background"></div>
-		<!-- Correct order (for keyboard navigation): FPSV -->
-		<Pagination />
-		<Sorting />
-		<VatSetup />
-	</header>
+	<section class="productList" id="results">
+		<header class="productList__header">
+			<div class="productList__headerBackground"></div>
+			<!-- Correct order (for keyboard navigation): FPSV -->
+			<Pagination />
+			<Sorting />
+			<VatSetup />
+		</header>
 
-	<section class="list-section">
-		<ul class="list-ul" v-if="pagedData_global && pagedData_global.length">
-			<li v-for="ply in pagedData_global" :key="ply.code" class="list-li grid-layout">
-				<div style="grid-area: code" class="code">
+		<ul class="productList__ul" v-if="pagedData_global && pagedData_global.length">
+			<li class="productList__product" v-for="ply in pagedData_global" :key="ply.code">
+				<div class="product__code">
 					<b>{{ ply.code }}</b> - {{ ply.tags }}
 				</div>
-				<div style="grid-area: name" class="name" v-html="wrapText(ply.name)"></div>
-				<!-- <div style="grid-area: tags" class="tags">{{ ply.tags }}</div> -->
-				<div class="error" style="grid-area: err" v-if="ply.error">
+				<div class="product__name" v-html="wrapText(ply.name)"></div>
+				<div class="product__error" v-if="ply.error">
 					<span v-for="error of ply.error">{{ error }}</span>
 				</div>
 
@@ -71,127 +70,152 @@ function wrapText(text) {
 			</li>
 		</ul>
 
-		<p v-else class="empty-list">Nie znaleziono produktów.</p>
+		<p v-else class="productList__empty">Nie znaleziono produktów.</p>
 
-		<button class="search button accent" @click="animateScrollTo('#search')">
+		<footer class="productList__footer">
+			<Pagination />
+		</footer>
+
+		<button class="scrollTo__search button accent" @click="animateScrollTo('#search')">
 			<span>Szukaj...</span><i class="bi bi-search"></i>
 		</button>
 	</section>
-
-	<footer style="display: flex">
-		<Pagination style="margin-left: auto" />
-	</footer>
 </template>
 
 <style>
-.grid-layout {
+.productList {
 	display: grid;
-	align-items: baseline;
-	justify-content: space-evenly;
-	gap: 0.5ch;
-	grid-template-columns: 1fr 1fr repeat(6, minmax(12ch, 1fr));
-}
-.list-header {
-	grid-template-areas:
-		'.    .    .    .    .    .    page page'
-		'code .    tCub tSqr tPcs pCub pSqr pPcs'
-		'.    .    aCub aSqr aPcs vat3 vat2 vat1';
-}
-.list-li {
-	margin-block: 1rem 2rem;
-	grid-template-areas:
-		'code code tCub tSqr tPcs pCub pSqr pPcs'
-		'name name aCub aSqr aPcs buyp marg perc'
-		'err  err  err  err  err  err  err  err ';
+	justify-items: center;
+	margin: 0 auto;
+	max-width: fit-content;
 }
 
-@media (max-width: 1080px) {
-	.grid-layout {
-		grid-template-columns: repeat(6, minmax(12ch, 1fr));
-	}
-	.list-header {
-		grid-template-areas:
-			'code code .    .    page page'
-			'tCub tSqr tPcs pCub pSqr pPcs'
-			'aCub aSqr aPcs vat3 vat2 vat1';
-	}
-	.list-li {
-		grid-template-areas:
-			'code code code code code code'
-			'name name name name name name'
-			'tCub tSqr tPcs pCub pSqr pPcs'
-			'aCub aSqr aPcs buyp marg perc'
-			'err  err  err  err  err  err ';
-	}
-}
-
-@media (max-width: 730px) {
-	.grid-layout {
-		grid-template-columns: repeat(3, minmax(12ch, 1fr));
-	}
-	.list-header {
-		grid-template-areas:
-			'code page page'
-			'tCub tSqr tPcs '
-			'aCub aSqr aPcs '
-			'pCub pSqr pPcs'
-			'vat3 vat2 vat1';
-	}
-	.list-li {
-		grid-template-areas:
-			'code code code'
-			'name name name'
-			'tCub tSqr tPcs'
-			'aCub aSqr aPcs'
-			'pCub pSqr pPcs'
-			'buyp marg perc'
-			'err  err  err ';
-	}
-}
-
-.list-section {
-	display: grid;
-}
-.search.button {
-	position: sticky;
-	bottom: 0.5rem;
-	margin-inline: auto;
-}
-.list-header-background {
+.productList__headerBackground {
 	grid-area: 1 / 1 / -1 / -1;
 	position: absolute;
 	inset: -0.5rem;
 	background-color: var(--bg-shade);
 }
 
-[class*='price'],
-[class*='quantity'] {
-	text-align: right;
+.productList__header,
+.productList__product {
+	display: grid;
+	grid-template-columns: repeat(6, minmax(14ch, 16ch));
+	align-items: baseline;
+	justify-content: space-evenly;
+	gap: 0.5ch;
 }
-[class*='total'] {
-	font-weight: 600;
+
+.productList__header {
+	grid-template-areas:
+		'code .    .    .    page page'
+		'tCub tSqr tPcs pCub pSqr pPcs'
+		'aCub aSqr aPcs vat3 vat2 vat1';
 }
-.code {
-	font-size: 0.85em;
+.productList__product {
+	margin-block: 1rem 1rem;
+	grid-template-areas:
+		'code code code tCub tSqr tPcs'
+		'name name name aCub aSqr aPcs'
+		'name name name pCub pSqr pPcs'
+		'erro erro erro buyp marg perc';
 }
-.name {
-	font-size: 1.15em;
+@media (max-width: 800px) {
+	.productList__header,
+	.productList__product {
+		grid-template-columns: repeat(3, minmax(14ch, 16ch));
+	}
+	.productList__header {
+		grid-template-areas:
+			'code page page'
+			'tCub tSqr tPcs'
+			'aCub aSqr aPcs'
+			'pCub pSqr pPcs'
+			'vat3 vat2 vat1';
+	}
+	.productList__product {
+		grid-template-areas:
+			'code code code'
+			'name name name'
+			'erro erro erro'
+			'tCub tSqr tPcs'
+			'aCub aSqr aPcs'
+			'pCub pSqr pPcs'
+			'buyp marg perc';
+	}
 }
-:is(.code, .name) > b {
-	font-weight: 600;
-}
-.pagination {
-	justify-self: right;
-}
-.list-ul {
+
+.productList__ul {
+	margin: 0;
 	padding: 0;
 }
-.empty-list {
+.productList__product {
+	padding: 1em;
+}
+.productList__product:is(:hover, :focus-within) {
+	background-color: var(--bg-shade);
+	/* box-shadow: 0px 0px 0px 3px var(--accent-shade); */
+}
+
+.product__code {
+	grid-area: code;
+	font-size: 0.9em;
+}
+.product__name {
+	grid-area: name;
+	font-size: 1.1em;
+}
+:is(.product__code, .product__name) > b {
+	font-weight: 600;
+}
+.product__tCub {
+	grid-area: tCub;
+}
+.product__tSqr {
+	grid-area: tSqr;
+}
+.product__tPcs {
+	grid-area: tPcs;
+}
+.product__aCub {
+	grid-area: aCub;
+}
+.product__aSqr {
+	grid-area: aSqr;
+}
+.product__aPcs {
+	grid-area: aPcs;
+}
+.product__pCub {
+	grid-area: pCub;
+}
+.product__pSqr {
+	grid-area: pSqr;
+}
+.product__pPcs {
+	grid-area: pPcs;
+}
+.product__vat3 {
+	grid-area: vat3;
+}
+.product__vat2 {
+	grid-area: vat2;
+}
+.product__vat1 {
+	grid-area: vat1;
+}
+.product__error {
+	grid-area: erro;
+	color: crimson;
+}
+.productList__empty {
 	margin: 5rem;
 	font-size: 1.4rem;
 	text-align: center;
 }
-.error {
-	color: crimson;
+.scrollTo__search {
+	position: sticky;
+	bottom: 0.5rem;
+	margin-inline: auto;
 }
 </style>

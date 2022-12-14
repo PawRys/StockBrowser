@@ -50,6 +50,9 @@ export function calcPrice(size, value, from, to) {
 
 export function animateScrollTo(input) {
 	const el = document.querySelector(input);
+	console.log(input);
+	console.log(el);
+	console.log(el.offsetTop);
 	window.scrollTo({
 		top: el.offsetTop,
 		behavior: 'smooth',
