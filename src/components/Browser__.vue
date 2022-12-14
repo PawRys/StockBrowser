@@ -100,7 +100,7 @@ function wrapText(text) {
 .productList__header,
 .productList__product {
 	display: grid;
-	grid-template-columns: repeat(6, minmax(1fr, 14ch));
+	grid-template-columns: repeat(6, minmax(auto, 14ch));
 	align-items: baseline;
 	justify-content: space-evenly;
 	gap: 0.5ch;
@@ -123,7 +123,7 @@ function wrapText(text) {
 @media (max-width: 800px) {
 	.productList__header,
 	.productList__product {
-		grid-template-columns: repeat(3, minmax(1fr, 14ch));
+		grid-template-columns: repeat(3, minmax(auto, 14ch));
 	}
 	.productList__header {
 		grid-template-areas:

@@ -9,16 +9,16 @@ const ascText = 'od małych ilości';
 const dscText = 'od dużych ilości';
 const sortKeys = reactive({
 	// Correct order (for keyboard navigation): ctpa
-	code: [1, 'Kod towaru', 'od początku', 'od końca'],
-	tCub: [0, 'Stan cał. m<sup>3</sup>', ascText, dscText],
-	tSqr: [0, 'Stan cał. m<sup>2</sup>', ascText, dscText],
-	tPcs: [0, 'Stan cał. szt', ascText, dscText],
-	pCub: [0, 'Cena zł/m<sup>3</sup>', 'od tanich', 'od drogich'],
-	pSqr: [0, 'Cena zł/m<sup>2</sup>', 'od tanich', 'od drogich'],
-	pPcs: [0, 'Cena zł/szt', 'od tanich', 'od drogich'],
-	aCub: [0, 'Stan han. m<sup>3</sup>', ascText, dscText],
-	aSqr: [0, 'Stan han. m<sup>2</sup>', ascText, dscText],
-	aPcs: [0, 'Stan han. szt', ascText, dscText],
+	code: [1, 'Kod', 'od początku', 'od końca'],
+	tCub: [0, '<b>Całk. m<sup>3</sup></b>', ascText, dscText],
+	tSqr: [0, '<b>Całk. m<sup>2</sup></b>', ascText, dscText],
+	tPcs: [0, '<b>Całk. szt</b>', ascText, dscText],
+	pCub: [0, 'PLN/m<sup>3</sup>', 'od tanich', 'od drogich'],
+	pSqr: [0, 'PLN/m<sup>2</sup>', 'od tanich', 'od drogich'],
+	pPcs: [0, 'PLN/szt', 'od tanich', 'od drogich'],
+	aCub: [0, 'Hand. m<sup>3</sup>', ascText, dscText],
+	aSqr: [0, 'Hand. m<sup>2</sup>', ascText, dscText],
+	aPcs: [0, 'Hand. szt', ascText, dscText],
 });
 
 watch([sortParams, filteredData], () => {
