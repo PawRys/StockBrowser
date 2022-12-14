@@ -20,7 +20,7 @@ function evalMath(expression) {
 	expression = expression.replace(/(\))(\d)/gi, '$1*$2');
 	expression = expression.replace(/(\))(\()/gi, '$1*$2');
 	const regexpBracket = /\(([^\(\)]+)\)/i;
-	const regexpMultiDiv = /-?\d+(\.\d+)?[\*\/]-?\d+(\.\d+)?/i;
+	const regexpMultiDiv = /\d+(\.\d+)?[\*\/]-?\d+(\.\d+)?/i;
 	const regexpAddSub = /[\+\-]?\d+(\.\d+)?/gi;
 	const isBracket = expression.match(regexpBracket);
 	const is2ndLevel = expression.match(regexpMultiDiv);
@@ -37,13 +37,20 @@ function evalMath(expression) {
 		return evalMath(evalMultiDiv);
 	}
 
-	return !is1stLevel ? 0 : is1stLevel.reduce((acc, curr) => curr * 1 + acc * 1);
+	const finalResult = is1stLevel
+		? is1stLevel.reduce((acc, curr) => curr * 1 + acc * 1)
+		: 0;
+	return finalResult * 1;
 
 	function calcMultiDiv(exp) {
 		let [a, b] = exp.split(/[\*\/]/);
+		// console.log(exp);
+		// console.log(a);
+		// console.log(b);
 		a *= 1;
 		b *= 1;
-		return /\*/.test(exp) ? `+${a * b}` : `+${a / b}`;
+		let result = /\*/.test(exp) ? a * b : a / b;
+		return result;
 	}
 }
 </script>

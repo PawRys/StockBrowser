@@ -39,7 +39,7 @@ function wrapText(text) {
 </script>
 
 <template>
-	<h2 id="pageTop">Main Table</h2>
+	<h2>Lista produktów</h2>
 
 	<section id="search">
 		<DataSet />
@@ -70,7 +70,9 @@ function wrapText(text) {
 				<PriceCalculator :plySize="ply.size" :buyPrice="ply.pCub" />
 			</li>
 		</ul>
+
 		<p v-else class="empty-list">Nie znaleziono produktów.</p>
+
 		<button class="search button accent" @click="animateScrollTo('#search')">
 			<span>Szukaj...</span><i class="bi bi-search"></i>
 		</button>
@@ -137,7 +139,7 @@ function wrapText(text) {
 	}
 	.list-li {
 		grid-template-areas:
-			'code code tags'
+			'code code code'
 			'name name name'
 			'tCub tSqr tPcs'
 			'aCub aSqr aPcs'
