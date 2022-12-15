@@ -50,7 +50,7 @@ export function validate(input) {
 	return { data: dataType, message: message };
 }
 
-export function prepareData(input, dataType) {
+export function prepareBeforeUpdate(input, dataType) {
 	const linesArray = input.match(/[^\r\n]+/g);
 	const garbageWords = /\b(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/gi;
 	let output = [];
@@ -72,7 +72,7 @@ export function prepareData(input, dataType) {
 	return output;
 }
 
-export async function updateProducts(currentData, updates, dataType) {
+export async function updateProducts(currentData, updatedData, dataType) {
 	if (dataType === 'prices') {
 		currentData.map(row => {
 			row.pCub = 0;
@@ -86,26 +86,26 @@ export async function updateProducts(currentData, updates, dataType) {
 		});
 	}
 
-	for (let newProduct of updates) {
+	for (let newProduct of updatedData) {
 		const productCode = newProduct[0];
 		const productName = newProduct[1];
 		const productIndex = currentData.findIndex(row => row.code === productCode);
 		const currentProduct = productIndex < 0 ? {} : currentData[productIndex];
-		const size = getProductSize(productName);
-		const tags = getProductTags(
-			`${productCode} ${productName} ${size === null ? 'error' : ''}`
+		const productSize = getProductSize(productName);
+		const productFlags = getProductFlags(
+			`${productCode} ${productName} ${productSize === null ? 'error' : ''}`
 		);
 		let errors = [];
 
-		if (size === null) {
+		if (productSize === null) {
 			errors.push('Błąd: Brak prawidłowego wymiaru w opisie. Obliczenia niemożliwe.');
 		}
 
 		Object.assign(currentProduct, {
 			code: productCode,
 			name: productName,
-			size: size,
-			tags: tags,
+			size: productSize,
+			tags: productFlags,
 			error: errors,
 		});
 		if (productIndex < 0) {
@@ -117,13 +117,13 @@ export async function updateProducts(currentData, updates, dataType) {
 		}
 		if (dataType === 'prices') {
 			Object.assign(currentProduct, {
-				pCub: calcPrice(size, newProduct[4], newProduct[2], 'm3'),
+				pCub: calcPrice(productSize, newProduct[4], newProduct[2], 'm3'),
 			});
 		}
 		if (dataType === 'stocks') {
 			Object.assign(currentProduct, {
-				tCub: calcQuant(size, newProduct[6], newProduct[2], 'm3'),
-				aCub: calcQuant(size, newProduct[3], newProduct[2], 'm3'),
+				tCub: calcQuant(productSize, newProduct[6], newProduct[2], 'm3'),
+				aCub: calcQuant(productSize, newProduct[3], newProduct[2], 'm3'),
 			});
 		}
 
@@ -174,7 +174,7 @@ function getProductSize(line) {
 	return fullSizeB ? fullSizeB[0].replace(',', '.') : null;
 }
 
-function getProductTags(input) {
+function getProductFlags(input) {
 	let tags = [];
 
 	if (/error/i.test(input)) tags.push('ERROR');

@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import { db as idb } from '../dexiedb.js';
 import {
 	validate,
-	prepareData,
+	prepareBeforeUpdate,
 	fetchProducts,
 	updateProducts,
 } from './DataCollector_.js';
@@ -53,7 +53,7 @@ async function bulkAddIDB() {
 		result = await fetchProducts(fetchURL, textareaData.value);
 	} else {
 		const oldData = await idb.products.toArray();
-		const newData = prepareData(textareaData.value, dataType.value);
+		const newData = prepareBeforeUpdate(textareaData.value, dataType.value);
 		result = await updateProducts(oldData, newData, dataType.value);
 	}
 
@@ -70,6 +70,18 @@ async function bulkAddIDB() {
 		try {
 			await idb.products.clear();
 			await idb.products.bulkAdd(data);
+			if (dataType.value === 'code' || dataType.value === 'stocks') {
+				await idb.timestamps.put({
+					id: 'stocks',
+					timestamp: new Date().toJSON().split('T')[0],
+				});
+			}
+			if (dataType.value === 'code' || dataType.value === 'prices') {
+				await idb.timestamps.put({
+					id: 'prices',
+					timestamp: new Date().toJSON().split('T')[0],
+				});
+			}
 		} catch (err) {
 			messageBox.value = 'Coś poszło nie tak ❗';
 			console.error(err);
@@ -106,8 +118,8 @@ async function bulkAddIDB() {
 		</button>
 	</div>
 
-	<!-- <hr />
-	<ExampleData /> -->
+	<hr />
+	<ExampleData />
 </template>
 
 <style scoped>

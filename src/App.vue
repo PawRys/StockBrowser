@@ -1,5 +1,7 @@
 <script setup>
 import { ref, watchEffect } from 'vue';
+import { db as idb } from './dexiedb.js';
+
 import BrowserTab from './components/Browser__.vue';
 import DataCollectorTab from './components/DataCollector_.vue';
 import DataShareTab from './components/DataShare_.vue';
@@ -13,6 +15,14 @@ const tabs = [
 	{ id: DataShareTab, name: 'Udostępnij', icon: 'bi bi-cloud-arrow-up' },
 	{ id: TestTab, name: 'Test', icon: 'bi bi-bug-fill' },
 ];
+
+const timestamps = ref([[], []]);
+
+watchEffect(() => {
+	idb.timestamps.toArray().then(r => {
+		timestamps.value = r;
+	});
+});
 
 watchEffect(() => {
 	localStorage.StockBrowser_LastUsedPanel = currentTab.value;
@@ -30,6 +40,11 @@ watchEffect(() => {
 			<i :class="tab.icon"></i>
 		</button>
 	</nav>
+
+	<aside class="lastModified">
+		<p>{{ timestamps[0].timestamp }}</p>
+		<p>{{ timestamps[1].timestamp }}</p>
+	</aside>
 
 	<main>
 		<Suspense>
