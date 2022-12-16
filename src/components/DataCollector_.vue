@@ -77,6 +77,7 @@ async function saveInIDB() {
 			await idb.products.clear();
 			await idb.products.bulkAdd(data);
 			if (dataType.value === 'code' || dataType.value === 'stocks') {
+				console.log(generateTimestamp('stocks'));
 				await idb.timestamps.put(generateTimestamp('stocks'));
 				globalEvent.value = 'stocks updated';
 			}
@@ -124,8 +125,8 @@ async function saveInIDB() {
 		</button>
 	</div>
 
-	<!-- <hr />
-	<ExampleData /> -->
+	<hr />
+	<ExampleData />
 </template>
 
 <style scoped>
