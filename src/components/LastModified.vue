@@ -19,10 +19,11 @@ async function getDataModificationDate(dataType) {
 	modDate = modDate?.timestamp.toJSON().split('T')[0];
 	let diffDays = Math.abs(new Date(today) - new Date(modDate));
 	diffDays = diffDays / 1000 / 60 / 60 / 24;
+	console.log(diffDays);
 
 	return {
 		date: modDate || 'brak danych',
-		diff: diffDays || -1,
+		diff: diffDays,
 	};
 }
 
