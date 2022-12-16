@@ -73,13 +73,13 @@ async function bulkAddIDB() {
 			if (dataType.value === 'code' || dataType.value === 'stocks') {
 				await idb.timestamps.put({
 					id: 'stocks',
-					timestamp: new Date().toJSON().split('T')[0],
+					timestamp: new Date(),
 				});
 			}
 			if (dataType.value === 'code' || dataType.value === 'prices') {
 				await idb.timestamps.put({
 					id: 'prices',
-					timestamp: new Date().toJSON().split('T')[0],
+					timestamp: new Date(),
 				});
 			}
 		} catch (err) {

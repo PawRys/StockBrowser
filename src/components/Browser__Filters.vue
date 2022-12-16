@@ -75,7 +75,7 @@ const tagFilter = computed(() => {
 	let dimension = '';
 	let grades = inputs.grades.join('|');
 	let words = inputs.words.join('|');
-	// if (tags) tags = `=${tags} `;
+	if (tags) tags = `${tags} `;
 	if (grades) grades = `=${grades} `;
 	if (x.length) dimension = `=${thick}${x}${sizeA}${x}${sizeB} `;
 
@@ -88,6 +88,7 @@ watch([textFilter, tagFilter, unfilteredData], () => {
 
 	let filterString = `${textFilter.value} ${tagFilter.value}`;
 	let fliterRegexp = convertStringToRegexp(filterString);
+	console.log(fliterRegexp);
 
 	data = data.filter(row => {
 		const str = `${row.code} ${row.tags} ${row.name}`;

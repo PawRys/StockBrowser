@@ -7,6 +7,8 @@ import DataCollectorTab from './components/DataCollector_.vue';
 import DataShareTab from './components/DataShare_.vue';
 import TestTab from './components/Test.vue';
 
+import LastModified from './components/LastModified.vue';
+
 const lasttab = localStorage.StockBrowser_LastUsedPanel || 0;
 const currentTab = ref(lasttab);
 const tabs = [
@@ -15,14 +17,6 @@ const tabs = [
 	{ id: DataShareTab, name: 'Udostępnij', icon: 'bi bi-cloud-arrow-up' },
 	{ id: TestTab, name: 'Test', icon: 'bi bi-bug-fill' },
 ];
-
-const timestamps = ref([[], []]);
-
-watchEffect(() => {
-	idb.timestamps.toArray().then(r => {
-		timestamps.value = r;
-	});
-});
 
 watchEffect(() => {
 	localStorage.StockBrowser_LastUsedPanel = currentTab.value;
@@ -41,10 +35,9 @@ watchEffect(() => {
 		</button>
 	</nav>
 
-	<aside class="lastModified">
-		<p>{{ timestamps[0].timestamp }}</p>
-		<p>{{ timestamps[1].timestamp }}</p>
-	</aside>
+	<Suspense>
+		<LastModified />
+	</Suspense>
 
 	<main>
 		<Suspense>
