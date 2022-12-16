@@ -24,6 +24,13 @@ function textareaClear() {
 	checkValidation();
 }
 
+function setTimestamp(name) {
+	return {
+		id: name,
+		timestamp: new Date(),
+	};
+}
+
 async function textareaPaste(e) {
 	const permission = await navigator.permissions.query({
 		name: 'clipboard-read',
@@ -42,8 +49,8 @@ async function textareaPaste(e) {
 	}
 }
 
-async function bulkAddIDB() {
-	console.time('dexie-bulkAdd');
+async function saveInIDB() {
+	console.time('saveInIDB');
 	messageBox.value = 'Loading... ⏳';
 	let result;
 
@@ -56,15 +63,13 @@ async function bulkAddIDB() {
 		const newData = prepareBeforeUpdate(textareaData.value, dataType.value);
 		result = await updateProducts(oldData, newData, dataType.value);
 	}
-
 	const { data, message } = result;
+
 	messageBox.value = message;
-	if (message === 'positive') {
-		messageBox.value = '📜 Pobrano dane z chmury ✔';
-	}
-	if (message === 'negative') {
-		messageBox.value = 'Podany kod jest nieaktualny. ❌';
-	}
+	if (message === 'positive') messageBox.value = '📜 Pobrano dane z chmury ✔';
+	if (message === 'negative') messageBox.value = 'Podany kod jest nieaktualny. ❌';
+
+	if (!data) return;
 
 	if (data) {
 		try {
@@ -112,7 +117,7 @@ async function bulkAddIDB() {
 			Schowek
 			<i class="bi bi-save"></i>
 		</button>
-		<button class="button accent" @click="bulkAddIDB" v-if="dataType">
+		<button class="button accent" @click="saveInIDB" v-if="dataType">
 			Zatwierdź
 			<i class="bi bi-check2"></i>
 		</button>

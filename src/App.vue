@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watchEffect } from 'vue';
+import { ref, watchEffect, computed } from 'vue';
 import { db as idb } from './dexiedb.js';
 
 import BrowserTab from './components/Browser__.vue';

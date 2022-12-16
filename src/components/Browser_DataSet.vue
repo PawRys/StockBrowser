@@ -39,10 +39,10 @@ watchEffect(async () => {
 
 <template>
 	<section class="data-set">
-		<label v-for="(attr, set) in sets" :for="set">
-			{{ attr.label }}:
+		<label v-for="({ label, count }, set) in sets" :for="set">
+			{{ label }}:
 			<input type="radio" name="dataset" :id="set" :value="set" v-model="dataSet" />
-			({{ attr.count }})
+			({{ count }})
 		</label>
 	</section>
 </template>
