@@ -1,4 +1,4 @@
-import { animateScrollTo } from '../functions.js';
+import { animateScrollTo } from '../utils/functions.js';
 
 export const columnNames = {
 	tags: 'Grupa',

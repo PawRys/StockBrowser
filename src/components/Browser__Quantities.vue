@@ -1,5 +1,5 @@
 <script setup>
-import { calcQuant } from '../functions.js';
+import { calcQuant } from '../utils/functions.js';
 
 const props = defineProps(['total', 'aviable', 'size']);
 const tCub = props.total;

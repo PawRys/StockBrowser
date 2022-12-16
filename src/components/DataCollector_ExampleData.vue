@@ -1,9 +1,9 @@
 <script setup>
 import { ref } from 'vue';
-import { db as idb } from '../dexiedb.js';
-import { raw_stocks } from '../raw_stocks.js';
-import { raw_prices } from '../raw_prices.js';
-import { raw_products } from '../raw_products.js';
+import { db as idb } from '../utils/dexiedb.js';
+import { raw_stocks } from '../utils/raw_stocks.js';
+import { raw_prices } from '../utils/raw_prices.js';
+import { raw_products } from '../utils/raw_products.js';
 
 async function clipboardPut(type) {
 	const permission = await navigator.permissions.query({
@@ -25,11 +25,13 @@ async function clipboardPut(type) {
 	navigator.clipboard.writeText(data).catch(reason => console.error(reason));
 }
 
-async function dropTable() {
-	await idb.delete();
-	// .clear()
-	// .then((res) => console.log(`Table dropped. Response: ${res}`))
-	// .catch((err) => console.log(err))
+async function clearDatabase() {
+	await idb.tables.forEach(table => {
+		table
+			.clear()
+			.then(res => console.log(`Table dropped. Response: ${res}`))
+			.catch(err => console.log(err));
+	});
 }
 </script>
 
@@ -45,7 +47,7 @@ async function dropTable() {
 		<button class="button" @click="clipboardPut('raw_products')">
 			Do schowka: 📜 Baza kodów
 		</button>
-		<button class="button" @click="dropTable()">Drop Table</button>
+		<button class="button" @click="clearDatabase()">Drop Table</button>
 	</div>
 </template>
 

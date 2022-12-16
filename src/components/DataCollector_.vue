@@ -1,17 +1,18 @@
 <script setup>
-import { ref } from 'vue';
-import { db as idb } from '../dexiedb.js';
+import { inject, ref, isRef, watchEffect, watch } from 'vue';
+import { db as idb } from '../utils/dexiedb.js';
+import ExampleData from './DataCollector_ExampleData.vue';
 import {
 	validate,
 	prepareBeforeUpdate,
 	fetchProducts,
 	updateProducts,
 } from './DataCollector_.js';
-import ExampleData from './DataCollector_ExampleData.vue';
 
 const textareaData = ref();
 const dataType = ref(null);
 const messageBox = ref('');
+const globalEvent = inject('GlobalEvents');
 
 function checkValidation() {
 	const { message, data } = validate(textareaData.value);
@@ -24,7 +25,7 @@ function textareaClear() {
 	checkValidation();
 }
 
-function setTimestamp(name) {
+function generateTimestamp(name) {
 	return {
 		id: name,
 		timestamp: new Date(),
@@ -76,16 +77,12 @@ async function saveInIDB() {
 			await idb.products.clear();
 			await idb.products.bulkAdd(data);
 			if (dataType.value === 'code' || dataType.value === 'stocks') {
-				await idb.timestamps.put({
-					id: 'stocks',
-					timestamp: new Date(),
-				});
+				await idb.timestamps.put(generateTimestamp('stocks'));
+				globalEvent.value = 'stocks updated';
 			}
 			if (dataType.value === 'code' || dataType.value === 'prices') {
-				await idb.timestamps.put({
-					id: 'prices',
-					timestamp: new Date(),
-				});
+				await idb.timestamps.put(generateTimestamp('prices'));
+				globalEvent.value = 'prices updated';
 			}
 		} catch (err) {
 			messageBox.value = 'Coś poszło nie tak ❗';
@@ -106,25 +103,29 @@ async function saveInIDB() {
 			rows="10"
 			v-model="textareaData"
 			@input="checkValidation"></textarea>
+
 		<p class="messageBox" :class="{ visible: messageBox, hidden: !messageBox }">
 			{{ messageBox }}
 		</p>
+
 		<button class="button" @click="textareaClear">
-			Wyczyść
+			<span>Wyczyść</span>
 			<i class="bi bi-backspace"></i>
 		</button>
+
 		<button class="button" @click="textareaPaste">
-			Schowek
+			<span>Schowek</span>
 			<i class="bi bi-save"></i>
 		</button>
+
 		<button class="button accent" @click="saveInIDB" v-if="dataType">
-			Zatwierdź
+			<span>Zatwierdź</span>
 			<i class="bi bi-check2"></i>
 		</button>
 	</div>
 
-	<hr />
-	<ExampleData />
+	<!-- <hr />
+	<ExampleData /> -->
 </template>
 
 <style scoped>

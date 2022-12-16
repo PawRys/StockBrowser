@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, reactive, inject, watch, unref } from 'vue';
-import { calcPrice, calcQuant } from '../functions';
+import { calcPrice, calcQuant } from '../utils/functions';
 
 const filteredData = inject('filteredData_global');
 const sortedData = inject('sortedData_global');

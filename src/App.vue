@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watchEffect, computed } from 'vue';
-import { db as idb } from './dexiedb.js';
+import { db as idb } from './utils/dexiedb.js';
 
 import BrowserTab from './components/Browser__.vue';
 import DataCollectorTab from './components/DataCollector_.vue';
@@ -59,6 +59,8 @@ watchEffect(() => {
 .tab-switch {
 	display: flex;
 	gap: 1ch;
+	flex-wrap: wrap;
+	justify-content: flex-start;
 }
 .tab-switch .button > i {
 	font-size: 1.1em;

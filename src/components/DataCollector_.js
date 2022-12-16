@@ -1,6 +1,6 @@
 import { ref } from 'vue';
-import { db as idb } from '../dexiedb.js';
-import { calcQuant, calcPrice } from '../functions.js';
+import { db as idb } from '../utils/dexiedb.js';
+import { calcQuant, calcPrice } from '../utils/functions.js';
 
 export function validate(input) {
 	let dataType, message;

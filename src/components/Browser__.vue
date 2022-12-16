@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, provide, watchEffect } from 'vue';
-import { db as idb } from '../dexiedb.js';
+import { db as idb } from '../utils/dexiedb.js';
 
 import DataSet from './Browser_DataSet.vue';
 import Filters from './Browser__Filters.vue';
@@ -9,7 +9,7 @@ import VatSetup from './Browser_VatSetup.vue';
 import Pagination from './Browser_Pagination.vue';
 import Quantities from './Browser__Quantities.vue';
 import PriceCalculator from './Browser__Prices.vue';
-import { animateScrollTo } from '../functions.js';
+import { animateScrollTo } from '../utils/functions.js';
 
 const unfilteredData_global = ref([]);
 const filteredData_global = ref([]);

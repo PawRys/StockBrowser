@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { db as idb } from '../dexiedb.js';
+import { db as idb } from '../utils/dexiedb.js';
 
 const shareCode = ref();
 const password = ref();

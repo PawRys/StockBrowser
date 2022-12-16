@@ -1,6 +1,6 @@
 <script setup>
 import { inject, watch, watchEffect } from 'vue';
-import { animateScrollTo } from '../functions.js';
+import { animateScrollTo } from '../utils/functions.js';
 
 const pagedData = inject(['pagedData_global']);
 const sortedProducts = inject(['sortedData_global']);
