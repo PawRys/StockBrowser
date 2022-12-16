@@ -36,32 +36,10 @@ provide('vat', vat);
 function wrapText(text) {
 	return text.replace(/(\d+(,\d+)?x\d+x\d+)/gi, '<b>$1</b>');
 }
-
-const stocksTimestamp = ref();
-const pricesTimestamp = ref();
-
-async function getDataTimestamp(stampName) {
-	const today = new Date('2022-12-14');
-	let stamp = await idb.timestamps.get(stampName);
-	stamp = stamp.timestamp.toJSON().split('T')[0];
-	const diffTime = Math.abs(today - new Date(stamp));
-	const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-	return `${stamp} - ${diffDays} dni`;
-}
-
-watchEffect(async () => {
-	stocksTimestamp.value = await getDataTimestamp('stocks');
-	pricesTimestamp.value = await getDataTimestamp('prices');
-});
 </script>
 
 <template>
 	<h2>Lista produktów</h2>
-
-	<aside class="lastModified">
-		<p>Towary: {{ stocksTimestamp }}</p>
-		<p>Ceny: {{ pricesTimestamp }}</p>
-	</aside>
 
 	<section id="search">
 		<DataSet />

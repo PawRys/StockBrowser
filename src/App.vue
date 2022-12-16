@@ -30,7 +30,7 @@ watchEffect(() => {
 			:key="i"
 			:class="['button', { active: currentTab == i }]"
 			@click="currentTab = i">
-			{{ tab.name }}
+			<span>{{ tab.name }}</span>
 			<i :class="tab.icon"></i>
 		</button>
 	</nav>

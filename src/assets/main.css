@@ -111,7 +111,6 @@ h3 {
 	display: inline-grid;
 	grid-template-columns: max-content min-content;
 	justify-content: space-around;
-	gap: 0.8ex;
 
 	margin: 0.2ch;
 	padding: 1ch 2ch;
@@ -126,6 +125,9 @@ h3 {
 
 	transition-property: background-color, box-shadow;
 	transition-duration: var(--transition-duration);
+}
+:is(.button, button):has(* + *) {
+	gap: 0.8ex;
 }
 
 :is(.button, button):is(.small) {
@@ -143,7 +145,7 @@ h3 {
 }
 
 :is(.button, button):is(.active) {
-	box-shadow: inset 0px -3px 0px 0px var(--accent-color);
+	box-shadow: 0px 3px 0px 0px var(--accent-color);
 }
 
 :is(.button, button):is(.disabled) {
