@@ -48,7 +48,6 @@ function inHuman(diff) {
 			<span class="lastModified__date">{{ stocksModTime.date }}</span>
 			<span class="lastModified__diff">{{ inHuman(stocksModTime.diff) }}</span>
 		</div>
-		<button @click="test = 'test me'">klik</button>
 	</aside>
 </template>
 
