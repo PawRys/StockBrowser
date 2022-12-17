@@ -15,6 +15,7 @@ function evalMath(expression) {
 	expression = expression.replace(/--/gi, '+');
 	expression = expression.replace(/\++/gi, '+');
 	expression = expression.replace(/\B\.\B/gi, '0');
+	expression = expression.replace(/\B(\.)/gi, '0$1');
 	expression = expression.replace(/(\d)(\()/gi, '$1*$2');
 	expression = expression.replace(/(\))(\d)/gi, '$1*$2');
 	expression = expression.replace(/(\))(\()/gi, '$1*$2');
@@ -24,7 +25,7 @@ function evalMath(expression) {
 	const isParenthesis = expression.match(regexpParenthesis);
 	const isMultiply = expression.match(regexpMultiply);
 	const isAddition = expression.match(regexpAddition);
-	// console.log(`Exp: ${expression}`);
+	console.log(`Exp: ${expression}`);
 
 	if (isParenthesis) {
 		let evalParenthesis = expression.replace(

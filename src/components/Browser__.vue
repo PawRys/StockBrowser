@@ -2,13 +2,14 @@
 import { ref, reactive, provide, watchEffect } from 'vue';
 import { db as idb } from '../utils/dexiedb.js';
 
+import Prices from './Browser__Prices.vue';
 import DataSet from './Browser_DataSet.vue';
 import Filters from './Browser__Filters.vue';
 import Sorting from './Browser_Sorting.vue';
 import VatSetup from './Browser_VatSetup.vue';
+import Inventory from './Browser__Inventory.vue';
 import Pagination from './Browser_Pagination.vue';
 import Quantities from './Browser__Quantities.vue';
-import PriceCalculator from './Browser__Prices.vue';
 import { animateScrollTo } from '../utils/functions.js';
 
 const unfilteredData_global = ref([]);
@@ -30,6 +31,11 @@ provide('pageNumber_global', pageNumber_global);
 const dataSet_global = ref('dataset-total');
 provide('dataSet_global', dataSet_global);
 
+const dataMode = ref('dataMode__inventory');
+watchEffect(() => {
+	console.log(dataMode.value);
+});
+
 const vat = reactive({ m3: 1, m2: 1, szt: 1.23 });
 provide('vat', vat);
 
@@ -46,7 +52,29 @@ function wrapText(text) {
 		<Filters />
 	</section>
 
-	<section class="productList" id="results">
+	<section class="productList" :class="dataMode" id="results">
+		<div class="dataMode">
+			<label class="button" for="dataMode__trade">
+				<span>Handel</span>
+				<input
+					type="radio"
+					name="dataMode"
+					value="dataMode__trade"
+					v-model="dataMode"
+					id="dataMode__trade" />
+			</label>
+			<label class="button" for="dataMode__inventory">
+				<span>Inwenaryzacja</span>
+				<input
+					type="radio"
+					name="dataMode"
+					value="dataMode__inventory"
+					v-model="dataMode"
+					checked="true"
+					id="dataMode__inventory" />
+			</label>
+		</div>
+
 		<header class="productList__header">
 			<div class="productList__headerBackground"></div>
 			<!-- Correct order (for keyboard navigation): FPSV -->
@@ -65,8 +93,20 @@ function wrapText(text) {
 					<span v-for="error of ply.error">{{ error }}</span>
 				</div>
 
-				<Quantities :size="ply.size" :total="ply.tCub" :aviable="ply.aCub" />
-				<PriceCalculator :plySize="ply.size" :buyPrice="ply.pCub" />
+				<Inventory
+					v-if="dataMode == 'dataMode__inventory'"
+					:code="ply.code"
+					:size="ply.size"
+					:total="ply.tCub" />
+				<Quantities
+					v-if="dataMode == 'dataMode__trade'"
+					:size="ply.size"
+					:total="ply.tCub"
+					:aviable="ply.aCub" />
+				<Prices
+					v-if="dataMode == 'dataMode__trade'"
+					:plySize="ply.size"
+					:buyPrice="ply.pCub" />
 			</li>
 		</ul>
 
@@ -149,12 +189,11 @@ function wrapText(text) {
 	margin: 0;
 	padding: 0;
 }
-.productList__product {
-	padding: 1em;
-}
+
 .productList__product:is(:hover, :focus-within) {
-	background-color: var(--bg-shade);
-	/* box-shadow: 0px 0px 0px 3px var(--accent-shade); */
+	/* background-color: var(--bg-shade); */
+	box-shadow: inset 0px 0px 0px 100rem var(--bg-shade),
+		0px 0px 0px 0.5rem var(--bg-shade);
 }
 
 .product__code {

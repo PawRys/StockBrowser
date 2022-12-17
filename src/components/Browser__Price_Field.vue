@@ -6,11 +6,12 @@ const props = defineProps(['size', 'unit']);
 const priceRoot = inject('priceRoot');
 const buyPrice = inject('buyPrice');
 const isEdited = ref(false);
-const shadowValue = ref();
+const initialValue = ref();
 const vat = inject('vat');
 
 function calcPriceRoot(event) {
 	const inputVal = event.target.value.trim() * 1;
+	initialValue.value = event.target.value.trim();
 	if (props.unit === 'pCub') {
 		priceRoot.value = calcPrice(props.size, inputVal, 'm3', 'm3') / vat.m3;
 	}
@@ -26,7 +27,6 @@ function calcPriceRoot(event) {
 	if (props.unit === 'perc') {
 		priceRoot.value = buyPrice + (buyPrice / 100) * inputVal;
 	}
-	shadowValue.value = event.target.value.trim();
 }
 
 const calcValues = computed(() => {
@@ -51,13 +51,24 @@ const calcValues = computed(() => {
 	if (isNaN(result) || !isFinite(result)) {
 		result = 0;
 	}
-	return props.unit === 'perc' ? result.toFixed(1) : result.toFixed(2);
+	return result;
+	// return props.unit === 'perc' ? result.toFixed(1) : result.toFixed(2);
 });
 
 const pfix = computed(() => {
 	const diffrence = priceRoot.value - buyPrice;
 	if (props.unit === 'marg' && diffrence >= 0) return '+';
 	return '';
+});
+
+const zerofix = computed(() => {
+	let result = 2;
+	if (props.unit === 'pCub') result = 2;
+	if (props.unit === 'pSqr') result = 2;
+	if (props.unit === 'pPcs') result = 2;
+	if (props.unit === 'marg') result = 2;
+	if (props.unit === 'perc') result = 1;
+	return result;
 });
 
 const sfix = computed(() => {
@@ -77,16 +88,6 @@ const vatClass = computed(() => {
 	if (props.unit === 'pPcs' && vat.szt > 1) text = 'vatApplied';
 	return text;
 });
-
-// function focusHandler() {
-// 	isEdited.value = true;
-// 	shadowValue.value = calcValues.value;
-// }
-
-// function logger(x) {
-// 	console.log(x);
-// 	console.log(`esc`);
-// }
 </script>
 
 <template>
@@ -95,15 +96,15 @@ const vatClass = computed(() => {
 			v-if="!isEdited"
 			class="price__result"
 			contenteditable="true"
-			@focus="[(isEdited = true), (shadowValue = calcValues)]">
-			{{ pfix }}{{ calcValues }}<small v-html="sfix"></small>
+			@focus="[(isEdited = true), (initialValue = calcValues.toFixed(zerofix))]">
+			{{ pfix }}{{ calcValues.toFixed(zerofix) }}<small v-html="sfix"></small>
 		</span>
 		<input
 			v-else
 			class="price__edit"
 			type="number"
-			:value="shadowValue"
-			@input="calcPriceRoot"
+			:value="initialValue"
+			@input="calcPriceRoot($event)"
 			@blur="isEdited = false"
 			@focus="$event.target.select()"
 			@keydown.enter="$event.target.select()"
