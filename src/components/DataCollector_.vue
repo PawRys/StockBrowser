@@ -13,7 +13,7 @@ const textareaData = ref();
 const dataType = ref(null);
 const messageBox = ref('');
 const globalEvent = inject('GlobalEvents');
-const testval = ref();
+const modalIsOpen = ref(false);
 
 function recogniseData() {
 	const { message, data } = recognise(textareaData.value);
@@ -56,29 +56,33 @@ async function saveInIDB() {
 	messageBox.value = 'Loading... ⏳';
 	let result;
 
-	function testfn() {
-		const el = document.getElementById('testel');
-		const ev = el.addEventListener('click', null, { once: true });
-		console.log(el);
-		console.log(ev);
-		console.log(testval.value);
-		return new Promise((resolve, reject) => {
-			if (testval.value) {
-				resolve('resolve value');
-			}
-		});
-	}
+	// function testfn() {
+	// 	return new Promise((resolve, reject) => {
+	// 		const el = document.getElementById('testel');
+	// 		const ev = el.addEventListener(
+	// 			'click',
+	// 			() => {
+	// 				resolve('resolve value');
+	// 			},
+	// 			{ once: true }
+	// 		);
+	// console.log('inside promise');
+	// console.log(ev);
+	// console.log(testval.value);
+	// if (testval.value) {
+	// }
+	// 	});
+	// }
 
-	console.log('before pompt');
-	let prompt = await testfn();
-	console.log(prompt);
-	console.log('after pompt');
+	// console.log('before pompt');
+	// let prompt = await testfn();
+	// console.log(prompt);
+	// console.log('after pompt');
 
 	if (dataType.value === 'code') {
 		const fetchURL = 'https://bossman.hekko24.pl/stock_browser_server/index.php';
 		// const fetchURL = 'http://localhost:3000/stock_browser_server/index.php';
 		result = await fetchProducts(fetchURL, textareaData.value);
-		console.log(result);
 	}
 	if (dataType.value === 'stocks' || dataType.value === 'prices') {
 		const oldData = await idb.products.toArray();
@@ -86,6 +90,58 @@ async function saveInIDB() {
 		result = await updateProducts(oldData, newData, dataType.value);
 	}
 	const { data, message } = result;
+
+	function checkNewInventory(data) {
+		let result = false;
+		data.every(row => {
+			if (!!row?.iCub || !!row?.iSqr || !!row?.iPcs) {
+				result = true;
+				return;
+			}
+		});
+		return result;
+	}
+
+	function openModal() {
+		modalIsOpen.value = true;
+	}
+
+	function closeModal() {
+		modalIsOpen.value = false;
+	}
+
+	function mergeInventory() {
+		console.log('merge fn');
+	}
+	function leaveInventory() {
+		return;
+	}
+	function swapInventory() {
+		console.log('swap fn');
+	}
+
+	async function askHowToHandle() {
+		result = new Promise((resolve, reject) => {
+			const buttons = document.querySelectorAll('#leave, #swap, #merge');
+			buttons.forEach(el => {
+				el.addEventListener('click', e => {
+					resolve(e.target.id);
+				});
+			});
+			console.log(buttons);
+		});
+		return result;
+	}
+
+	const isNewInventory = checkNewInventory(data);
+	// if (isNewInventory) {
+	openModal();
+	const handle = await askHowToHandle();
+	closeModal();
+	if (handle === 'merge') mergeInventory();
+	if (handle === 'leave') leaveInventory();
+	if (handle === 'swap') swapInventory();
+	// }
 
 	messageBox.value = message;
 	if (message === 'positive') messageBox.value = '📜 Pobrano dane z chmury ✔';
@@ -116,9 +172,6 @@ async function saveInIDB() {
 <template>
 	<h2>Załaduj dane</h2>
 	<p>[Tu instrukcja]</p>
-	<p>
-		<input type="checkbox" v-model="testval" id="testel" />
-	</p>
 	<div class="grid">
 		<textarea
 			id="datainsert"
@@ -146,6 +199,13 @@ async function saveInIDB() {
 			<i class="bi bi-check2"></i>
 		</button>
 	</div>
+
+	<section id="modal" v-show="modalIsOpen">
+		<p>Co zrobić z nowymi danymi?</p>
+		<button id="leave">Pozostaw stare</button>
+		<button id="swap">Zastąp nowymi</button>
+		<button id="merge">Złącz</button>
+	</section>
 
 	<hr />
 	<ExampleData />

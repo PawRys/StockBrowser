@@ -48,11 +48,8 @@ export function calcPrice(size, value, from, to) {
 	return value * 1;
 }
 
-export function animateScrollTo(input) {
-	const el = document.querySelector(input);
-	// console.log(input);
-	// console.log(el);
-	// console.log(el.offsetTop);
+export function animateScrollTo(element) {
+	const el = document.querySelector(element);
 	window.scrollTo({
 		top: el.offsetTop,
 		behavior: 'smooth',
