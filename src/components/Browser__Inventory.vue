@@ -4,14 +4,11 @@ import { calcQuant, evalMath } from '../utils/functions.js';
 import Field from './Browser__Inventory_Field.vue';
 
 const props = defineProps(['total', 'size', 'code']);
-const tCub = props.total;
-const tSqr = calcQuant(props.size, props.total, 'm3', 'm2');
-const tPcs = calcQuant(props.size, props.total, 'm3', 'szt');
+const tCub = -1 * props.total;
+const tSqr = -1 * calcQuant(props.size, props.total, 'm3', 'm2');
+const tPcs = -1 * calcQuant(props.size, props.total, 'm3', 'szt');
 const database = inject('unfilteredData_global');
-
-const rootValue = ref(0);
 const productIndex = database.value.findIndex(row => row.code === props.code);
-const expression = ref(database.value[productIndex][props.unit] || '');
 
 const summary = computed(() => {
 	let iCub = database.value[productIndex]['iCub'] || '';
@@ -25,7 +22,7 @@ const summary = computed(() => {
 	iSqr = calcQuant(props.size, iSqr, 'm2', 'm3');
 	iPcs = calcQuant(props.size, iPcs, 'szt', 'm3');
 	result = iCub + iSqr + iPcs;
-	console.log(`Summary: ${result}`);
+	// console.log(`Summary: ${result}`);
 	return result;
 });
 
@@ -47,6 +44,12 @@ const iPcsDiff = computed(() => {
 	let result = pcsSummary - pcsQuantity;
 	return result;
 });
+
+const pfix = computed(() => {
+	let result = '';
+	if (iCubDiff.value > 0) result = '+';
+	return result;
+});
 </script>
 
 <template>
@@ -63,12 +66,12 @@ const iPcsDiff = computed(() => {
 	<Field class="product__iPcs" :code="props.code" :unit="'iPcs'" />
 
 	<div class="product__sCub">
-		{{ iCubDiff.toFixed(3) }}<small>m<sup>3</sup></small>
+		{{ pfix }}{{ iCubDiff.toFixed(3) }}<small>m<sup>3</sup></small>
 	</div>
 	<div class="product__sSqr">
-		{{ iSqrDiff.toFixed(2) }}<small>m<sup>2</sup></small>
+		{{ pfix }}{{ iSqrDiff.toFixed(2) }}<small>m<sup>2</sup></small>
 	</div>
-	<div class="product__sPcs">{{ iPcsDiff.toFixed(1) }}<small>szt</small></div>
+	<div class="product__sPcs">{{ pfix }}{{ iPcsDiff.toFixed(1) }}<small>szt</small></div>
 </template>
 
 <style scoped>

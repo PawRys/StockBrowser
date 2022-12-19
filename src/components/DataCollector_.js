@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import { db as idb } from '../utils/dexiedb.js';
 import { calcQuant, calcPrice } from '../utils/functions.js';
 
-export function validate(input) {
+export function recognise(input) {
 	let dataType, message;
 	if (!input) {
 		dataType = null;
@@ -92,9 +92,8 @@ export async function updateProducts(currentData, updatedData, dataType) {
 		const productIndex = currentData.findIndex(row => row.code === productCode);
 		const currentProduct = productIndex < 0 ? {} : currentData[productIndex];
 		const productSize = getProductSize(productName);
-		const productFlags = getProductFlags(
-			`${productCode} ${productName} ${productSize === null ? 'error' : ''}`
-		);
+		const isError = productSize === null ? 'error' : '';
+		const productFlags = getProductFlags(`${productCode} ${productName} ${isError}`);
 		let errors = [];
 
 		if (productSize === null) {

@@ -7,7 +7,7 @@ const password = ref();
 const message = ref();
 let msgcode = '';
 
-async function generateCode() {
+async function shareData() {
 	message.value = 'Wysyłanie danych...';
 	shareCode.value = Math.random().toString().substring(2, 6);
 	const URLparams = {
@@ -51,7 +51,7 @@ async function generateCode() {
 				type="password"
 				placeholder="Sekretne hasło"
 				v-model="password" />
-			<button class="button small accent" @click="generateCode">Generuj kod</button>
+			<button class="button small accent" @click="shareData">Generuj kod</button>
 		</form>
 		<p id="share-code">{{ shareCode }}</p>
 		<p>{{ message }}</p>

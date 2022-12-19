@@ -33,7 +33,7 @@ provide('dataSet_global', dataSet_global);
 
 const dataMode = ref('dataMode__inventory');
 watchEffect(() => {
-	console.log(dataMode.value);
+	console.log(sortedData_global.value);
 });
 
 const vat = reactive({ m3: 1, m2: 1, szt: 1.23 });
@@ -153,7 +153,7 @@ function wrapText(text) {
 		'aCub aSqr aPcs vat3 vat2 vat1';
 }
 .productList__product {
-	margin-block: 1rem 1rem;
+	margin-block: 1rem 2rem;
 	grid-template-areas:
 		'code code code tCub tSqr tPcs'
 		'name name name aCub aSqr aPcs'

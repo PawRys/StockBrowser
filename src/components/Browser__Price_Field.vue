@@ -117,7 +117,7 @@ const vatClass = computed(() => {
 .price__result {
 	cursor: pointer;
 	background-color: var(--bg-color);
-	box-shadow: 0px 0px 0px 1px var(--bg-shade);
+	box-shadow: 0px 0px 0px 1px var(--accent-shade);
 	padding: 0ch 0.5ch;
 	display: flow-root;
 	overflow: hidden;

@@ -3,7 +3,7 @@ import { inject, ref, isRef, watchEffect, watch } from 'vue';
 import { db as idb } from '../utils/dexiedb.js';
 import ExampleData from './DataCollector_ExampleData.vue';
 import {
-	validate,
+	recognise,
 	prepareBeforeUpdate,
 	fetchProducts,
 	updateProducts,
@@ -13,16 +13,17 @@ const textareaData = ref();
 const dataType = ref(null);
 const messageBox = ref('');
 const globalEvent = inject('GlobalEvents');
+const testval = ref();
 
-function checkValidation() {
-	const { message, data } = validate(textareaData.value);
+function recogniseData() {
+	const { message, data } = recognise(textareaData.value);
 	messageBox.value = message;
 	dataType.value = data;
 }
 
 function textareaClear() {
 	textareaData.value = '';
-	checkValidation();
+	recogniseData();
 }
 
 function generateTimestamp(name) {
@@ -46,7 +47,7 @@ async function textareaPaste(e) {
 			.readText()
 			.catch(reason => console.error(reason));
 		textareaData.value = clipboardData;
-		checkValidation();
+		recogniseData();
 	}
 }
 
@@ -55,11 +56,31 @@ async function saveInIDB() {
 	messageBox.value = 'Loading... ⏳';
 	let result;
 
+	function testfn() {
+		const el = document.getElementById('testel');
+		const ev = el.addEventListener('click', null, { once: true });
+		console.log(el);
+		console.log(ev);
+		console.log(testval.value);
+		return new Promise((resolve, reject) => {
+			if (testval.value) {
+				resolve('resolve value');
+			}
+		});
+	}
+
+	console.log('before pompt');
+	let prompt = await testfn();
+	console.log(prompt);
+	console.log('after pompt');
+
 	if (dataType.value === 'code') {
 		const fetchURL = 'https://bossman.hekko24.pl/stock_browser_server/index.php';
 		// const fetchURL = 'http://localhost:3000/stock_browser_server/index.php';
 		result = await fetchProducts(fetchURL, textareaData.value);
-	} else {
+		console.log(result);
+	}
+	if (dataType.value === 'stocks' || dataType.value === 'prices') {
 		const oldData = await idb.products.toArray();
 		const newData = prepareBeforeUpdate(textareaData.value, dataType.value);
 		result = await updateProducts(oldData, newData, dataType.value);
@@ -70,14 +91,12 @@ async function saveInIDB() {
 	if (message === 'positive') messageBox.value = '📜 Pobrano dane z chmury ✔';
 	if (message === 'negative') messageBox.value = 'Podany kod jest nieaktualny. ❌';
 
-	if (!data) return;
-
 	if (data) {
 		try {
 			await idb.products.clear();
 			await idb.products.bulkAdd(data);
 			if (dataType.value === 'code' || dataType.value === 'stocks') {
-				console.log(generateTimestamp('stocks'));
+				// console.log(generateTimestamp('stocks'));
 				await idb.timestamps.put(generateTimestamp('stocks'));
 				globalEvent.value = 'stocks updated';
 			}
@@ -97,13 +116,16 @@ async function saveInIDB() {
 <template>
 	<h2>Załaduj dane</h2>
 	<p>[Tu instrukcja]</p>
+	<p>
+		<input type="checkbox" v-model="testval" id="testel" />
+	</p>
 	<div class="grid">
 		<textarea
 			id="datainsert"
 			name="datainsert"
 			rows="10"
 			v-model="textareaData"
-			@input="checkValidation"></textarea>
+			@input="recogniseData"></textarea>
 
 		<p class="messageBox" :class="{ visible: messageBox, hidden: !messageBox }">
 			{{ messageBox }}

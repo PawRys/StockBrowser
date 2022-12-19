@@ -47,7 +47,8 @@ async function saveExpression(event) {
 			class="inventory__result"
 			contenteditable="true"
 			@focus="[(isEdited = true)]">
-			{{ evalMath(expression).toFixed(zerofix) }}<small v-html="sfix"></small>
+			{{ evalMath(expression).toFixed(zerofix) }}
+			<small v-html="sfix"></small>
 		</span>
 		<input
 			v-else
