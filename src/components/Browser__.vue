@@ -127,7 +127,7 @@ function wrapText(text) {
 	display: grid;
 	justify-items: center;
 	margin: 0 auto;
-	max-width: fit-content;
+	/* max-width: fit-content; */
 }
 
 .productList__headerBackground {
@@ -147,6 +147,7 @@ function wrapText(text) {
 }
 
 .productList__header {
+	width: 100%;
 	grid-template-areas:
 		'code .    .    .    page page'
 		'tCub tSqr tPcs pCub pSqr pPcs'
@@ -188,12 +189,12 @@ function wrapText(text) {
 .productList__ul {
 	margin: 0;
 	padding: 0;
+	width: 100%;
 }
 
 .productList__product:is(:hover, :focus-within) {
 	/* background-color: var(--bg-shade); */
-	box-shadow: inset 0px 0px 0px 100rem var(--bg-shade),
-		0px 0px 0px 0.5rem var(--bg-shade);
+	box-shadow: inset 0px 0px 0px 100rem var(--bg-shade), 0px 0px 0px 0.5rem var(--bg-shade);
 }
 
 .product__code {
