@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import { db as idb } from '../utils/dexiedb.js';
 import { calcQuant, calcPrice } from '../utils/functions.js';
 
-export function recognise(input) {
+export function defineDataType(input) {
 	let dataType, message;
 	if (!input) {
 		dataType = null;

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watchEffect, computed } from 'vue';
+import { DialogWrapper } from 'vue3-promise-dialog';
 import { db as idb } from './utils/dexiedb.js';
 
 import BrowserTab from './components/Browser__.vue';
@@ -53,6 +54,8 @@ watchEffect(() => {
 			<a href="mailto:pawrys.kontakt@gmail.com">pawrys.kontakt@gmail.com</a>
 		</p>
 	</footer>
+
+	<DialogWrapper />
 </template>
 
 <style scoped>

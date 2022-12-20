@@ -12,7 +12,8 @@
 		"@vueuse/core": "^9.3.1",
 		"dexie": "^3.2.2",
 		"normalize.css": "^8.0.1",
-		"vue": "^3.2.38"
+		"vue": "^3.2.38",
+		"vue3-promise-dialog": "^0.3.4"
 	},
 	"devDependencies": {
 		"@prettier/plugin-php": "^0.19.2",
