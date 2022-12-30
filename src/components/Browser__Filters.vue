@@ -1,5 +1,5 @@
 <script setup>
-import { ref, inject, watch, computed, unref } from 'vue';
+import { ref, inject, watch, computed } from 'vue';
 import {
 	columnNames,
 	addListener,
@@ -66,7 +66,7 @@ const filteredDataTags = computed(() => {
 });
 
 const tagFilter = computed(() => {
-	const inputs = unref(selectedFilters);
+	const inputs = selectedFilters.value;
 	const x = inputs.thick.length || inputs.sizeA.length || inputs.sizeB.length ? 'x' : '';
 	let tags = inputs.tags.join('|');
 	let thick = inputs.thick.join('|');
@@ -117,7 +117,7 @@ function getAllSelectedFilters(groupID, tag) {
 }
 
 function clearFiltersInGroup(groupName) {
-	const inputs = unref(selectedFilters);
+	const inputs = selectedFilters.value;
 	inputs[groupName] = [];
 	selectedFilters.value = inputs;
 }
@@ -135,7 +135,7 @@ function clearAllFilters() {
 }
 
 function isChecked(colId, tag) {
-	const inputs = unref(selectedFilters);
+	const inputs = selectedFilters.value;
 	const test = inputs[colId].findIndex(e => e === tag) < 0 ? false : true;
 	return test;
 }

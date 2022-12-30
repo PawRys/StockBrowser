@@ -2,6 +2,7 @@
 import { inject } from 'vue';
 
 const vat = inject('vat');
+const vatVal = inject('vatVal');
 </script>
 
 <template>
@@ -13,7 +14,7 @@ const vat = inject('vat');
 			name="vatCub"
 			id="vatCub"
 			v-model="vat.m3"
-			:true-value="1.23"
+			:true-value="vatVal"
 			:false-value="1" />
 	</label>
 	<label for="vatSqr" class="button small" style="grid-area: vat2">
@@ -23,7 +24,7 @@ const vat = inject('vat');
 			name="vatSqr"
 			id="vatSqr"
 			v-model="vat.m2"
-			:true-value="1.23"
+			:true-value="vatVal"
 			:false-value="1" />
 	</label>
 	<label for="vatPcs" class="button small" style="grid-area: vat1">
@@ -33,7 +34,7 @@ const vat = inject('vat');
 			name="vatPcs"
 			id="vatPcs"
 			v-model="vat.szt"
-			:true-value="1.23"
+			:true-value="vatVal"
 			:false-value="1" />
 	</label>
 	<!-- </section> -->

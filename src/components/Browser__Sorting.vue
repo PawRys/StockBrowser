@@ -52,22 +52,11 @@ watch([sortParams, filteredData], () => {
 	sortedData.value = data;
 });
 
-const showSortingInfo = computed(() => {
-	const [currentId] = sortParams.value;
-	const [dir, text, ascText, dscText] = sortKeys[currentId];
-	return `Sortowanie: ${text} - ${dir > 0 ? ascText : dscText}`;
-});
-
 function setSortParams(currentId) {
 	const [prevId] = sortParams.value;
 	if (currentId !== prevId) sortKeys[prevId][0] = 0;
-	sortKeys[currentId][0] =
-		sortKeys[currentId][0] == 0 ? 1 : (sortKeys[currentId][0] *= -1);
+	sortKeys[currentId][0] = sortKeys[currentId][0] == 0 ? 1 : (sortKeys[currentId][0] *= -1);
 	sortParams.value = [currentId, sortKeys[currentId][0]];
-}
-
-function logme(el) {
-	console.log(el);
 }
 </script>
 

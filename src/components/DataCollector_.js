@@ -60,6 +60,7 @@ export function prepareBeforeUpdate(input, dataType) {
 		// Ommit garbage
 		if (!lineChunks) continue;
 		if (garbageWords.test(line)) continue;
+
 		if (dataType === 'products' && lineChunks.length !== 2) continue;
 		if (dataType === 'prices' && lineChunks.length !== 6) continue;
 		if (dataType === 'stocks' && lineChunks.length !== 7) continue;
@@ -72,7 +73,7 @@ export function prepareBeforeUpdate(input, dataType) {
 	return output;
 }
 
-export async function updateProducts(currentData, updatedData, dataType) {
+export async function updateProducts(currentData, newData, dataType) {
 	if (dataType === 'prices') {
 		currentData.map(row => {
 			row.pCub = 0;
@@ -86,11 +87,12 @@ export async function updateProducts(currentData, updatedData, dataType) {
 		});
 	}
 
-	for (let newProduct of updatedData) {
+	for (let newProduct of newData) {
 		const productCode = newProduct[0];
 		const productName = newProduct[1];
 		const productIndex = currentData.findIndex(row => row.code === productCode);
-		const currentProduct = productIndex < 0 ? {} : currentData[productIndex];
+		const isNewProduct = productIndex < 0 ? true : false;
+		const currentProduct = isNewProduct ? {} : currentData[productIndex];
 		const productSize = getProductSize(productName);
 		const isError = productSize === null ? 'error' : '';
 		const productFlags = getProductFlags(`${productCode} ${productName} ${isError}`);
@@ -107,7 +109,7 @@ export async function updateProducts(currentData, updatedData, dataType) {
 			tags: productFlags,
 			error: errors,
 		});
-		if (productIndex < 0) {
+		if (isNewProduct) {
 			Object.assign(currentProduct, {
 				pCub: 0,
 				tCub: 0,
@@ -126,8 +128,8 @@ export async function updateProducts(currentData, updatedData, dataType) {
 			});
 		}
 
-		const cursor = productIndex < 0 ? currentData.length : productIndex;
-		const replace = productIndex < 0 ? 0 : 1;
+		const cursor = isNewProduct ? 0 : productIndex;
+		const replace = isNewProduct ? 0 : 1;
 		currentData.splice(cursor, replace, currentProduct);
 	}
 
@@ -141,7 +143,6 @@ export async function updateProducts(currentData, updatedData, dataType) {
 	if (dataType === 'stocks') {
 		message = '📦 Zaktualizowano ilości ✔';
 	}
-
 	return { data: currentData, message: message };
 }
 

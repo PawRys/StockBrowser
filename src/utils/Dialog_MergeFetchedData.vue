@@ -13,27 +13,18 @@ import { closeDialog } from 'vue3-promise-dialog';
 			</p>
 
 			<button @click="closeDialog('leave')" class="btn">
-				<span>Pozostaw bez zmian.</span>
-				<span>
-					<i class="bi bi-file-earmark-plus"></i>
-					<i class="bi bi-cloud-minus"></i>
-				</span>
+				<span>Bez zmian</span>
+				<span><i class="bi bi-x-square"></i></span>
 			</button>
 
 			<button @click="closeDialog('merge')" class="btn">
-				<span>Scal</span>
-				<span>
-					<i class="bi bi-file-earmark-plus"></i>
-					<i class="bi bi-cloud-plus"></i>
-				</span>
+				<span>Dodaj</span>
+				<span><i class="bi bi-plus-circle"></i></span>
 			</button>
 
 			<button @click="closeDialog('replace')" class="btn">
 				<span>Zamień</span>
-				<span>
-					<i class="bi bi-file-earmark-minus"></i>
-					<i class="bi bi-cloud-plus"></i>
-				</span>
+				<span><i class="bi bi-arrow-repeat"></i></span>
 			</button>
 		</div>
 	</div>

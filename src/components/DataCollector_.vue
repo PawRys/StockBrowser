@@ -29,13 +29,6 @@ function textareaClear() {
 	checkDataType();
 }
 
-function generateTimestamp(name) {
-	return {
-		id: name,
-		timestamp: new Date(),
-	};
-}
-
 async function textareaPaste(e) {
 	const permission = await navigator.permissions.query({
 		name: 'clipboard-read',
@@ -61,16 +54,16 @@ async function saveInIDB() {
 		result = await getRemoteData();
 	}
 	if (dataType.value === 'stocks' || dataType.value === 'prices') {
-		result = await getCopypasteData();
+		result = await getCopyPasteData();
 	}
 	const { data, message } = result;
 
 	const isNewInventory = checkInventory(data);
 	if (isNewInventory) {
 		const answer = await openDialog(ConfirmDialog);
-		if (answer === 'merge') mergeInventory();
-		if (answer === 'leave') leaveInventory();
-		if (answer === 'replace') replaceInventory();
+		if (answer === 'merge') data = await mergeInventory(data);
+		// if (answer === 'leave') leaveInventory();
+		if (answer === 'replace') data = await replaceInventory(data);
 	}
 
 	messageBox.value = message;
@@ -81,14 +74,7 @@ async function saveInIDB() {
 		try {
 			await idb.products.clear();
 			await idb.products.bulkAdd(data);
-			if (dataType.value === 'code' || dataType.value === 'stocks') {
-				await idb.timestamps.put(generateTimestamp('stocks'));
-				globalEvent.value = 'stocks updated';
-			}
-			if (dataType.value === 'code' || dataType.value === 'prices') {
-				await idb.timestamps.put(generateTimestamp('prices'));
-				globalEvent.value = 'prices updated';
-			}
+			generateTimestamp(dataType.value);
 		} catch (err) {
 			messageBox.value = 'Coś poszło nie tak ❗';
 			console.error(err);
@@ -102,7 +88,7 @@ async function saveInIDB() {
 		return await fetchProducts(fetchURL, textareaData.value);
 	}
 
-	async function getCopypasteData() {
+	async function getCopyPasteData() {
 		const oldData = await idb.products.toArray();
 		const newData = prepareBeforeUpdate(textareaData.value, dataType.value);
 		return await updateProducts(oldData, newData, dataType.value);
@@ -111,25 +97,44 @@ async function saveInIDB() {
 	function checkInventory(data) {
 		if (!data) return;
 		let result = false;
-		data.every(row => {
+		for (const row of data) {
 			if (!!row?.iCub || !!row?.iSqr || !!row?.iPcs) {
 				result = true;
-				return;
+				break;
 			}
-		});
+		}
 		return result;
-	}
-
-	function mergeInventory() {
-		console.log('merge fn');
 	}
 
 	function leaveInventory() {
 		return;
 	}
 
-	function replaceInventory() {
+	async function mergeInventory(newData) {
+		let currentData = await idb.products.toArray();
+
+		return currentData;
+	}
+
+	async function replaceInventory() {
 		console.log('swap fn');
+	}
+
+	async function generateTimestamp(dataType) {
+		if (dataType === 'code' || dataType === 'stocks') {
+			await idb.timestamps.put({
+				id: 'stocks',
+				timestamp: new Date(),
+			});
+			globalEvent.value = 'stocks updated';
+		}
+		if (dataType === 'code' || dataType === 'prices') {
+			await idb.timestamps.put({
+				id: 'prices',
+				timestamp: new Date(),
+			});
+			globalEvent.value = 'prices updated';
+		}
 	}
 }
 </script>
@@ -172,8 +177,8 @@ async function saveInIDB() {
 		<button id="merge">Złącz</button>
 	</section>
 
-	<!-- <hr />
-	<ExampleData /> -->
+	<hr />
+	<ExampleData />
 </template>
 
 <style scoped>

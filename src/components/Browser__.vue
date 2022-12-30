@@ -3,12 +3,12 @@ import { ref, reactive, provide, watchEffect } from 'vue';
 import { db as idb } from '../utils/dexiedb.js';
 
 import Prices from './Browser__Prices.vue';
-import DataSet from './Browser_DataSet.vue';
+import DataSet from './Browser__DataSet.vue';
 import Filters from './Browser__Filters.vue';
-import Sorting from './Browser_Sorting.vue';
-import VatSetup from './Browser_VatSetup.vue';
+import Sorting from './Browser__Sorting.vue';
+import VatSetup from './Browser__VatSetup.vue';
 import Inventory from './Browser__Inventory.vue';
-import Pagination from './Browser_Pagination.vue';
+import Pagination from './Browser__Pagination.vue';
 import Quantities from './Browser__Quantities.vue';
 import { animateScrollTo } from '../utils/functions.js';
 
@@ -32,11 +32,13 @@ const dataSet_global = ref('dataset-total');
 provide('dataSet_global', dataSet_global);
 
 const dataMode = ref('dataMode__inventory');
-watchEffect(() => {
-	console.log(sortedData_global.value);
-});
+// watchEffect(() => {
+// 	console.log(sortedData_global.value);
+// });
 
-const vat = reactive({ m3: 1, m2: 1, szt: 1.23 });
+const vatVal = 1.23;
+const vat = reactive({ m3: 1, m2: 1, szt: vatVal });
+provide('vatVal', vatVal);
 provide('vat', vat);
 
 function wrapText(text) {
