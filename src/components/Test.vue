@@ -39,55 +39,53 @@ async function textareaPaste(e) {
 
 async function importData() {
 	console.time('importData()');
-	let result;
+	let result, message;
 	messageBox.value = 'Loading... ⏳';
 
-	if (importedDataType.value === 'code') {
+	if (importedDataType.value.match(/code/i)) {
 		const code = importedData.value;
-		const fetchURL = 'https://bossman.hekko24.pl/stock_browser_server/index.ph';
+		const fetchURL = 'https://bossman.hekko24.pl/stock_browser_server/index.php';
 		// const fetchURL = 'http://localhost:3000/stock_browser_server/index.php';
 		result = await fetchProducts(fetchURL, code);
 	}
 
-	if (importedDataType.value === 'stocks' || importedDataType.value === 'prices') {
+	if (importedDataType.value.match(/stocks|prices/i)) {
 		const data = importedData.value;
 		const dataType = importedDataType.value;
 		result = structurizeData(data, dataType);
 	}
 
-	const { data, message } = result;
+	let { data, message: server_msg } = result;
 
 	if (data) {
-		mergeWithLocalData(data, importedDataType.value);
+		message = await mergeWithLocalData(data, importedDataType.value);
+		generateTimestamp(importedDataType.value);
 	}
 
 	messageBox.value = message;
-	if (message === 'positive') messageBox.value = '📜 Pobrano dane z chmury ✔';
-	if (message === 'negative') messageBox.value = 'Podany kod jest nieaktualny. ❌';
+	if (server_msg === 'positive') messageBox.value = '📜 Pobrano dane z chmury ✔';
+	if (server_msg === 'negative') messageBox.value = 'Podany kod jest nieaktualny. ❌';
 	console.timeEnd('importData()');
 }
 
+async function generateTimestamp(dataType) {
+	if (dataType.match(/stocks|code/i)) {
+		await idb.timestamps.put({
+			id: 'stocks',
+			timestamp: new Date(),
+		});
+		globalEvent.value = 'stocks updated';
+	}
+	if (dataType.match(/prices|code/i)) {
+		await idb.timestamps.put({
+			id: 'prices',
+			timestamp: new Date(),
+		});
+		globalEvent.value = 'prices updated';
+	}
+}
+
 async function mergeWithLocalData(newData, dataType) {
-	const localData = await idb.products.toArray();
-	if (dataType === 'stocks') {
-		resetStocks(localData);
-	}
-	if (dataType === 'prices') {
-		resetPrices(localData);
-	}
-	if (dataType === 'code') {
-		resetStocks(localData);
-		resetPrices(localData);
-	}
-
-	for (const newItem of newData) {
-		const localProductIndex = localData.findIndex(local => local.code === newItem.code);
-		const isNewProduct = localProductIndex < 0 ? true : false;
-		const currentProduct = isNewProduct ? {} : currentData[productIndex];
-		Object.assign(localData, newItem);
-	}
-	console.log(localData);
-
 	function resetStocks(data) {
 		for (const row of data) {
 			row.tCub = 0;
@@ -99,6 +97,41 @@ async function mergeWithLocalData(newData, dataType) {
 			row.pCub = 0;
 		}
 	}
+	const localData = await idb.products.toArray();
+	let message = 'Coś poszło nie tak ❗';
+
+	if (dataType.match(/stocks|code/i)) {
+		resetStocks(localData);
+	}
+	if (dataType.match(/prices|code/i)) {
+		resetPrices(localData);
+	}
+
+	for (const newProduct of newData) {
+		const localProductIndex = localData.findIndex(row => row.code === newProduct.code);
+		const isNewProduct = localProductIndex < 0 ? true : false;
+		const currentProduct = isNewProduct ? newProduct : localData[localProductIndex];
+
+		if (!isNewProduct) {
+			Object.assign(currentProduct, newProduct);
+		}
+
+		const cursor = isNewProduct ? localData.length : localProductIndex;
+		const replace = isNewProduct ? 0 : 1;
+		localData.splice(cursor, replace, currentProduct);
+	}
+
+	try {
+		await idb.products.clear();
+		await idb.products.bulkAdd(localData);
+		if (dataType === 'products') message = '📜 Zaktualizowano produkty ✔';
+		if (dataType === 'stocks') message = '📦 Zaktualizowano ilości ✔';
+		if (dataType === 'prices') message = '💵 Zaktualizowano ceny ✔';
+	} catch (err) {
+		console.error(err);
+	}
+
+	return message;
 }
 
 // async function getRemoteData(code) {}
