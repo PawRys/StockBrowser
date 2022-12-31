@@ -11,9 +11,7 @@ async function clipboardPut(type) {
 	});
 
 	if (permission.state == 'denied') {
-		alert(
-			`Uprawnienia do schowka dla tej witryny zostały wyłączone. Ask Google for help.`
-		);
+		alert(`Uprawnienia do schowka dla tej witryny zostały wyłączone. Ask Google for help.`);
 		return;
 	}
 
@@ -26,29 +24,43 @@ async function clipboardPut(type) {
 }
 
 async function clearDatabase() {
-	await idb.tables.forEach(table => {
-		table
-			.clear()
-			.then(res => console.log(`Table dropped. Response: ${res}`))
-			.catch(err => console.log(err));
-	});
+	await idb.products
+		.clear()
+		.then(res => console.log(`Table 'products' dropped. Response: ${res}`))
+		.catch(err => console.log(err));
+	await idb.timestamps
+		.clear()
+		.then(res => console.log(`Table 'timestamps' dropped. Response: ${res}`))
+		.catch(err => console.log(err));
+	// await idb.tables.forEach(table => {
+	// 	table
+	// 		.clear()
+	// 		.then(res => console.log(`Table dropped. Response: ${res}`))
+	// 		.catch(err => console.log(err));
+	// });
 }
 </script>
 
 <template>
-	<h3>Dev things</h3>
-	<div class="grid">
-		<button class="button" @click="clipboardPut('raw_stocks')">
-			Do schowka: 📦 Ilości
-		</button>
-		<button class="button" @click="clipboardPut('raw_prices')">
-			Do schowka: 💵 Ceny
-		</button>
-		<button class="button" @click="clipboardPut('raw_products')">
-			Do schowka: 📜 Baza kodów
-		</button>
-		<button class="button" @click="clearDatabase()">Drop Table</button>
-	</div>
+	<section class="dev">
+		<h3>Dev things</h3>
+		<div class="grid">
+			<button class="button" @click="clipboardPut('raw_stocks')">
+				Do schowka: 📦 Ilości
+			</button>
+			<button class="button" @click="clipboardPut('raw_prices')">Do schowka: 💵 Ceny</button>
+			<button class="button" @click="clipboardPut('raw_products')">
+				Do schowka: 📜 Baza kodów
+			</button>
+			<button class="button" @click="clearDatabase()">Clear database</button>
+		</div>
+	</section>
 </template>
 
-<style></style>
+<style scoped>
+.dev {
+	border: solid 1px blue;
+	padding: 1rem;
+	background-color: lightsteelblue;
+}
+</style>

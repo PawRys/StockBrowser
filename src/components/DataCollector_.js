@@ -31,8 +31,8 @@ export function defineDataType(input) {
 	const isProdutsList = /Kod	Nazwa/i.test(input);
 	const isProdutsItem = /\d+s\d+\/\d+/i.test(input);
 	if (isProdutsList && isProdutsItem) {
-		dataType = 'products';
-		message = `📜 Rozpoznano listę produktów.`;
+		// dataType = 'products';
+		// message = `📜 Rozpoznano listę produktów.`;
 	}
 
 	const isFullExchangeCode = /^\d{4}$/i.test(input);
@@ -56,19 +56,19 @@ export function prepareBeforeUpdate(input, dataType) {
 	let output = [];
 
 	for (let line of linesArray) {
-		const lineChunks = line.match(/[^\t]+/g);
+		const row = line.match(/[^\t]+/g);
 		// Ommit garbage
-		if (!lineChunks) continue;
+		if (!row) continue;
 		if (garbageWords.test(line)) continue;
 
-		if (dataType === 'products' && lineChunks.length !== 2) continue;
-		if (dataType === 'prices' && lineChunks.length !== 6) continue;
-		if (dataType === 'stocks' && lineChunks.length !== 7) continue;
+		if (dataType === 'products' && row.length !== 2) continue;
+		if (dataType === 'prices' && row.length !== 6) continue;
+		if (dataType === 'stocks' && row.length !== 7) continue;
 
-		for (let i = 3; i < lineChunks.length; i++) {
-			lineChunks[i] = lineChunks[i].replace(',', '.') * 1;
+		for (let i = 3; i < row.length; i++) {
+			row[i] = row[i].replace(',', '.') * 1;
 		}
-		output.push(lineChunks);
+		output.push(row);
 	}
 	return output;
 }
@@ -167,6 +167,79 @@ export async function fetchProducts(fetchURL, pinCode) {
 		console.error(error);
 		return { message: 'Problem z połączeniem ❌' };
 	}
+}
+
+export function structurizeData(data, dataType) {
+	data = formatToArray(data);
+	data = removeGarbage(data, dataType);
+	data = formatToObject(data, dataType);
+	return { data: data };
+}
+
+function formatToArray(data) {
+	const lines = data.match(/[^\r\n]+/g);
+	let result = [];
+	for (let line of lines) {
+		const row = line.match(/[^\t]+/g);
+		result.push(row);
+	}
+	return result;
+}
+
+function removeGarbage(data, dataType) {
+	const garbageWords = /(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/gi;
+	let result = [];
+
+	for (let row of data) {
+		// Ommit garbage
+		if (!row.length) continue;
+		if (!!row.find(el => el.match(garbageWords))) continue;
+		if (dataType === 'prices' && row.length !== 6) continue;
+		if (dataType === 'stocks' && row.length !== 7) continue;
+		if (dataType === 'products' && row.length !== 2) continue;
+		result.push(row);
+	}
+	return result;
+}
+
+function formatToObject(data, dataType) {
+	let result = [];
+	for (const row of data) {
+		let product = {};
+		let errorsList = [];
+		const productCode = row[0];
+		const productName = row[1];
+		const productSize = getProductSize(productName);
+		if (productSize === null)
+			errorsList.push('Błąd: Brak prawidłowego wymiaru w opisie. Obliczenia niemożliwe.');
+		const isError = !!errorsList.length ? 'error' : '';
+		const productFlags = getProductFlags(`${productCode} ${productName} ${isError}`);
+
+		for (let i = 3; i < row.length; i++) {
+			row[i] = row[i].replace(',', '.') * 1;
+		}
+
+		Object.assign(product, {
+			code: productCode,
+			name: productName,
+			size: productSize,
+			flags: productFlags,
+			errors: errorsList,
+		});
+		if (dataType === 'prices') {
+			Object.assign(product, {
+				pCub: calcPrice(productSize, row[4], row[2], 'm3'),
+			});
+		}
+		if (dataType === 'stocks') {
+			Object.assign(product, {
+				tCub: calcQuant(productSize, row[6], row[2], 'm3'),
+				aCub: calcQuant(productSize, row[3], row[2], 'm3'),
+			});
+		}
+		result.push(product);
+	}
+	return result;
 }
 
 function getProductSize(line) {

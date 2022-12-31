@@ -1,61 +1,168 @@
 <script setup>
-import { onBeforeUpdate, onUpdated, provide, ref } from 'vue';
-// import Test2 from './Test2.vue';
-// import Test3 from './Test3.vue';
+import { ref, inject } from 'vue';
+import { db as idb } from '../utils/dexiedb.js';
+import { defineDataType, fetchProducts, structurizeData } from './DataCollector_.js';
+import ExampleData from './DataCollector_ExampleData.vue';
 
-const exp = ref();
-onBeforeUpdate(() => {
-	console.clear();
-});
+const importedData = ref();
+const importedDataType = ref(null);
+const messageBox = ref('');
+const globalEvent = inject('GlobalEvents');
+const modalIsOpen = ref(false);
 
-function evalMath(expression) {
-	expression = expression ? expression : '';
-	expression = expression.replace(/,/gi, '.');
-	expression = expression.replace(/-\+/gi, '-');
-	expression = expression.replace(/--/gi, '+');
-	expression = expression.replace(/\++/gi, '+');
-	expression = expression.replace(/\B\.\B/gi, '0');
-	expression = expression.replace(/\B(\.)/gi, '0$1');
-	expression = expression.replace(/(\d)(\()/gi, '$1*$2');
-	expression = expression.replace(/(\))(\d)/gi, '$1*$2');
-	expression = expression.replace(/(\))(\()/gi, '$1*$2');
-	const regexpParenthesis = /\(([^\(\)]+)\)/i;
-	const regexpMultiply = /\d+(\.\d+)?[\*\/]-?\d+(\.\d+)?/i;
-	const regexpAddition = /[\+\-]?\d+(\.\d+)?/gi;
-	const isParenthesis = expression.match(regexpParenthesis);
-	const isMultiply = expression.match(regexpMultiply);
-	const isAddition = expression.match(regexpAddition);
-	console.log(`Exp: ${expression}`);
+function checkDataType() {
+	const { message, data } = defineDataType(importedData.value);
+	messageBox.value = message;
+	importedDataType.value = data;
+}
 
-	if (isParenthesis) {
-		let evalParenthesis = expression.replace(
-			regexpParenthesis,
-			evalMath(isParenthesis[1])
-		);
-		return evalMath(evalParenthesis);
-	}
+function textareaClear() {
+	importedData.value = '';
+	checkDataType();
+}
 
-	if (isMultiply) {
-		let evalMultiply = expression.replace(regexpMultiply, calcMultiply(isMultiply[0]));
-		return evalMath(evalMultiply);
-	}
-
-	const finalResult = isAddition
-		? isAddition.reduce((acc, curr) => curr * 1 + acc * 1)
-		: 0;
-	return finalResult * 1;
-
-	function calcMultiply(exp) {
-		let [a, b] = exp.split(/[\*\/]/);
-		a *= 1;
-		b *= 1;
-		return /\*/.test(exp) ? a * b : a / b;
+async function textareaPaste(e) {
+	const permission = await navigator.permissions.query({
+		name: 'clipboard-read',
+	});
+	if (permission.state == 'denied') {
+		alert(`Uprawnienia do schowka dla tej witryny zostały wyłączone. Ask Google for help.`);
+		return;
+	} else {
+		const clipboardData = await navigator.clipboard
+			.readText()
+			.catch(reason => console.error(reason));
+		importedData.value = clipboardData;
+		checkDataType();
 	}
 }
+
+async function importData() {
+	console.time('importData()');
+	let result;
+	messageBox.value = 'Loading... ⏳';
+
+	if (importedDataType.value === 'code') {
+		const code = importedData.value;
+		const fetchURL = 'https://bossman.hekko24.pl/stock_browser_server/index.ph';
+		// const fetchURL = 'http://localhost:3000/stock_browser_server/index.php';
+		result = await fetchProducts(fetchURL, code);
+	}
+
+	if (importedDataType.value === 'stocks' || importedDataType.value === 'prices') {
+		const data = importedData.value;
+		const dataType = importedDataType.value;
+		result = structurizeData(data, dataType);
+	}
+
+	const { data, message } = result;
+
+	if (data) {
+		mergeWithLocalData(data, importedDataType.value);
+	}
+
+	messageBox.value = message;
+	if (message === 'positive') messageBox.value = '📜 Pobrano dane z chmury ✔';
+	if (message === 'negative') messageBox.value = 'Podany kod jest nieaktualny. ❌';
+	console.timeEnd('importData()');
+}
+
+async function mergeWithLocalData(newData, dataType) {
+	const localData = await idb.products.toArray();
+	if (dataType === 'stocks') {
+		resetStocks(localData);
+	}
+	if (dataType === 'prices') {
+		resetPrices(localData);
+	}
+	if (dataType === 'code') {
+		resetStocks(localData);
+		resetPrices(localData);
+	}
+
+	for (const newItem of newData) {
+		const localProductIndex = localData.findIndex(local => local.code === newItem.code);
+		const isNewProduct = localProductIndex < 0 ? true : false;
+		const currentProduct = isNewProduct ? {} : currentData[productIndex];
+		Object.assign(localData, newItem);
+	}
+	console.log(localData);
+
+	function resetStocks(data) {
+		for (const row of data) {
+			row.tCub = 0;
+			row.aCub = 0;
+		}
+	}
+	function resetPrices(data) {
+		for (const row of data) {
+			row.pCub = 0;
+		}
+	}
+}
+
+// async function getRemoteData(code) {}
+
+// async function getCopyPasteData(data, dataType) {
+// 	// const oldData = await idb.products.toArray();
+// }
 </script>
 
 <template>
 	<h1>Test Tab</h1>
-	<p><input type="text" v-model="exp" /></p>
-	<p>{{ evalMath(exp) }}</p>
+	<h2>Data collector v2</h2>
+	<section class="data-collector">
+		<textarea
+			id="datainsert"
+			name="datainsert"
+			rows="10"
+			v-model="importedData"
+			@input="checkDataType">
+		</textarea>
+
+		<p class="messageBox" :class="{ visible: messageBox, hidden: !messageBox }">
+			{{ messageBox }}
+		</p>
+
+		<p class="buttons">
+			<button class="button" @click="textareaClear">
+				<span>Wyczyść</span>
+				<i class="bi bi-backspace"></i>
+			</button>
+
+			<button class="button" @click="textareaPaste">
+				<span>Schowek</span>
+				<i class="bi bi-save"></i>
+			</button>
+
+			<button class="button accent" @click="importData" v-if="importedDataType">
+				<span>Zatwierdź</span>
+				<i class="bi bi-check2"></i>
+			</button>
+		</p>
+	</section>
+
+	<example-data />
 </template>
+
+<style scoped>
+.data-collector > * {
+	width: 100%;
+}
+
+.messageBox {
+	margin: 0;
+	transition-property: height, scale;
+	transition-duration: var(--transition-duration);
+}
+
+.messageBox.hidden {
+	height: 0ch;
+	scale: 1 0;
+}
+
+.messageBox.visible {
+	height: 2.5ch;
+	scale: 1 1;
+}
+</style>

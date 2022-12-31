@@ -62,7 +62,7 @@ async function saveInIDB() {
 	if (isNewInventory) {
 		const answer = await openDialog(ConfirmDialog);
 		if (answer === 'merge') data = await mergeInventory(data);
-		// if (answer === 'leave') leaveInventory();
+		if (answer === 'leave') data = await leaveInventory();
 		if (answer === 'replace') data = await replaceInventory(data);
 	}
 
@@ -106,7 +106,7 @@ async function saveInIDB() {
 		return result;
 	}
 
-	function leaveInventory() {
+	async function leaveInventory() {
 		return;
 	}
 
@@ -117,7 +117,7 @@ async function saveInIDB() {
 	}
 
 	async function replaceInventory() {
-		console.log('swap fn');
+		return;
 	}
 
 	async function generateTimestamp(dataType) {
