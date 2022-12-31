@@ -1,7 +1,12 @@
 <script setup>
 import { ref, inject } from 'vue';
 import { db as idb } from '../utils/dexiedb.js';
-import { defineDataType, fetchProducts, structurizeData } from './DataCollector_.js';
+import {
+	defineDataType,
+	fetchProducts,
+	structurizeData,
+	integrateData,
+} from './DataCollector_.js';
 import ExampleData from './DataCollector_ExampleData.vue';
 
 const importedData = ref();
@@ -58,6 +63,7 @@ async function importData() {
 	let { data, message: server_msg } = result;
 
 	if (data) {
+		data = integrateData(data);
 		message = await mergeWithLocalData(data, importedDataType.value);
 		generateTimestamp(importedDataType.value);
 	}

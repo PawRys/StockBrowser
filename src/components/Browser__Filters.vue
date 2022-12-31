@@ -3,7 +3,7 @@ import { ref, inject, watch, computed } from 'vue';
 import {
 	columnNames,
 	addListener,
-	getProductGrade,
+	getProductGrades,
 	convertStringToRegexp,
 } from './Browser__Filters.js';
 
@@ -12,17 +12,17 @@ const filteredData = inject('filteredData_global');
 
 const textFilter = ref('');
 const selectedFilters = ref({
-	tags: [],
+	group: [],
 	thick: [],
 	sizeA: [],
 	sizeB: [],
-	grades: [],
+	grade: [],
 	words: [],
 });
 
 const filteredDataTags = computed(() => {
 	const data = filteredData.value;
-	let tags = new Set();
+	let group = new Set();
 	let thick = new Set();
 	let sizeA = new Set();
 	let sizeB = new Set();
@@ -35,9 +35,9 @@ const filteredDataTags = computed(() => {
 	for (const row of data) {
 		const codename = `${row.code} ${row.name}`;
 		const chunks = codename.split(/[ \/]/gi);
-		const grades = getProductGrade(codename);
-		if (row.tags) {
-			row.tags.split(' ').map(s => tags.add(s));
+		const productGrades = getProductGrades(codename);
+		if (row.group) {
+			row.group.split(' ').map(s => group.add(s));
 		}
 		if (row.size) {
 			const [t, a, b] = row.size.split('x');
@@ -45,8 +45,8 @@ const filteredDataTags = computed(() => {
 			if (a) sizeA.add(a);
 			if (b) sizeB.add(b);
 		}
-		if (grades) {
-			grades.map(s => grade.add(s));
+		if (productGrades) {
+			productGrades.map(s => grade.add(s));
 		}
 		for (const chunk of chunks) {
 			if (/\d/.test(chunk)) continue;
@@ -56,11 +56,11 @@ const filteredDataTags = computed(() => {
 	}
 
 	return {
-		tags: Array.from(tags).sort(collator),
+		group: Array.from(group).sort(collator),
 		thick: Array.from(thick).sort(collator),
 		sizeA: Array.from(sizeA).sort(collator),
 		sizeB: Array.from(sizeB).sort(collator),
-		grades: Array.from(grade).sort(collator),
+		grade: Array.from(grade).sort(collator),
 		words: Array.from(words).sort(collator),
 	};
 });
@@ -68,18 +68,18 @@ const filteredDataTags = computed(() => {
 const tagFilter = computed(() => {
 	const inputs = selectedFilters.value;
 	const x = inputs.thick.length || inputs.sizeA.length || inputs.sizeB.length ? 'x' : '';
-	let tags = inputs.tags.join('|');
+	let group = inputs.group.join('|');
 	let thick = inputs.thick.join('|');
 	let sizeA = inputs.sizeA.join('|');
 	let sizeB = inputs.sizeB.join('|');
 	let dimension = '';
-	let grades = inputs.grades.join('|');
+	let grade = inputs.grade.join('|');
 	let words = inputs.words.join('|');
-	if (tags) tags = `${tags} `;
-	if (grades) grades = `=${grades} `;
+	if (group) group = `${group} `;
+	if (grade) grade = `=${grade} `;
 	if (x.length) dimension = `=${thick}${x}${sizeA}${x}${sizeB} `;
 
-	return `${tags}${dimension}${grades}${words}`.trim();
+	return `${group}${dimension}${grade}${words}`.trim();
 });
 
 watch([textFilter, tagFilter, unfilteredData], () => {
@@ -91,7 +91,7 @@ watch([textFilter, tagFilter, unfilteredData], () => {
 	console.log(fliterRegexp);
 
 	data = data.filter(row => {
-		const str = `${row.code} ${row.tags} ${row.name}`;
+		const str = `${row.code} ${row.group} ${row.name}`;
 		return str.match(new RegExp(fliterRegexp, 'i'));
 	});
 
@@ -99,14 +99,14 @@ watch([textFilter, tagFilter, unfilteredData], () => {
 });
 
 function getAllSelectedFilters(groupID, tag) {
-	const form = document.querySelector('#tagSelector');
+	const form = document.querySelector('#tags-selector');
 	const formData = new FormData(form);
 	let checkedFilters = {
-		tags: formData.getAll('tags'),
+		group: formData.getAll('group'),
 		thick: formData.getAll('thick'),
 		sizeA: formData.getAll('sizeA'),
 		sizeB: formData.getAll('sizeB'),
-		grades: formData.getAll('grades'),
+		grade: formData.getAll('grade'),
 		words: formData.getAll('words'),
 	};
 	// Add checkbox in direct filtering (label pressed)
@@ -125,11 +125,11 @@ function clearFiltersInGroup(groupName) {
 function clearAllFilters() {
 	textFilter.value = '';
 	selectedFilters.value = {
-		tags: [],
+		group: [],
 		thick: [],
 		sizeA: [],
 		sizeB: [],
-		grades: [],
+		grade: [],
 		words: [],
 	};
 }
@@ -161,20 +161,20 @@ function isDisabled(groupID) {
 			{{ unfilteredData ? unfilteredData.length : 0 }}
 		</span> -->
 
-		<form id="tagSelector" class="tagSelector" action="javascript:void(0)">
+		<form id="tags-selector" class="tags-selector" action="javascript:void(0)">
 			<fieldset
-				class="tagSelector__group"
+				class="tags-selector__group"
 				v-for="(tagsGroup, groupID) in filteredDataTags"
 				:class="[groupID]"
 				:key="groupID">
-				<header class="tagSelector__groupHeader">
+				<header class="tags-selector__groupHeader">
 					<h3>
 						{{ columnNames[groupID] }}
 					</h3>
 				</header>
 
 				<div
-					class="tagSelector__tag"
+					class="tags-selector__tag"
 					v-for="(tag, tagIndex) in tagsGroup"
 					:key="`${groupID}-${tag}`">
 					<input
@@ -192,7 +192,7 @@ function isDisabled(groupID) {
 					</label>
 				</div>
 
-				<footer class="tagSelector__groupFooter">
+				<footer class="tags-selector__groupFooter">
 					<button class="button" @click="getAllSelectedFilters">
 						<span>Filtruj</span>
 						<i class="bi bi-funnel"></i>
@@ -231,19 +231,19 @@ function isDisabled(groupID) {
 	width: 100%;
 }
 
-.tagSelector {
+.tags-selector {
 	display: flex;
 	overflow-x: auto;
 }
 
-.tagSelector__group {
+.tags-selector__group {
 	display: flex;
 	flex-direction: column;
 	scroll-snap-align: center;
 	border: none;
 }
 
-.tagSelector__tag {
+.tags-selector__tag {
 	min-width: max-content;
 }
 

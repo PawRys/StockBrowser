@@ -95,7 +95,7 @@ export async function updateProducts(currentData, newData, dataType) {
 		const currentProduct = isNewProduct ? {} : currentData[productIndex];
 		const productSize = getProductSize(productName);
 		const isError = productSize === null ? 'error' : '';
-		const productFlags = getProductFlags(`${productCode} ${productName} ${isError}`);
+		const productGroup = getProductGroups(`${productCode} ${productName} ${isError}`);
 		let errors = [];
 
 		if (productSize === null) {
@@ -106,7 +106,7 @@ export async function updateProducts(currentData, newData, dataType) {
 			code: productCode,
 			name: productName,
 			size: productSize,
-			tags: productFlags,
+			group: productGroup,
 			error: errors,
 		});
 		if (isNewProduct) {
@@ -172,7 +172,7 @@ export async function fetchProducts(fetchURL, pinCode) {
 export function structurizeData(data, dataType) {
 	data = formatToArray(data);
 	data = removeGarbage(data, dataType);
-	data = formatToObject(data, dataType);
+	// data = integrateData(data, dataType);
 	return { data: data };
 }
 
@@ -202,39 +202,44 @@ function removeGarbage(data, dataType) {
 	return result;
 }
 
-function formatToObject(data, dataType) {
+export function integrateData(data, dataType) {
 	let result = [];
 	for (const row of data) {
 		let product = {};
 		let errorsList = [];
-		const productCode = row[0];
-		const productName = row[1];
-		const productSize = getProductSize(productName);
-		if (productSize === null)
-			errorsList.push('Błąd: Brak prawidłowego wymiaru w opisie. Obliczenia niemożliwe.');
-		const isError = !!errorsList.length ? 'error' : '';
-		const productFlags = getProductFlags(`${productCode} ${productName} ${isError}`);
-
 		for (let i = 3; i < row.length; i++) {
 			row[i] = row[i].replace(',', '.') * 1;
 		}
+
+		const productCode = row?.code || row[0];
+		const productName = row?.name || row[1];
+		const productSize = row?.size || getProductSize(productName);
+		const productUnit = row?.unit || row[2];
+		const productTCub = row?.tCub || row[6];
+		const productACub = row?.aCub || row[3];
+		const productPCub = row?.pCub || row[4];
+		console.log(calcQuant(productSize, productTCub, productUnit, 'm3'));
+		if (productSize === null)
+			errorsList.push('Błąd: Brak prawidłowego wymiaru w opisie. Obliczenia niemożliwe.');
+		const isError = !!errorsList.length ? 'error' : '';
+		const productGroup = getProductGroup(`${productCode} ${productName} ${isError}`);
 
 		Object.assign(product, {
 			code: productCode,
 			name: productName,
 			size: productSize,
-			flags: productFlags,
+			group: productGroup,
 			errors: errorsList,
 		});
 		if (dataType === 'prices') {
 			Object.assign(product, {
-				pCub: calcPrice(productSize, row[4], row[2], 'm3'),
+				pCub: calcPrice(productSize, productPCub, productUnit, 'm3'),
 			});
 		}
 		if (dataType === 'stocks') {
 			Object.assign(product, {
-				tCub: calcQuant(productSize, row[6], row[2], 'm3'),
-				aCub: calcQuant(productSize, row[3], row[2], 'm3'),
+				tCub: calcQuant(productSize, productTCub, productUnit, 'm3'),
+				aCub: calcQuant(productSize, productACub, productUnit, 'm3'),
 			});
 		}
 		result.push(product);
@@ -247,28 +252,28 @@ function getProductSize(line) {
 	return fullSizeB ? fullSizeB[0].replace(',', '.') : null;
 }
 
-function getProductFlags(input) {
-	let tags = [];
+function getProductGroup(input) {
+	let group = [];
 
-	if (/error/i.test(input)) tags.push('ERROR');
-	if (/ppl/i.test(input)) tags.push('PPL');
-	if (/hpl/i.test(input)) tags.push('HPL');
-	if (/osb/i.test(input)) tags.push('OSB');
-	if (/topol/i.test(input)) tags.push('China');
-	if (/honey/i.test(input)) tags.push('Honey');
-	if (/PF|poli/i.test(input)) tags.push('Poliform');
-	if (/RP|radiata/i.test(input)) tags.push('RP');
-	if (/EUK|eukaliptus/i.test(input)) tags.push('EUK');
-	if (/wodo|wd|ext|\bE\b/i.test(input)) tags.push('WD');
-	if (/such|mr|int/i.test(input)) tags.push('MR');
-	if (/mel|\bM\/M\b/i.test(input)) tags.push('MM');
-	if (/heksa|F\/WH/i.test(input)) tags.push('Heksa');
-	if (/less|transpa/i.test(input)) tags.push('C.less');
-	if (/folio|\bF\/F\b/i.test(input)) tags.push('FF');
-	if (/anty|\bF\/W\b|\bW\/W\b/i.test(input)) tags.push('FW');
-	if (!tags.length) tags.push('??');
+	if (/error/i.test(input)) group.push('ERROR');
+	if (/ppl/i.test(input)) group.push('PPL');
+	if (/hpl/i.test(input)) group.push('HPL');
+	if (/osb/i.test(input)) group.push('OSB');
+	if (/topol/i.test(input)) group.push('China');
+	if (/honey/i.test(input)) group.push('Honey');
+	if (/PF|poli/i.test(input)) group.push('Poliform');
+	if (/RP|radiata/i.test(input)) group.push('RP');
+	if (/EUK|eukaliptus/i.test(input)) group.push('EUK');
+	if (/wodo|wd|ext|\bE\b/i.test(input)) group.push('WD');
+	if (/such|mr|int/i.test(input)) group.push('MR');
+	if (/mel|\bM\/M\b/i.test(input)) group.push('MM');
+	if (/heksa|F\/WH/i.test(input)) group.push('Heksa');
+	if (/less|transpa/i.test(input)) group.push('C.less');
+	if (/folio|\bF\/F\b/i.test(input)) group.push('FF');
+	if (/anty|\bF\/W\b|\bW\/W\b/i.test(input)) group.push('FW');
+	if (!group.length) group.push('??');
 
-	tags.sort();
-	const result = tags.reduce((a, c) => `${a} ${c}`, '');
+	group.sort();
+	const result = group.reduce((a, c) => `${a} ${c}`, '');
 	return result.trim();
 }

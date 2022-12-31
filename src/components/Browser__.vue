@@ -88,7 +88,7 @@ function wrapText(text) {
 		<ul class="productList__ul" v-if="pagedData_global && pagedData_global.length">
 			<li class="productList__product" v-for="ply in pagedData_global" :key="ply.code">
 				<div class="product__code">
-					<b>{{ ply.code }}</b> - {{ ply.flags }}
+					<b>{{ ply.code }}</b> - {{ ply.group }}
 				</div>
 				<div class="product__name" v-html="wrapText(ply.name)"></div>
 				<div class="product__error" v-if="ply.errors">

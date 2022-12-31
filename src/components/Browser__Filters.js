@@ -1,15 +1,15 @@
 import { animateScrollTo } from '../utils/functions.js';
 
 export const columnNames = {
-	tags: 'Grupa',
+	group: 'Grupa',
 	thick: 'Grubość',
 	sizeA: 'Wymiar A',
 	sizeB: 'Wymiar B',
-	grades: 'Klasa',
+	grade: 'Klasa',
 	words: 'Opis',
 };
 
-export function getProductGrade(input) {
+export function getProductGrades(input) {
 	const className = 'KILO|BB|B|CP|CC|C|WGE|WG|PQF|PQ|PF|F|WH|W|M';
 	const pattern = `\\b(${className}){1}(\/(${className})){0,1}(?!\\.)\\b`;
 	const grade = input.toUpperCase().match(new RegExp(pattern, 'gi'));
