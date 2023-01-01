@@ -215,6 +215,9 @@ export function integrateData(data, dataType) {
 		const productTCub = row?.tCub || row[6]?.replace(',', '.') * 1;
 		const productACub = row?.aCub || row[3]?.replace(',', '.') * 1;
 		const productPCub = row?.pCub || row[4]?.replace(',', '.') * 1;
+		const productICub = row?.iCub;
+		const productISqr = row?.iSqr;
+		const productIpcs = row?.iPcs;
 		if (productSize === null)
 			errorsList.push('Błąd: Brak prawidłowego wymiaru w opisie. Obliczenia niemożliwe.');
 		const isError = !!errorsList.length ? 'error' : '';
@@ -225,8 +228,15 @@ export function integrateData(data, dataType) {
 			name: productName,
 			size: productSize,
 			group: productGroup,
-			errors: errorsList,
+			iCub: productICub,
+			iSqr: productISqr,
+			iPcs: productIpcs,
 		});
+		if (!!isError) {
+			Object.assign(product, {
+				errors: errorsList,
+			});
+		}
 		if (dataType.match(/stocks|code/i)) {
 			Object.assign(product, {
 				tCub: calcQuant(productSize, productTCub, productUnit, 'm3'),
@@ -240,6 +250,7 @@ export function integrateData(data, dataType) {
 		}
 		result.push(product);
 	}
+
 	return result;
 }
 

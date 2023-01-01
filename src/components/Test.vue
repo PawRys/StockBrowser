@@ -73,23 +73,6 @@ async function importData() {
 	console.timeEnd('importData()');
 }
 
-async function generateTimestamp(dataType) {
-	if (dataType.match(/stocks|code/i)) {
-		await idb.timestamps.put({
-			id: 'stocks',
-			timestamp: new Date(),
-		});
-		globalEvent.value = 'stocks updated';
-	}
-	if (dataType.match(/prices|code/i)) {
-		await idb.timestamps.put({
-			id: 'prices',
-			timestamp: new Date(),
-		});
-		globalEvent.value = 'prices updated';
-	}
-}
-
 async function localDataMerge(newData, dataType) {
 	function resetStocks(data) {
 		for (const row of data) {
@@ -102,6 +85,7 @@ async function localDataMerge(newData, dataType) {
 			row.pCub = 0;
 		}
 	}
+
 	const localData = await idb.products.toArray();
 	let message = 'Coś poszło nie tak ❗';
 
@@ -137,6 +121,23 @@ async function localDataMerge(newData, dataType) {
 	}
 
 	return message;
+}
+
+async function generateTimestamp(dataType) {
+	if (dataType.match(/stocks|code/i)) {
+		await idb.timestamps.put({
+			id: 'stocks',
+			timestamp: new Date(),
+		});
+		globalEvent.value = 'stocks updated';
+	}
+	if (dataType.match(/prices|code/i)) {
+		await idb.timestamps.put({
+			id: 'prices',
+			timestamp: new Date(),
+		});
+		globalEvent.value = 'prices updated';
+	}
 }
 
 // async function getRemoteData(code) {}
