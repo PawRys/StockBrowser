@@ -109,7 +109,7 @@ h3 {
 
 :is(.button, button) {
 	display: inline-grid;
-	grid-template-columns: max-content min-content;
+	grid-auto-flow: column;
 	justify-content: space-around;
 
 	margin: 0.2ch;

@@ -215,9 +215,9 @@ export function integrateData(data, dataType) {
 		const productTCub = row?.tCub || row[6]?.replace(',', '.') * 1;
 		const productACub = row?.aCub || row[3]?.replace(',', '.') * 1;
 		const productPCub = row?.pCub || row[4]?.replace(',', '.') * 1;
-		const productICub = row?.iCub;
-		const productISqr = row?.iSqr;
-		const productIpcs = row?.iPcs;
+		const productICub = row?.iCub || '';
+		const productISqr = row?.iSqr || '';
+		const productIpcs = row?.iPcs || '';
 		if (productSize === null)
 			errorsList.push('Błąd: Brak prawidłowego wymiaru w opisie. Obliczenia niemożliwe.');
 		const isError = !!errorsList.length ? 'error' : '';

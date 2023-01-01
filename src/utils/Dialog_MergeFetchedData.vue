@@ -3,31 +3,46 @@ import { closeDialog } from 'vue3-promise-dialog';
 </script>
 
 <template>
-	<div class="dialog">
+	<dialog class="dialog">
 		<div class="center">
 			<h3>Wykryto dane inwentaryzacyjne</h3>
 
 			<p>
-				W danych, które importujesz istnieje spis z natury (inwentaryzacja). Wybierz co
-				zrobić:
+				W danych, które importujesz istnieje spis z natury (inwentaryzacja).<br />
+				Wybierz, które dane zapisać na urządzeniu:
+			</p>
+			<p>
+				<b>Lokalne</b> - pozostaw dane lokalne <i class="bi bi-database"></i>, ignoruj dane
+				z chmury <i class="bi bi-cloud-slash-fill"></i>
+			</p>
+			<p>
+				<b>Chmura</b> - usuń dane lokalne <i class="bi bi-database-fill-slash"></i>, zastąp
+				danymi z chmury <i class="bi bi-cloud"></i>
+			</p>
+			<p>
+				<b>Sumuj</b> - sumuj dane lokalne <i class="bi bi-database"></i> i dane z chmury
+				<i class="bi bi-cloud"></i>
 			</p>
 
 			<button @click="closeDialog('leave')" class="btn">
-				<span>Bez zmian</span>
-				<span><i class="bi bi-x-square"></i></span>
-			</button>
-
-			<button @click="closeDialog('merge')" class="btn">
-				<span>Dodaj</span>
-				<span><i class="bi bi-plus-circle"></i></span>
+				<span>Lokalne</span>
+				<span><i class="bi bi-database"></i></span>
+				<!-- <span><i class="bi bi-x-square"></i></span> -->
 			</button>
 
 			<button @click="closeDialog('replace')" class="btn">
-				<span>Zamień</span>
-				<span><i class="bi bi-arrow-repeat"></i></span>
+				<span>Chmura</span>
+				<span><i class="bi bi-cloud"></i></span>
+				<!-- <span><i class="bi bi-arrow-repeat"></i></span> -->
+			</button>
+
+			<button @click="closeDialog('merge')" class="btn">
+				<span>Sumuj</span>
+				<span><i class="bi bi-database"></i> + <i class="bi bi-cloud"></i></span>
+				<!-- <span><i class="bi bi-plus-circle"></i></span> -->
 			</button>
 		</div>
-	</div>
+	</dialog>
 </template>
 
 <style scoped>
@@ -38,11 +53,23 @@ import { closeDialog } from 'vue3-promise-dialog';
 
 	position: fixed;
 	inset: 0;
-	box-shadow: inset 0 0 0 100vmax rgb(0 0 0 / 0.5);
+
+	border: 0;
+	padding: 0;
+	box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.5);
 }
 .center {
 	padding: 2rem;
 	max-width: fit-content;
 	background-color: var(--bg-shade);
+}
+
+.dialog ul {
+	padding-left: 0;
+	list-style: none;
+}
+
+.dialog li {
+	margin-block: 0.5rem;
 }
 </style>

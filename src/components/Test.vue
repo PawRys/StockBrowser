@@ -8,6 +8,8 @@ import {
 	integrateData,
 } from './DataCollector_.js';
 import ExampleData from './DataCollector_ExampleData.vue';
+import { openDialog } from 'vue3-promise-dialog';
+import ConfirmDialog from '../utils/Dialog_MergeFetchedData.vue';
 
 const importedData = ref();
 const importedDataType = ref(null);
@@ -74,35 +76,72 @@ async function importData() {
 }
 
 async function localDataMerge(newData, dataType) {
-	function resetStocks(data) {
+	async function clearStocks(data) {
+		// const data = await input;
 		for (const row of data) {
 			row.tCub = 0;
 			row.aCub = 0;
 		}
 	}
-	function resetPrices(data) {
+	async function clearPrices(data) {
 		for (const row of data) {
 			row.pCub = 0;
 		}
 	}
+	async function clearInventory(data) {
+		console.log(data);
+		return new Promise((resolve, reject) => {
+			for (const row of data) {
+				delete row.iCub;
+				delete row.iSqr;
+				delete row.iPcs;
+			}
+			resolve(data);
+		});
+	}
+	function checkInventory(data) {
+		if (!data) return;
+		let result = false;
+		for (const row of data) {
+			if (!!row?.iCub || !!row?.iSqr || !!row?.iPcs) {
+				result = true;
+				break;
+			}
+		}
+		return result;
+	}
 
-	const localData = await idb.products.toArray();
 	let message = 'Coś poszło nie tak ❗';
+	let answer = false;
+	let localData = await idb.products.toArray();
+	const isNewInventory = checkInventory(newData);
+	if (isNewInventory) {
+		answer = await openDialog(ConfirmDialog);
+		// if (answer === 'merge') data = await mergeInventory(data);
+		if (answer === 'leave') newData = await clearInventory(newData);
+		if (answer === 'replace') localData = await clearInventory(localData);
+	}
 
 	if (dataType.match(/stocks|code/i)) {
-		resetStocks(localData);
+		clearStocks(localData);
 	}
 	if (dataType.match(/prices|code/i)) {
-		resetPrices(localData);
+		clearPrices(localData);
 	}
 
-	for (const newProduct of newData) {
-		const localProductIndex = localData.findIndex(row => row.code === newProduct.code);
+	for (const importedProduct of newData) {
+		const localProductIndex = localData.findIndex(row => row.code === importedProduct.code);
 		const isNewProduct = localProductIndex < 0 ? true : false;
-		const currentProduct = isNewProduct ? newProduct : localData[localProductIndex];
+		const localProduct = isNewProduct ? undefined : localData[localProductIndex];
+		const currentProduct = isNewProduct ? importedProduct : localProduct;
 
-		if (!isNewProduct) {
-			Object.assign(currentProduct, newProduct);
+		if (isNewProduct === false && answer === 'merge') {
+			importedProduct.iCub = `${localProduct.iCub}+${importedProduct.iCub}`;
+			importedProduct.iSqr = `${localProduct.iSqr}+${importedProduct.iSqr}`;
+			importedProduct.iPcs = `${localProduct.iPcs}+${importedProduct.iPcs}`;
+		}
+		if (isNewProduct === false) {
+			Object.assign(currentProduct, importedProduct);
 		}
 
 		const cursor = isNewProduct ? localData.length : localProductIndex;
