@@ -207,18 +207,14 @@ export function integrateData(data, dataType) {
 	for (const row of data) {
 		let product = {};
 		let errorsList = [];
-		for (let i = 3; i < row.length; i++) {
-			row[i] = row[i].replace(',', '.') * 1;
-		}
 
 		const productCode = row?.code || row[0];
 		const productName = row?.name || row[1];
 		const productSize = row?.size || getProductSize(productName);
-		const productUnit = row?.unit || row[2];
-		const productTCub = row?.tCub || row[6];
-		const productACub = row?.aCub || row[3];
-		const productPCub = row?.pCub || row[4];
-		console.log(calcQuant(productSize, productTCub, productUnit, 'm3'));
+		const productUnit = row[2] || 'm3';
+		const productTCub = row?.tCub || row[6]?.replace(',', '.') * 1;
+		const productACub = row?.aCub || row[3]?.replace(',', '.') * 1;
+		const productPCub = row?.pCub || row[4]?.replace(',', '.') * 1;
 		if (productSize === null)
 			errorsList.push('Błąd: Brak prawidłowego wymiaru w opisie. Obliczenia niemożliwe.');
 		const isError = !!errorsList.length ? 'error' : '';
@@ -231,15 +227,15 @@ export function integrateData(data, dataType) {
 			group: productGroup,
 			errors: errorsList,
 		});
-		if (dataType === 'prices') {
-			Object.assign(product, {
-				pCub: calcPrice(productSize, productPCub, productUnit, 'm3'),
-			});
-		}
-		if (dataType === 'stocks') {
+		if (dataType.match(/stocks|code/i)) {
 			Object.assign(product, {
 				tCub: calcQuant(productSize, productTCub, productUnit, 'm3'),
 				aCub: calcQuant(productSize, productACub, productUnit, 'm3'),
+			});
+		}
+		if (dataType.match(/prices|code/i)) {
+			Object.assign(product, {
+				pCub: calcPrice(productSize, productPCub, productUnit, 'm3'),
 			});
 		}
 		result.push(product);

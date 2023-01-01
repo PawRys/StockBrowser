@@ -44,31 +44,30 @@ async function textareaPaste(e) {
 
 async function importData() {
 	console.time('importData()');
+	const importedDataRef = importedData.value;
+	const importedDataTypeRef = importedDataType.value;
 	let result, message;
 	messageBox.value = 'Loading... ⏳';
 
-	if (importedDataType.value.match(/code/i)) {
-		const code = importedData.value;
-		const fetchURL = 'https://bossman.hekko24.pl/stock_browser_server/index.php';
+	if (importedDataTypeRef.match(/code/i)) {
 		// const fetchURL = 'http://localhost:3000/stock_browser_server/index.php';
-		result = await fetchProducts(fetchURL, code);
+		const fetchURL = 'https://bossman.hekko24.pl/stock_browser_server/index.php';
+		result = await fetchProducts(fetchURL, importedDataRef);
 	}
 
-	if (importedDataType.value.match(/stocks|prices/i)) {
-		const data = importedData.value;
-		const dataType = importedDataType.value;
-		result = structurizeData(data, dataType);
+	if (importedDataTypeRef.match(/stocks|prices/i)) {
+		result = structurizeData(importedDataRef, importedDataTypeRef);
 	}
 
 	let { data, message: server_msg } = result;
 
 	if (data) {
-		data = integrateData(data);
-		message = await mergeWithLocalData(data, importedDataType.value);
-		generateTimestamp(importedDataType.value);
+		data = integrateData(data, importedDataTypeRef);
+		message = await localDataMerge(data, importedDataTypeRef);
+		generateTimestamp(importedDataTypeRef);
 	}
 
-	messageBox.value = message;
+	messageBox.value = server_msg || message;
 	if (server_msg === 'positive') messageBox.value = '📜 Pobrano dane z chmury ✔';
 	if (server_msg === 'negative') messageBox.value = 'Podany kod jest nieaktualny. ❌';
 	console.timeEnd('importData()');
@@ -91,7 +90,7 @@ async function generateTimestamp(dataType) {
 	}
 }
 
-async function mergeWithLocalData(newData, dataType) {
+async function localDataMerge(newData, dataType) {
 	function resetStocks(data) {
 		for (const row of data) {
 			row.tCub = 0;

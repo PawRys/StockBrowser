@@ -32,7 +32,8 @@ function inHuman(diff) {
 	if (diff === 0) return 'dziś';
 	if (diff === 1) return 'wczoraj';
 	if (diff > 1) return `${diff} dni`;
-	return `(${diff}) ??`;
+	// console.warn(`variable diff: ${diff} ${typeof diff}`);
+	return `??`;
 }
 </script>
 
