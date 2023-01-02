@@ -24,13 +24,13 @@ import { closeDialog } from 'vue3-promise-dialog';
 				<i class="bi bi-cloud"></i>
 			</p>
 
-			<button @click="closeDialog('leave')" class="btn">
+			<button @click="closeDialog('local')" class="btn">
 				<span>Lokalne</span>
 				<span><i class="bi bi-database"></i></span>
 				<!-- <span><i class="bi bi-x-square"></i></span> -->
 			</button>
 
-			<button @click="closeDialog('replace')" class="btn">
+			<button @click="closeDialog('cloud')" class="btn">
 				<span>Chmura</span>
 				<span><i class="bi bi-cloud"></i></span>
 				<!-- <span><i class="bi bi-arrow-repeat"></i></span> -->

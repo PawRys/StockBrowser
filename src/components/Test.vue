@@ -6,10 +6,9 @@ import {
 	fetchProducts,
 	structurizeData,
 	integrateData,
+	localDataMerge,
 } from './DataCollector_.js';
 import ExampleData from './DataCollector_ExampleData.vue';
-import { openDialog } from 'vue3-promise-dialog';
-import ConfirmDialog from '../utils/Dialog_MergeFetchedData.vue';
 
 const importedData = ref();
 const importedDataType = ref(null);
@@ -62,6 +61,8 @@ async function importData() {
 	}
 
 	let { data, message: server_msg } = result;
+	if (server_msg === 'positive') server_msg = '📜 Pobrano dane z chmury ✔';
+	if (server_msg === 'negative') server_msg = 'Podany kod jest nieaktualny. ❌';
 
 	if (data) {
 		data = integrateData(data, importedDataTypeRef);
@@ -70,96 +71,7 @@ async function importData() {
 	}
 
 	messageBox.value = server_msg || message;
-	if (server_msg === 'positive') messageBox.value = '📜 Pobrano dane z chmury ✔';
-	if (server_msg === 'negative') messageBox.value = 'Podany kod jest nieaktualny. ❌';
 	console.timeEnd('importData()');
-}
-
-async function localDataMerge(newData, dataType) {
-	async function clearStocks(data) {
-		// const data = await input;
-		for (const row of data) {
-			row.tCub = 0;
-			row.aCub = 0;
-		}
-	}
-	async function clearPrices(data) {
-		for (const row of data) {
-			row.pCub = 0;
-		}
-	}
-	async function clearInventory(data) {
-		console.log(data);
-		return new Promise((resolve, reject) => {
-			for (const row of data) {
-				delete row.iCub;
-				delete row.iSqr;
-				delete row.iPcs;
-			}
-			resolve(data);
-		});
-	}
-	function checkInventory(data) {
-		if (!data) return;
-		let result = false;
-		for (const row of data) {
-			if (!!row?.iCub || !!row?.iSqr || !!row?.iPcs) {
-				result = true;
-				break;
-			}
-		}
-		return result;
-	}
-
-	let message = 'Coś poszło nie tak ❗';
-	let answer = false;
-	let localData = await idb.products.toArray();
-	const isNewInventory = checkInventory(newData);
-	if (isNewInventory) {
-		answer = await openDialog(ConfirmDialog);
-		// if (answer === 'merge') data = await mergeInventory(data);
-		if (answer === 'leave') newData = await clearInventory(newData);
-		if (answer === 'replace') localData = await clearInventory(localData);
-	}
-
-	if (dataType.match(/stocks|code/i)) {
-		clearStocks(localData);
-	}
-	if (dataType.match(/prices|code/i)) {
-		clearPrices(localData);
-	}
-
-	for (const importedProduct of newData) {
-		const localProductIndex = localData.findIndex(row => row.code === importedProduct.code);
-		const isNewProduct = localProductIndex < 0 ? true : false;
-		const localProduct = isNewProduct ? undefined : localData[localProductIndex];
-		const currentProduct = isNewProduct ? importedProduct : localProduct;
-
-		if (isNewProduct === false && answer === 'merge') {
-			importedProduct.iCub = `${localProduct.iCub}+${importedProduct.iCub}`;
-			importedProduct.iSqr = `${localProduct.iSqr}+${importedProduct.iSqr}`;
-			importedProduct.iPcs = `${localProduct.iPcs}+${importedProduct.iPcs}`;
-		}
-		if (isNewProduct === false) {
-			Object.assign(currentProduct, importedProduct);
-		}
-
-		const cursor = isNewProduct ? localData.length : localProductIndex;
-		const replace = isNewProduct ? 0 : 1;
-		localData.splice(cursor, replace, currentProduct);
-	}
-
-	try {
-		await idb.products.clear();
-		await idb.products.bulkAdd(localData);
-		if (dataType === 'products') message = '📜 Zaktualizowano produkty ✔';
-		if (dataType === 'stocks') message = '📦 Zaktualizowano ilości ✔';
-		if (dataType === 'prices') message = '💵 Zaktualizowano ceny ✔';
-	} catch (err) {
-		console.error(err);
-	}
-
-	return message;
 }
 
 async function generateTimestamp(dataType) {
@@ -178,12 +90,6 @@ async function generateTimestamp(dataType) {
 		globalEvent.value = 'prices updated';
 	}
 }
-
-// async function getRemoteData(code) {}
-
-// async function getCopyPasteData(data, dataType) {
-// 	// const oldData = await idb.products.toArray();
-// }
 </script>
 
 <template>

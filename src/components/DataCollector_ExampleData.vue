@@ -49,9 +49,9 @@ async function clearDatabase() {
 				Do schowka: 📦 Ilości
 			</button>
 			<button class="button" @click="clipboardPut('raw_prices')">Do schowka: 💵 Ceny</button>
-			<button class="button" @click="clipboardPut('raw_products')">
+			<!-- <button class="button" @click="clipboardPut('raw_products')">
 				Do schowka: 📜 Baza kodów
-			</button>
+			</button> -->
 			<button class="button" @click="clearDatabase()">Clear database</button>
 		</div>
 	</section>

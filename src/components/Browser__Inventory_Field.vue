@@ -16,7 +16,7 @@ const zerofix = computed(() => {
 	let result = 2;
 	if (props.unit === 'iCub') result = 3;
 	if (props.unit === 'iSqr') result = 2;
-	if (props.unit === 'iPcs') result = 0;
+	if (props.unit === 'iPcs') result = 1;
 	return result;
 });
 
