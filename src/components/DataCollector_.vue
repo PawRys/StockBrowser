@@ -1,31 +1,29 @@
 <script setup>
-import { inject, ref, isRef, watchEffect, watch } from 'vue';
+import { ref, inject } from 'vue';
 import { db as idb } from '../utils/dexiedb.js';
-import ExampleData from './DataCollector_ExampleData.vue';
 import {
 	defineDataType,
-	prepareBeforeUpdate,
 	fetchProducts,
-	updateProducts,
+	structurizeData,
+	integrateData,
+	localDataMerge,
 } from './DataCollector_.js';
+import ExampleData from './DataCollector_ExampleData.vue';
 
-import { openDialog } from 'vue3-promise-dialog';
-import ConfirmDialog from '../utils/Dialog_MergeFetchedData.vue';
-
-const textareaData = ref();
-const dataType = ref(null);
+const importedData = ref();
+const importedDataType = ref(null);
 const messageBox = ref('');
 const globalEvent = inject('GlobalEvents');
 const modalIsOpen = ref(false);
 
 function checkDataType() {
-	const { message, data } = defineDataType(textareaData.value);
+	const { message, data } = defineDataType(importedData.value);
 	messageBox.value = message;
-	dataType.value = data;
+	importedDataType.value = data;
 }
 
 function textareaClear() {
-	textareaData.value = '';
+	importedData.value = '';
 	checkDataType();
 }
 
@@ -40,157 +38,99 @@ async function textareaPaste(e) {
 		const clipboardData = await navigator.clipboard
 			.readText()
 			.catch(reason => console.error(reason));
-		textareaData.value = clipboardData;
+		importedData.value = clipboardData;
 		checkDataType();
 	}
 }
 
-async function saveInIDB() {
-	console.time('saveInIDB');
+async function importData() {
+	console.time('importData()');
+	const importedDataRef = importedData.value;
+	const importedDataTypeRef = importedDataType.value;
+	let result, message;
 	messageBox.value = 'Loading... ⏳';
-	let result;
 
-	if (dataType.value === 'code') {
-		result = await getRemoteData();
-	}
-	if (dataType.value === 'stocks' || dataType.value === 'prices') {
-		result = await getCopyPasteData();
-	}
-	const { data, message } = result;
-
-	const isNewInventory = checkInventory(data);
-	if (isNewInventory) {
-		const answer = await openDialog(ConfirmDialog);
-		if (answer === 'merge') data = await mergeInventory(data);
-		if (answer === 'leave') data = await leaveInventory();
-		if (answer === 'replace') data = await replaceInventory(data);
-	}
-
-	messageBox.value = message;
-	if (message === 'positive') messageBox.value = '📜 Pobrano dane z chmury ✔';
-	if (message === 'negative') messageBox.value = 'Podany kod jest nieaktualny. ❌';
-
-	if (data) {
-		try {
-			await idb.products.clear();
-			await idb.products.bulkAdd(data);
-			generateTimestamp(dataType.value);
-		} catch (err) {
-			messageBox.value = 'Coś poszło nie tak ❗';
-			console.error(err);
-		}
-	}
-	console.timeEnd('dexie-bulkAdd');
-
-	async function getRemoteData() {
+	if (importedDataTypeRef.match(/code/i)) {
 		// const fetchURL = 'http://localhost:3000/stock_browser_server/index.php';
 		const fetchURL = 'https://bossman.hekko24.pl/stock_browser_server/index.php';
-		return await fetchProducts(fetchURL, textareaData.value);
+		result = await fetchProducts(fetchURL, importedDataRef);
 	}
 
-	async function getCopyPasteData() {
-		const oldData = await idb.products.toArray();
-		const newData = prepareBeforeUpdate(textareaData.value, dataType.value);
-		return await updateProducts(oldData, newData, dataType.value);
+	if (importedDataTypeRef.match(/stocks|prices/i)) {
+		result = structurizeData(importedDataRef, importedDataTypeRef);
 	}
 
-	function checkInventory(data) {
-		if (!data) return;
-		let result = false;
-		for (const row of data) {
-			if (!!row?.iCub || !!row?.iSqr || !!row?.iPcs) {
-				result = true;
-				break;
-			}
-		}
-		return result;
+	let { data, message: server_msg } = result;
+	if (server_msg === 'positive') server_msg = '📜 Pobrano dane z chmury ✔';
+	if (server_msg === 'negative') server_msg = 'Podany kod jest nieaktualny. ❌';
+
+	if (data) {
+		data = integrateData(data, importedDataTypeRef);
+		message = await localDataMerge(data, importedDataTypeRef);
+		generateTimestamp(importedDataTypeRef);
 	}
 
-	async function leaveInventory() {
-		return;
+	messageBox.value = server_msg || message;
+	console.timeEnd('importData()');
+}
+
+async function generateTimestamp(dataType) {
+	if (dataType.match(/stocks|code/i)) {
+		await idb.timestamps.put({
+			id: 'stocks',
+			timestamp: new Date(),
+		});
+		globalEvent.value = 'stocks updated';
 	}
-
-	async function mergeInventory(newData) {
-		let currentData = await idb.products.toArray();
-
-		return currentData;
-	}
-
-	async function replaceInventory() {
-		return;
-	}
-
-	async function generateTimestamp(dataType) {
-		if (dataType === 'code' || dataType === 'stocks') {
-			await idb.timestamps.put({
-				id: 'stocks',
-				timestamp: new Date(),
-			});
-			globalEvent.value = 'stocks updated';
-		}
-		if (dataType === 'code' || dataType === 'prices') {
-			await idb.timestamps.put({
-				id: 'prices',
-				timestamp: new Date(),
-			});
-			globalEvent.value = 'prices updated';
-		}
+	if (dataType.match(/prices|code/i)) {
+		await idb.timestamps.put({
+			id: 'prices',
+			timestamp: new Date(),
+		});
+		globalEvent.value = 'prices updated';
 	}
 }
 </script>
 
 <template>
-	<h2>Załaduj dane</h2>
-	<p>[Tu instrukcja]</p>
-	<div class="grid">
+	<h1>Test Tab</h1>
+	<h2>Data collector v2</h2>
+	<section class="data-collector">
 		<textarea
 			id="datainsert"
 			name="datainsert"
 			rows="10"
-			v-model="textareaData"
-			@input="checkDataType"></textarea>
+			v-model="importedData"
+			@input="checkDataType">
+		</textarea>
 
 		<p class="messageBox" :class="{ visible: messageBox, hidden: !messageBox }">
 			{{ messageBox }}
 		</p>
 
-		<button class="button" @click="textareaClear">
-			<span>Wyczyść</span>
-			<i class="bi bi-backspace"></i>
-		</button>
+		<p class="buttons">
+			<button class="button" @click="textareaClear">
+				<span>Wyczyść</span>
+				<i class="bi bi-backspace"></i>
+			</button>
 
-		<button class="button" @click="textareaPaste">
-			<span>Schowek</span>
-			<i class="bi bi-save"></i>
-		</button>
+			<button class="button" @click="textareaPaste">
+				<span>Schowek</span>
+				<i class="bi bi-save"></i>
+			</button>
 
-		<button class="button accent" @click="saveInIDB" v-if="dataType">
-			<span>Zatwierdź</span>
-			<i class="bi bi-check2"></i>
-		</button>
-	</div>
-
-	<section id="modal" v-show="modalIsOpen">
-		<p>Co zrobić z nowymi danymi?</p>
-		<button id="leave">Pozostaw stare</button>
-		<button id="swap">Zastąp nowymi</button>
-		<button id="merge">Złącz</button>
+			<button class="button accent" @click="importData" v-if="importedDataType">
+				<span>Zatwierdź</span>
+				<i class="bi bi-check2"></i>
+			</button>
+		</p>
 	</section>
 
-	<hr />
-	<ExampleData />
+	<!-- <example-data /> -->
 </template>
 
 <style scoped>
-.grid {
-	display: grid;
-	gap: 0.5ex;
-	grid-template-columns: repeat(3, max-content) 1fr;
-}
-
-#datainsert,
-.messageBox {
-	grid-column: 1 / span 4;
+.data-collector > * {
 	width: 100%;
 }
 
@@ -206,12 +146,7 @@ async function saveInIDB() {
 }
 
 .messageBox.visible {
-	height: 3ch;
+	height: 2.5ch;
 	scale: 1 1;
-}
-
-p {
-	overflow: hidden;
-	max-height: 8ch;
 }
 </style>
