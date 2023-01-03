@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watchEffect, computed } from 'vue';
+import { ref, watchEffect, computed, provide } from 'vue';
 import { DialogWrapper } from 'vue3-promise-dialog';
 import { db as idb } from './utils/dexiedb.js';
 
@@ -10,29 +10,30 @@ import TestTab from './components/Test.vue';
 
 import LastModified from './components/LastModified.vue';
 
-const lasttab = localStorage.StockBrowser_LastUsedPanel || 0;
-const currentTab = ref(lasttab);
-const tabs = [
-	{ id: BrowserTab, name: 'Lista', icon: 'bi bi-list-ul' },
-	{ id: DataCollectorTab, name: 'Załadauj', icon: 'bi bi-download' },
-	{ id: DataShareTab, name: 'Udostępnij', icon: 'bi bi-cloud-arrow-up' },
-	{ id: TestTab, name: 'Test', icon: 'bi bi-bug-fill' },
-];
+const lasttab = localStorage.StockBrowser_LastUsedPanel || BrowserTab;
+const currentAppTab = ref(lasttab);
+provide('currentAppTab', currentAppTab);
+const tabs = {
+	BrowserTab: { id: BrowserTab, name: 'Lista', icon: 'bi bi-list-ul' },
+	DataCollectorTab: { id: DataCollectorTab, name: 'Załadauj', icon: 'bi bi-download' },
+	DataShareTab: { id: DataShareTab, name: 'Udostępnij', icon: 'bi bi-cloud-arrow-up' },
+	TestTab: { id: TestTab, name: 'Test', icon: 'bi bi-bug-fill' },
+};
 
 watchEffect(() => {
-	localStorage.StockBrowser_LastUsedPanel = currentTab.value;
+	localStorage.StockBrowser_LastUsedPanel = currentAppTab.value;
 });
 </script>
 
 <template>
 	<nav class="tab-switch">
 		<button
-			v-for="(tab, i) of tabs"
-			:key="i"
-			:class="['button', { active: currentTab == i }]"
-			@click="currentTab = i">
-			<span>{{ tab.name }}</span>
-			<i :class="tab.icon"></i>
+			v-for="({ name, icon }, tabID) in tabs"
+			:key="tabID"
+			:class="['button', { active: currentAppTab === tabID }]"
+			@click="currentAppTab = tabID">
+			<span>{{ name }}</span>
+			<i :class="icon"></i>
 		</button>
 	</nav>
 
@@ -42,7 +43,7 @@ watchEffect(() => {
 
 	<main>
 		<Suspense>
-			<component :is="tabs[currentTab].id"></component>
+			<component :is="tabs[currentAppTab].id"></component>
 			<template #fallback>Loading...</template>
 		</Suspense>
 	</main>

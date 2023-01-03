@@ -15,6 +15,7 @@ const importedDataType = ref(null);
 const messageBox = ref('');
 const globalEvent = inject('GlobalEvents');
 const modalIsOpen = ref(false);
+const currentAppTab = inject('currentAppTab');
 
 function checkDataType() {
 	const { message, data } = defineDataType(importedData.value);
@@ -93,13 +94,13 @@ async function generateTimestamp(dataType) {
 </script>
 
 <template>
-	<h1>Test Tab</h1>
-	<h2>Data collector v2</h2>
-	<section class="data-collector">
+	<section class="data-collector" id="data-collector">
+		<h2>Wczytaj dane</h2>
 		<textarea
 			id="datainsert"
 			name="datainsert"
 			rows="10"
+			placeholder="Tutaj wklej dane ze schowka"
 			v-model="importedData"
 			@input="checkDataType">
 		</textarea>
@@ -115,7 +116,7 @@ async function generateTimestamp(dataType) {
 			</button>
 
 			<button class="button" @click="textareaPaste">
-				<span>Schowek</span>
+				<span>Wklej schowek</span>
 				<i class="bi bi-save"></i>
 			</button>
 
@@ -124,6 +125,58 @@ async function generateTimestamp(dataType) {
 				<i class="bi bi-check2"></i>
 			</button>
 		</p>
+	</section>
+
+	<section class="data-collector__manual">
+		<h3>Instrukcja wprowadzania danych magazynowych z Symfonii</h3>
+		<ol>
+			<li>
+				Wyszukaj kolejno: <b>Kartoteki</b> > <b>Towary</b> > <b>Zestawienia</b>
+				<ul>
+					<li>Dla wczytania cen 💵 towarów wybierz <b>Stany magazynowe towarów...</b></li>
+					<li>
+						Dla wczytania stanów 📦 towarów wybierz <b>Stany i rezerwacje towarów...</b>
+					</li>
+				</ul>
+			</li>
+			<li>
+				Należy wybrać poniższe ustawienia:
+				<ul>
+					<li>
+						<b>Zestawienie dla magazynu: </b><i>dowolny magazyn</i><br />
+						Uwaga. Jeśli wybierzesz <i>wszystkie</i> będziesz widział stany wszystkich
+						magazynów, do których masz uprawnienia.
+					</li>
+					<li><b>Podsumowanie co: </b> <i>brak</i></li>
+					<li>
+						<b>Zestawienie dla jednostki: </b>
+						<i><u>ewidencyjna</u>, dodatkowa1, dodatkowa2 lub domyślna</i>
+					</li>
+					<li><b>Prezentuj stany zerowe: </b><i>zaznaczone 🗹</i></li>
+					<li>Niewymienione wyżej opcje: <i>najbezpieczniej odznaczyć ☐</i></li>
+				</ul>
+			</li>
+			<li>Kliknij <b>schowek</b></li>
+			<li>
+				Wklej dane ze schowka w <a href="#datainsert">pole tekstowe</a> na górze strony
+			</li>
+			<li>Jeśli wprowadzone dane są poprawne pojawi się przycisk <b>Zatwierdź</b></li>
+			<li>
+				Przejdź na stronę
+				<a href="#app" @click="currentAppTab = 'BrowserTab'">Lista</a>, aby móc przeglądać
+				stany magazynowe
+			</li>
+		</ol>
+
+		<h3>Instrukcja wymiany danych za pomocą chmury</h3>
+		<ul>
+			<li>Wpisz 4-cyfrowy kod w <a href="#datainsert">pole tekstowe</a>.</li>
+			<li>
+				Ważne! Wpolu tekstowym nie wpisuj przypadkowych spacji i innych znaków. Inaczej kod
+				"nie wejdzie"
+			</li>
+			<li>Kod jest jednorazowy i ważny przez 2 minuty od wygenerowania.</li>
+		</ul>
 	</section>
 
 	<!-- <example-data /> -->
