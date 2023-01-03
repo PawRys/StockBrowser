@@ -43,7 +43,7 @@ watchEffect(() => {
 
 	<main>
 		<Suspense>
-			<component :is="tabs[currentAppTab].id"></component>
+			<component :is="tabs[currentAppTab]?.id || BrowserTab"></component>
 			<template #fallback>Loading...</template>
 		</Suspense>
 	</main>
