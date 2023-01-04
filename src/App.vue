@@ -4,8 +4,8 @@ import { DialogWrapper } from 'vue3-promise-dialog';
 import { db as idb } from './utils/dexiedb.js';
 
 import BrowserTab from './components/Browser__.vue';
-import DataCollectorTab from './components/DataCollector_.vue';
-import DataShareTab from './components/DataShare_.vue';
+import DataCollectorTab from './components/DataCollector__.vue';
+import DataShareTab from './components/DataShare__.vue';
 import TestTab from './components/Test.vue';
 
 import LastModified from './components/LastModified.vue';

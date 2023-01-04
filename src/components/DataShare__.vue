@@ -62,7 +62,7 @@ async function shareData() {
 		<h3>Instrukcja udostępniania danych w chmurze</h3>
 		<ul>
 			<li>Kliknij [Generuj kod], aby wygenerować kod wymiany danych</li>
-			<li>Kod wymiany danych jest jednorazowy i ważny przez dwie minuty od wygereowania</li>
+			<li>Kod wymiany danych jest jednorazowy i ważny przez dwie minuty od wygenerowania</li>
 			<li>Podając tajne hasło udostępnisz dane wrażliwe takie jak ceny zakupowe towarów</li>
 			<li>
 				Tajne hasło znają nieliczni i tak pozostanie dopóki nie wymyślę lepszego systemu

@@ -7,8 +7,8 @@ import {
 	structurizeData,
 	integrateData,
 	localDataMerge,
-} from './DataCollector_.js';
-import ExampleData from './DataCollector_ExampleData.vue';
+} from './DataCollector__.js';
+import ExampleData from './DataCollector__ExampleData.vue';
 
 const importedData = ref();
 const importedDataType = ref(null);
