@@ -3,25 +3,26 @@ import { ref, watchEffect, computed, provide } from 'vue';
 import { DialogWrapper } from 'vue3-promise-dialog';
 import { db as idb } from './utils/dexiedb.js';
 
-import BrowserTab from './components/Browser__.vue';
 import DataCollectorTab from './components/DataCollector__.vue';
+import DataBrowserTab from './components/Browser__.vue';
 import DataShareTab from './components/DataShare__.vue';
+import LastModified from './components/LastModified.vue';
 import TestTab from './components/Test.vue';
 
-import LastModified from './components/LastModified.vue';
-
-const lasttab = localStorage.StockBrowser_LastUsedPanel || BrowserTab;
+// const lasttab = (await idb.settings.get('currentAppTab')) || DataBrowserTab;
+const lasttab = localStorage.StockBrowser_LastUsedPanel || DataBrowserTab;
 const currentAppTab = ref(lasttab);
 provide('currentAppTab', currentAppTab);
 const tabs = {
-	BrowserTab: { id: BrowserTab, name: 'Lista', icon: 'bi bi-list-ul' },
+	BrowserTab: { id: DataBrowserTab, name: 'Lista', icon: 'bi bi-list-ul' },
 	DataCollectorTab: { id: DataCollectorTab, name: 'Załadauj', icon: 'bi bi-download' },
 	DataShareTab: { id: DataShareTab, name: 'Udostępnij', icon: 'bi bi-cloud-arrow-up' },
 	TestTab: { id: TestTab, name: 'Test', icon: 'bi bi-bug-fill' },
 };
 
-watchEffect(() => {
+watchEffect(async () => {
 	localStorage.StockBrowser_LastUsedPanel = currentAppTab.value;
+	// await idb.settings.put({ id: 'currentAppTab', value: currentAppTab.value });
 });
 </script>
 
@@ -43,7 +44,7 @@ watchEffect(() => {
 
 	<main>
 		<Suspense>
-			<component :is="tabs[currentAppTab]?.id || BrowserTab"></component>
+			<component :is="tabs[currentAppTab]?.id || DataBrowserTab"></component>
 			<template #fallback>Loading...</template>
 		</Suspense>
 	</main>

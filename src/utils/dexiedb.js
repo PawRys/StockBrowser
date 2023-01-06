@@ -9,3 +9,8 @@ db.version(2).stores({
 	products: 'code, tCub, aCub',
 	timestamps: 'id',
 });
+db.version(3).stores({
+	products: 'code, tCub, aCub',
+	timestamps: 'id',
+	settings: 'id',
+});

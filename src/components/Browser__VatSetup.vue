@@ -3,39 +3,26 @@ import { inject } from 'vue';
 
 const vat = inject('vat');
 const vatVal = inject('vatVal');
+const items = {
+	m3: { label: 'VAT m<sup>3</sup>' },
+	m2: { label: 'VAT m<sup>2</sup>' },
+	szt: { label: 'VAT szt' },
+};
 </script>
 
 <template>
-	<!-- <section class="vatsetup" style="grid-area: vats"> -->
-	<label for="vatCub" class="button small" style="grid-area: vat3">
-		<span>Vat m<sup>3</sup></span>
-		<input
-			type="checkbox"
-			name="vatCub"
-			id="vatCub"
-			v-model="vat.m3"
-			:true-value="vatVal"
-			:false-value="1" />
-	</label>
-	<label for="vatSqr" class="button small" style="grid-area: vat2">
-		<span>Vat m<sup>2</sup></span>
-		<input
-			type="checkbox"
-			name="vatSqr"
-			id="vatSqr"
-			v-model="vat.m2"
-			:true-value="vatVal"
-			:false-value="1" />
-	</label>
-	<label for="vatPcs" class="button small" style="grid-area: vat1">
-		<span>Vat szt</span>
-		<input
-			type="checkbox"
-			name="vatPcs"
-			id="vatPcs"
-			v-model="vat.szt"
-			:true-value="vatVal"
-			:false-value="1" />
-	</label>
-	<!-- </section> -->
+	<section class="vatSetup">
+		<h4>Podatek VAT</h4>
+
+		<label class="button inline" v-for="({ label }, vatKey) in items" :for="`vat${vatKey}`">
+			<span v-html="label"></span>
+			<input
+				type="checkbox"
+				:name="`vat${vatKey}`"
+				:id="`vat${vatKey}`"
+				v-model="vat[vatKey]"
+				:true-value="vatVal"
+				:false-value="1" />
+		</label>
+	</section>
 </template>

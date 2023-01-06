@@ -6,7 +6,7 @@ const unfilteredData = inject('unfilteredData_global');
 const dataSet = inject('dataSet_global');
 
 console.time('count-dataset');
-const sets = {
+const items = {
 	'dataset-full': {
 		label: 'Stany zerowe',
 		count: await idb.products.count(),
@@ -38,21 +38,19 @@ watchEffect(async () => {
 </script>
 
 <template>
-	<section class="data-set">
-		<label v-for="({ label, count }, set) in sets" :for="set">
-			{{ label }}:
+	<section class="dataSet">
+		<h4>Zestaw danych</h4>
+		<label class="button inline" v-for="({ label, count }, set) in items" :for="set">
+			<span>{{ label }}:</span>
 			<input type="radio" name="dataset" :id="set" :value="set" v-model="dataSet" />
-			({{ count }})
+			<span>({{ count }})</span>
 		</label>
 	</section>
 </template>
 
 <style scoped>
-.data-set {
+.dataSet {
 	display: grid;
-}
-
-.data-set > label {
-	cursor: pointer;
+	justify-items: start;
 }
 </style>

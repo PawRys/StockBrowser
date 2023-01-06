@@ -7,6 +7,7 @@ const sortedProducts = inject(['sortedData_global']);
 const pageSize_global = inject(['pageSize_global']);
 const pageCount_global = inject(['pageCount_global']);
 const pageNumber_global = inject(['pageNumber_global']);
+const pageSizes = [10, 20, 50];
 
 watchEffect(() => {
 	let data = sortedProducts.value;
@@ -38,19 +39,16 @@ function setNextPage() {
 </script>
 
 <template>
-	<section class="pagination" style="grid-area: page">
-		<!-- <div>
-			Wielkość:
-			<select name="pageSize" v-model="pageSize_global">
-				<option value="10">10</option>
-				<option value="20">20</option>
-				<option value="40">40</option>
-			</select>
-		</div> -->
+	<section class="pagination">
 		<div class="page-selector" v-if="pageCount_global > 1">
-			<button
-				class="button small"
-				@click="[setPrevPage(), animateScrollTo('#results')]">
+			<span>Pokaż: </span>
+			<select name="pageSize" v-model="pageSize_global">
+				<template v-for="val in pageSizes">
+					<option :value="val">{{ val }}</option>
+				</template>
+			</select>
+
+			<button class="button small" @click="[setPrevPage(), animateScrollTo('#results')]">
 				<i class="bi bi-chevron-left"></i>
 			</button>
 
@@ -67,9 +65,7 @@ function setNextPage() {
 			</select>
 			<span class="page-count"> z {{ pageCount_global }}</span>
 
-			<button
-				class="button small"
-				@click="[setNextPage(), animateScrollTo('#results')]">
+			<button class="button small" @click="[setNextPage(), animateScrollTo('#results')]">
 				<i class="bi bi-chevron-right"></i>
 			</button>
 		</div>

@@ -78,17 +78,21 @@ body {
 	padding: 1rem;
 }
 
-:is(h1, h2, h3, h4, h5, h6) {
-	margin-block: 1.5em;
-	line-height: 1.1;
-	font-variation-settings: 'YOPQ' 100, 'GRAD' 50;
-}
-
+/* LINKS */
+/********/ /********/ /********/ /********/ /********/
 :is(#fakeid, a) {
 	color: var(--link-color);
 }
 :is(#fakeid, a):hover {
 	color: var(--link-shade);
+}
+
+/* HEADERS */
+/********/ /********/ /********/ /********/ /********/
+:is(h1, h2, h3, h4, h5, h6) {
+	margin-block: 1.5em 0.5em;
+	line-height: 1.1;
+	font-variation-settings: 'YOPQ' 100, 'GRAD' 50;
 }
 
 h1 {
@@ -107,10 +111,21 @@ h3 {
 	font-size: 1.1rem;
 }
 
+/* LABELS */
+/********/ /********/ /********/ /********/ /********/
+label {
+	margin: 0.2ch;
+	cursor: pointer;
+}
+
+/* BUTTONS */
+/********/ /********/ /********/ /********/ /********/
 :is(.button, button) {
 	display: inline-grid;
 	grid-auto-flow: column;
+	align-items: center;
 	justify-content: space-around;
+	/* gap: 0.8ex; */
 
 	margin: 0.2ch;
 	padding: 1ch 2ch;
@@ -119,7 +134,7 @@ h3 {
 	background-color: var(--bg-color);
 	color: var(--font-color);
 
-	overflow: hidden;
+	/* overflow: hidden; */
 	text-decoration: none;
 	line-height: 1.15em;
 
@@ -137,6 +152,7 @@ h3 {
 :is(.button, button):is(.inline) {
 	padding: 0ch 0.5ch;
 	margin-inline: 1ch;
+	background-color: transparent;
 }
 
 :is(.button, button):is(.accent) {
