@@ -22,13 +22,13 @@ import VatSetup from './Browser__VatSetup.vue';
 	position: sticky;
 	top: 1rem;
 
-	padding: 1rem;
+	padding: 0.5rem;
 	max-height: 100vh;
 	overflow-y: auto;
 	background-color: var(--bg-shade);
 }
 
 footer {
-	height: 2rem;
+	height: 4rem;
 }
 </style>

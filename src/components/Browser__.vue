@@ -54,11 +54,11 @@ function wrapText(text) {
 		<Filters />
 	</section>
 
-	<section class="productList" :class="dataMode" id="results">
-		<ListSettings class="productList__settings" />
-		<Pagination class="productList__pagination--top" />
-		<ul class="productList__ul" v-if="pagedData_global && pagedData_global.length">
-			<li class="productList__product" v-for="ply in pagedData_global" :key="ply.code">
+	<section class="browser" :class="dataMode" id="results">
+		<ListSettings class="browser__settings" />
+		<Pagination class="browser__pagination--top" />
+		<ul class="browser__list" v-if="pagedData_global && pagedData_global.length">
+			<li class="browser__product" v-for="ply in pagedData_global" :key="ply.code">
 				<div class="product__code">
 					<b>{{ ply.code }}</b> - {{ ply.group }}
 				</div>
@@ -83,73 +83,76 @@ function wrapText(text) {
 					:buyPrice="ply.pCub" />
 			</li>
 		</ul>
-
-		<p v-else class="productList__empty">Nie znaleziono produktów.</p>
-
-		<Pagination class="productList__pagination--bottom" />
-
-		<button class="scrollTo__search button accent" @click="animateScrollTo('#search')">
-			<span>Szukaj...</span><i class="bi bi-search"></i>
-		</button>
+		<p v-else class="browser__empty">Nie znaleziono produktów.</p>
+		<Pagination class="browser__pagination--bottom" />
+		<footer class="browser__stickyFooter">
+			<button class="button accent" @click="animateScrollTo('#search')">
+				<span>Szukaj...</span><i class="bi bi-search"></i>
+			</button>
+			<button class="button" id="list-options-btn">
+				<span>Opcje</span><i class="bi bi-gear"></i>
+			</button>
+		</footer>
 	</section>
 </template>
 
 <style>
-.productList {
+.browser {
 	display: grid;
-	grid-template-columns: minmax(300px, 3fr) 8fr;
+	grid-template-columns: 8fr minmax(max-content, 3fr);
 	justify-items: center;
 	gap: 0.8rem;
 
 	margin: 0 auto;
 
 	grid-template-areas:
-		'. page-top .'
-		'settings main .'
-		'. page-bottom .'
-		'search-btn search-btn .';
-	/* max-width: fit-content; */
+		'page-top      .            '
+		'browser       settings     '
+		'page-bottom   .            '
+		'.             sticky-footer';
+}
+#list-options-btn {
+	display: none;
 }
 
-.productList__ul,
-.productList__empty {
-	grid-area: main;
-}
-.productList__settings {
-	grid-area: settings;
-	position: absolute;
-}
-.productList__pagination--top {
-	grid-area: page-top;
-}
-.productList__pagination--bottom {
-	grid-area: page-bottom;
-}
-.scrollTo__search {
-	grid-area: search-btn;
+@media (max-width: 1080px) {
+	.browser {
+		grid-template-columns: 1fr;
+		grid-template-areas:
+			'settings     '
+			'page-top     '
+			'browser      '
+			'page-bottom  '
+			'sticky-footer';
+	}
+	/* .browser__settings {
+		display: none;
+	} */
+	#list-options-btn {
+		display: inline-grid;
+	}
 }
 
-.productList__product {
+.browser__product {
 	display: grid;
-	grid-template-columns: 5fr repeat(3, minmax(auto, 12ch));
+	grid-template-columns: repeat(6, minmax(auto, 14ch));
 	align-items: baseline;
 	justify-content: space-evenly;
 	gap: 0.5ch;
 }
-
-.productList__product {
+.browser__product {
 	margin-block: 1rem 2rem;
 	grid-template-areas:
-		'code tCub tSqr tPcs'
-		'name aCub aSqr aPcs'
-		'name pCub pSqr pPcs'
-		'erro buyp marg perc';
+		'code code code tCub tSqr tPcs'
+		'name name name aCub aSqr aPcs'
+		'name name name pCub pSqr pPcs'
+		'erro erro erro buyp marg perc';
 }
-@media (max-width: 800px) {
-	.productList__product {
+@media (max-width: 720px) {
+	.browser__product {
 		grid-template-columns: repeat(3, minmax(auto, 14ch));
 	}
-	.productList__product {
+	.browser__product {
 		grid-template-areas:
 			'code code code'
 			'name name name'
@@ -161,27 +164,69 @@ function wrapText(text) {
 	}
 }
 
-.productList__ul {
+.browser__list {
 	margin: 0;
 	padding: 0;
 	width: 100%;
 }
 
-.productList__product:is(:hover, :focus-within) {
+.browser__empty {
+	margin: 5rem;
+	font-size: 1.4rem;
+	text-align: center;
+}
+.browser__stickyFooter {
+	position: sticky;
+	bottom: 0.5rem;
+	margin-inline: auto;
+}
+
+.browser__product:is(:hover, :focus-within) {
 	box-shadow: inset 0px 0px 0px 100rem var(--bg-shade), 0px 0px 0px 0.5rem var(--bg-shade);
+}
+
+:is(.product__code, .product__name) > b {
+	font-weight: 600;
+}
+.product__code {
+	font-size: 0.9em;
+}
+.product__name {
+	font-size: 1.1em;
+}
+.product__error {
+	color: crimson;
+}
+
+/* GRID-AREA: NAMES */
+/********/ /********/ /********/ /********/ /********/
+.browser__list,
+.browser__empty {
+	grid-area: browser;
+}
+.browser__settings {
+	grid-area: settings;
+}
+.browser__pagination--top {
+	grid-area: page-top;
+}
+.browser__pagination--bottom {
+	grid-area: page-bottom;
+}
+.browser__stickyFooter {
+	grid-area: sticky-footer;
 }
 
 .product__code {
 	grid-area: code;
-	font-size: 0.9em;
 }
 .product__name {
 	grid-area: name;
-	font-size: 1.1em;
 }
-:is(.product__code, .product__name) > b {
-	font-weight: 600;
+.product__error {
+	grid-area: erro;
 }
+
 .product__tCub {
 	grid-area: tCub;
 }
@@ -191,6 +236,7 @@ function wrapText(text) {
 .product__tPcs {
 	grid-area: tPcs;
 }
+
 .product__aCub {
 	grid-area: aCub;
 }
@@ -200,6 +246,7 @@ function wrapText(text) {
 .product__aPcs {
 	grid-area: aPcs;
 }
+
 .product__pCub {
 	grid-area: pCub;
 }
@@ -208,19 +255,5 @@ function wrapText(text) {
 }
 .product__pPcs {
 	grid-area: pPcs;
-}
-.product__error {
-	grid-area: erro;
-	color: crimson;
-}
-.productList__empty {
-	margin: 5rem;
-	font-size: 1.4rem;
-	text-align: center;
-}
-.scrollTo__search {
-	position: sticky;
-	bottom: 0.5rem;
-	margin-inline: auto;
 }
 </style>
