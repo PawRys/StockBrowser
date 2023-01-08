@@ -45,6 +45,13 @@ provide('vat', vat);
 function wrapText(text) {
 	return text.replace(/(\d+(,\d+)?x\d+x\d+)/gi, '<b>$1</b>');
 }
+
+function openListSettings() {
+	const optionsEl = document.querySelector('.browser__settings');
+	const overlayEl = document.querySelector('.browser__settingsOverlay');
+	optionsEl.classList.add('browser__settings--opened');
+	overlayEl.classList.add('browser__settingsOverlay--opened');
+}
 </script>
 
 <template>
@@ -56,7 +63,7 @@ function wrapText(text) {
 
 	<section class="browser" :class="dataMode" id="results">
 		<ListSettings class="browser__settings" />
-		<Pagination class="browser__pagination--top" />
+		<Pagination class="browser__pagination-top" />
 		<ul class="browser__list" v-if="pagedData_global && pagedData_global.length">
 			<li class="browser__product" v-for="ply in pagedData_global" :key="ply.code">
 				<div class="product__code">
@@ -84,12 +91,12 @@ function wrapText(text) {
 			</li>
 		</ul>
 		<p v-else class="browser__empty">Nie znaleziono produktów.</p>
-		<Pagination class="browser__pagination--bottom" />
+		<Pagination class="browser__pagination-bottom" />
 		<footer class="browser__stickyFooter">
 			<button class="button accent" @click="animateScrollTo('#search')">
 				<span>Szukaj...</span><i class="bi bi-search"></i>
 			</button>
-			<button class="button" id="list-options-btn">
+			<button class="button" id="browser__settingsOpenBtn" @click="openListSettings">
 				<span>Opcje</span><i class="bi bi-gear"></i>
 			</button>
 		</footer>
@@ -97,73 +104,6 @@ function wrapText(text) {
 </template>
 
 <style>
-.browser {
-	display: grid;
-	grid-template-columns: 8fr minmax(max-content, 3fr);
-	justify-items: center;
-	gap: 0.8rem;
-
-	margin: 0 auto;
-
-	grid-template-areas:
-		'page-top      .            '
-		'browser       settings     '
-		'page-bottom   .            '
-		'.             sticky-footer';
-}
-#list-options-btn {
-	display: none;
-}
-
-@media (max-width: 1080px) {
-	.browser {
-		grid-template-columns: 1fr;
-		grid-template-areas:
-			'settings     '
-			'page-top     '
-			'browser      '
-			'page-bottom  '
-			'sticky-footer';
-	}
-	/* .browser__settings {
-		display: none;
-	} */
-	#list-options-btn {
-		display: inline-grid;
-	}
-}
-
-.browser__product {
-	display: grid;
-	grid-template-columns: repeat(6, minmax(auto, 14ch));
-	align-items: baseline;
-	justify-content: space-evenly;
-	gap: 0.5ch;
-}
-.browser__product {
-	margin-block: 1rem 2rem;
-	grid-template-areas:
-		'code code code tCub tSqr tPcs'
-		'name name name aCub aSqr aPcs'
-		'name name name pCub pSqr pPcs'
-		'erro erro erro buyp marg perc';
-}
-@media (max-width: 720px) {
-	.browser__product {
-		grid-template-columns: repeat(3, minmax(auto, 14ch));
-	}
-	.browser__product {
-		grid-template-areas:
-			'code code code'
-			'name name name'
-			'erro erro erro'
-			'tCub tSqr tPcs'
-			'aCub aSqr aPcs'
-			'pCub pSqr pPcs'
-			'buyp marg perc';
-	}
-}
-
 .browser__list {
 	margin: 0;
 	padding: 0;
@@ -178,9 +118,18 @@ function wrapText(text) {
 .browser__stickyFooter {
 	position: sticky;
 	bottom: 0.5rem;
+
+	margin: 1rem;
 	margin-inline: auto;
+	padding: 0.3ch 0.4ch;
+	width: fit-content;
+	border-radius: 0.4rem;
+	background: var(--bg-shade);
 }
 
+.browser__product {
+	margin-block: 1rem 2rem;
+}
 .browser__product:is(:hover, :focus-within) {
 	box-shadow: inset 0px 0px 0px 100rem var(--bg-shade), 0px 0px 0px 0.5rem var(--bg-shade);
 }
@@ -198,6 +147,83 @@ function wrapText(text) {
 	color: crimson;
 }
 
+/* @MEDIA DEPENDENT */
+/********/ /********/ /********/ /********/ /********/
+@media (max-width: 100vw) {
+	.browser {
+		display: grid;
+		justify-items: center;
+		gap: 0.8rem;
+
+		grid-template-columns: 8fr minmax(max-content, 3fr);
+		grid-template-areas:
+			'page-top      .            '
+			'browser       settings     '
+			'page-bottom   sticky-footer';
+	}
+	#browser__settingsOpenBtn,
+	#browser__settingsCloseBtn {
+		display: none;
+	}
+}
+@media (max-width: 1080px) {
+	.browser {
+		grid-template-columns: 1fr;
+		grid-template-areas:
+			'settings     '
+			'page-top     '
+			'browser      '
+			'page-bottom  '
+			'sticky-footer';
+	}
+
+	#browser__settingsOpenBtn,
+	#browser__settingsCloseBtn {
+		display: inline-grid;
+	}
+
+	.browser__settings {
+		position: fixed;
+		z-index: 2;
+		right: 0;
+		top: 0;
+		transform: translateX(100%);
+		transition: var(--transition-duration) all;
+	}
+	.browser__settings--opened {
+		transform: translateX(0%);
+	}
+}
+
+@media (max-width: 100vw) {
+	.browser__product {
+		display: grid;
+		align-items: baseline;
+		justify-content: space-evenly;
+		gap: 0.5ch;
+
+		grid-template-columns: repeat(6, minmax(auto, 14ch));
+		grid-template-areas:
+			'code code code tCub tSqr tPcs'
+			'name name name aCub aSqr aPcs'
+			'name name name pCub pSqr pPcs'
+			'erro erro erro buyp marg perc';
+	}
+}
+@media (max-width: 720px) {
+	.browser__product {
+		grid-template-columns: repeat(3, minmax(auto, 14ch));
+		grid-template-areas:
+			'code code code'
+			'name name name'
+			'erro erro erro'
+			'tCub tSqr tPcs'
+			'aCub aSqr aPcs'
+			'pCub pSqr pPcs'
+			'buyp marg perc';
+	}
+}
+
 /* GRID-AREA: NAMES */
 /********/ /********/ /********/ /********/ /********/
 .browser__list,
@@ -207,10 +233,10 @@ function wrapText(text) {
 .browser__settings {
 	grid-area: settings;
 }
-.browser__pagination--top {
+.browser__pagination-top {
 	grid-area: page-top;
 }
-.browser__pagination--bottom {
+.browser__pagination-bottom {
 	grid-area: page-bottom;
 }
 .browser__stickyFooter {

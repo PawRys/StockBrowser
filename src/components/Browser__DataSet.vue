@@ -52,5 +52,6 @@ watchEffect(async () => {
 .dataSet {
 	display: grid;
 	justify-items: start;
+	gap: 0.5ex;
 }
 </style>

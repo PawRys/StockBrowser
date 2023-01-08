@@ -3,9 +3,9 @@
 	"version": "1.0.0",
 	"homepage": "https://pawrys.github.io/StockBrowser/",
 	"scripts": {
-		"dev": "vite",
-		"build": "vite build",
+		"dev": "vite --host",
 		"preview": "vite preview --port 4173",
+		"build": "vite build",
 		"deploy": "gh-pages -d dist"
 	},
 	"dependencies": {

@@ -17,3 +17,11 @@ const items = {
 		</label>
 	</section>
 </template>
+
+<style scopde>
+.dataMode {
+	display: grid;
+	justify-items: start;
+	gap: 0.5ex;
+}
+</style>
