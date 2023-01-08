@@ -97,7 +97,7 @@ function openListSettings() {
 				<span>Szukaj...</span><i class="bi bi-search"></i>
 			</button>
 			<button class="button" id="browser__settingsOpenBtn" @click="openListSettings">
-				<span>Opcje</span><i class="bi bi-gear"></i>
+				<span>Ustawienia</span><i class="bi bi-gear"></i>
 			</button>
 		</footer>
 	</section>
@@ -157,9 +157,10 @@ function openListSettings() {
 
 		grid-template-columns: 8fr minmax(max-content, 3fr);
 		grid-template-areas:
-			'page-top      .            '
-			'browser       settings     '
-			'page-bottom   sticky-footer';
+			'page-top        settings     '
+			'browser         settings     '
+			'page-bottom     settings     '
+			'sticky-footer   sticky-footer';
 	}
 	#browser__settingsOpenBtn,
 	#browser__settingsCloseBtn {
