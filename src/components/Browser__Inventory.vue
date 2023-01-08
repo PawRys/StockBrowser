@@ -50,6 +50,14 @@ const pfix = computed(() => {
 	if (iCubDiff.value > 0) result = '+';
 	return result;
 });
+
+const colorClass = computed(() => {
+	let color = 'blue';
+	if (iPcsDiff.value >= 1) color = 'green';
+	if (iPcsDiff.value <= -1) color = 'red';
+	if (summary.value === 0) color = '';
+	return color;
+});
 </script>
 
 <template>
@@ -65,16 +73,28 @@ const pfix = computed(() => {
 	<Field class="product__iSqr" :code="props.code" :unit="'iSqr'" />
 	<Field class="product__iPcs" :code="props.code" :unit="'iPcs'" />
 
-	<div class="product__sCub">
+	<div class="product__sCub" :class="colorClass">
 		{{ pfix }}{{ iCubDiff.toFixed(3) }}<small>m<sup>3</sup></small>
 	</div>
-	<div class="product__sSqr">
+	<div class="product__sSqr" :class="colorClass">
 		{{ pfix }}{{ iSqrDiff.toFixed(2) }}<small>m<sup>2</sup></small>
 	</div>
-	<div class="product__sPcs">{{ pfix }}{{ iPcsDiff.toFixed(1) }}<small>szt</small></div>
+	<div class="product__sPcs" :class="colorClass">
+		{{ pfix }}{{ iPcsDiff.toFixed(1) }}<small>szt</small>
+	</div>
 </template>
 
 <style scoped>
+.green {
+	color: limegreen;
+}
+.red {
+	color: crimson;
+}
+.blue {
+	color: darkslateblue;
+}
+
 .product__iCub {
 	grid-area: aCub;
 }
