@@ -39,6 +39,7 @@ function inHuman(diff) {
 
 <template>
 	<aside class="lastModified">
+		<h3>Data modyfikacji</h3>
 		<div class="lastModified__type" :class="{ red: pricesModTime.diff > 1 }">
 			<span class="lastModified__label">Ceny:</span>
 			<span class="lastModified__date">{{ pricesModTime.date }}</span>

@@ -28,6 +28,14 @@ const sfix = computed(() => {
 	return result;
 });
 
+const labelSFIX = computed(() => {
+	let result = '';
+	if (props.unit === 'iCub') result = 'Cub';
+	if (props.unit === 'iSqr') result = 'Sqr';
+	if (props.unit === 'iPcs') result = 'Pcs';
+	return result;
+});
+
 async function saveExpression(event) {
 	const value = event.target.value;
 
@@ -45,23 +53,28 @@ function test() {
 </script>
 
 <template>
-	<div :class="{ expanded: isEdited }">
+	<div :class="{ isExpanded: isEdited }">
 		<span
-			v-if="!isEdited"
+			v-if="isEdited === false"
 			class="inventory__result"
 			contenteditable="true"
 			@focus="[(isEdited = true)]">
 			{{ evalMath(expression).toFixed(zerofix) }}
 			<small v-html="sfix"></small>
 		</span>
-		<input
-			v-else
-			class="inventory__edit"
-			:value="expression"
-			@input="[(expression = $event.target.value), saveExpression($event)]"
-			@blur="isEdited = false"
-			@keydown.esc="$event.target.blur()"
-			@vnode-mounted="({ el }) => el.focus()" />
+		<label v-else class="inventory__label" :for="`${props.code}-${props.unit}`">
+			<input
+				type="text"
+				class="inventory__input"
+				:id="`${props.code}-${props.unit}`"
+				:value="expression"
+				@input="[(expression = $event.target.value), saveExpression($event)]"
+				@blur="isEdited = false"
+				@keydown.esc="$event.target.blur()"
+				@vnode-mounted="({ el }) => el.focus()" />
+			<span class="inventory__sfix" v-html="sfix"></span>
+			<i class="bi bi-x-square"></i>
+		</label>
 	</div>
 </template>
 
@@ -75,12 +88,25 @@ function test() {
 	overflow: hidden;
 	text-overflow: clip;
 }
-.inventory__edit {
-	padding-inline-end: 1ch;
-	width: 100%;
-	text-align: right;
+.inventory__label {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	background-color: var(--bg-color);
+	box-shadow: 0 0 0 3px var(--bg-color);
 }
-:is(#fakeid, .expanded) {
+.inventory__sfix {
+	font-weight: 700;
+	background-color: var(--bg-color);
+	padding-inline: 1ex;
+}
+.inventory__input {
+	flex-grow: 1;
+	text-align: right;
+	/* padding-inline-end: 1ex; */
+}
+
+:is(#fakeid, .isExpanded) {
 	grid-area: aCub / aCub / aPcs / aPcs;
 	z-index: 1;
 }

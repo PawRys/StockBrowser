@@ -4,6 +4,7 @@ import { DialogWrapper } from 'vue3-promise-dialog';
 import { db as idb } from './utils/dexiedb.js';
 
 import DataCollectorTab from './components/DataCollector__.vue';
+import DataManagerTab from './components/DataManager__.vue';
 import DataBrowserTab from './components/Browser__.vue';
 import DataShareTab from './components/DataShare__.vue';
 import LastModified from './components/LastModified.vue';
@@ -17,7 +18,8 @@ const tabs = {
 	BrowserTab: { id: DataBrowserTab, name: 'Lista', icon: 'bi bi-list-ul' },
 	DataCollectorTab: { id: DataCollectorTab, name: 'Załadauj', icon: 'bi bi-download' },
 	DataShareTab: { id: DataShareTab, name: 'Udostępnij', icon: 'bi bi-cloud-arrow-up' },
-	TestTab: { id: TestTab, name: 'Test', icon: 'bi bi-bug-fill' },
+	DataManagerTab: { id: DataManagerTab, name: 'Zarządzaj', icon: 'bi bi-database' },
+	// TestTab: { id: TestTab, name: 'Test', icon: 'bi bi-bug-fill' },
 };
 
 watchEffect(async () => {

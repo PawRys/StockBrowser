@@ -90,7 +90,8 @@ body {
 /* HEADERS */
 /********/ /********/ /********/ /********/ /********/
 :is(h1, h2, h3, h4, h5, h6) {
-	margin-block: 1.5em 0.5em;
+	margin-top: 1.5em;
+	margin-bottom: 0.5em;
 	line-height: 1.1;
 	font-variation-settings: 'YOPQ' 100, 'GRAD' 50;
 }
