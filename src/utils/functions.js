@@ -1,4 +1,4 @@
-export function calcQuant(size, value, from, to) {
+export function calcQuant(size, value, from, to, precission) {
 	if (!size) return 0;
 	if (!value) return 0;
 	if (!from) return 0;
@@ -19,7 +19,9 @@ export function calcQuant(size, value, from, to) {
 		if (to === 'm3') value = value * a * b * c;
 		if (to === 'm2') value = value * b * c;
 	}
-	return value * 1;
+
+	if (precission) return Math.round(value * 10 ** precission) / 10 ** precission;
+	else return value * 1;
 }
 
 export function calcPrice(size, value, from, to) {
@@ -76,10 +78,7 @@ export function evalMath(expression) {
 	// console.log(`Exp: ${expression}`);
 
 	if (isParenthesis) {
-		let evalParenthesis = expression.replace(
-			regexpParenthesis,
-			evalMath(isParenthesis[1])
-		);
+		let evalParenthesis = expression.replace(regexpParenthesis, evalMath(isParenthesis[1]));
 		return evalMath(evalParenthesis);
 	}
 
@@ -88,9 +87,7 @@ export function evalMath(expression) {
 		return evalMath(evalMultiply);
 	}
 
-	const finalResult = isAddition
-		? isAddition.reduce((acc, curr) => curr * 1 + acc * 1)
-		: 0;
+	const finalResult = isAddition ? isAddition.reduce((acc, curr) => curr * 1 + acc * 1) : 0;
 	return finalResult * 1;
 
 	function calcMultiply(exp) {

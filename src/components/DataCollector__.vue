@@ -14,7 +14,6 @@ const importedData = ref();
 const importedDataType = ref(null);
 const messageBox = ref('');
 const globalEvent = inject('GlobalEvents');
-const modalIsOpen = ref(false);
 const currentAppTab = inject('currentAppTab');
 
 function checkDataType() {

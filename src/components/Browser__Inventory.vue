@@ -92,7 +92,7 @@ const colorClass = computed(() => {
 	color: crimson;
 }
 .blue {
-	color: darkslateblue;
+	color: dodgerblue;
 }
 
 .product__iCub {

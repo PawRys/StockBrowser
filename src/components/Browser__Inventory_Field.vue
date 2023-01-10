@@ -28,14 +28,6 @@ const sfix = computed(() => {
 	return result;
 });
 
-const labelSFIX = computed(() => {
-	let result = '';
-	if (props.unit === 'iCub') result = 'Cub';
-	if (props.unit === 'iSqr') result = 'Sqr';
-	if (props.unit === 'iPcs') result = 'Pcs';
-	return result;
-});
-
 async function saveExpression(event) {
 	const value = event.target.value;
 
