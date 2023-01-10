@@ -1,4 +1,11 @@
-<script setup></script>
+<script setup>
+try {
+	// const blob = await db.export({ prettyJson: true, progressCallback });
+	browser.downloads.download('blob', 'dexie-export.json', 'application/json');
+} catch (error) {
+	console.error('' + error);
+}
+</script>
 
 <template>
 	<h2>Zarządzanie bazą danych</h2>

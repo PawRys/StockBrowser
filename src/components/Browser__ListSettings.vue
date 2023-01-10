@@ -19,14 +19,12 @@ function closeListSettings() {
 			<DataMode />
 			<VatSetup />
 			<Sorting />
-			<footer>
-				<button
-					class="button accent"
-					id="browser__settingsCloseBtn"
-					@click="closeListSettings">
-					<span>Zamknij</span><i class="bi bi-x-square"></i>
-				</button>
-			</footer>
+			<button
+				class="sticker__closeButton button"
+				id="browser__settingsCloseBtn"
+				@click="closeListSettings">
+				<i class="bi bi-x-square"></i>
+			</button>
 		</div>
 	</aside>
 	<div class="browser__settingsOverlay" @click="closeListSettings"></div>
@@ -44,9 +42,14 @@ function closeListSettings() {
 	overflow-y: auto;
 	background-color: var(--bg-shade);
 }
-footer {
+.sticker__footer {
 	margin-top: auto;
 	align-self: flex-end;
+}
+.sticker__closeButton {
+	position: fixed;
+	top: 1rem;
+	right: 1rem;
 }
 
 body:has(.browser__settings--opened) {
