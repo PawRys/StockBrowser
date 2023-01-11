@@ -54,11 +54,14 @@ function test() {
 			{{ evalMath(expression).toFixed(zerofix) }}
 			<small v-html="sfix"></small>
 		</span>
-		<label v-else class="inventory__label" :for="`${props.code}-${props.unit}`">
+		<label
+			v-else
+			class="inventory__label"
+			:for="`${props.code.replace(' ', '_')}-${props.unit}`">
 			<input
 				type="text"
 				class="inventory__input"
-				:id="`${props.code}-${props.unit}`"
+				:id="`${props.code.replace(' ', '_')}-${props.unit}`"
 				:value="expression"
 				@input="[(expression = $event.target.value), saveExpression($event)]"
 				@blur="isEdited = false"
@@ -74,7 +77,7 @@ function test() {
 .inventory__result {
 	cursor: pointer;
 	background-color: var(--bg-color);
-	box-shadow: 0px 0px 0px 1px var(--accent-shade);
+	box-shadow: inset 0px 0px 0px 1px var(--accent-shade);
 	padding: 0ch 0.5ch;
 	display: flow-root;
 	overflow: hidden;
@@ -84,6 +87,7 @@ function test() {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: nowrap;
+	margin: 0;
 	background-color: var(--bg-color);
 	box-shadow: 0 0 0 3px var(--bg-color);
 }
@@ -95,7 +99,9 @@ function test() {
 .inventory__input {
 	flex-grow: 1;
 	text-align: right;
-	/* padding-inline-end: 1ex; */
+	line-height: 1.4rem;
+	border: 0;
+	padding-inline-end: 0.5ex;
 }
 
 :is(#fakeid, .isExpanded) {

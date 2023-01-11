@@ -46,8 +46,8 @@ async function exportInventory() {
 		let status = 'pusty';
 		if (dPcs <= -1) status = 'MANKO';
 		if (dPcs >= 1) status = 'NADMIAR';
-		if (iPcs < 1 && tPcs > 0 && tPcs < 1) status = 'ZERO';
-		if (tPcs >= 1 && dPcs > -1 && dPcs < 1) status = 'OK';
+		if (1 > dPcs && dPcs > -1 && tPcs >= 1) status = 'OK';
+		if (1 > tPcs && tPcs > 0 && iPcs < 1) status = 'ZERO';
 
 		let string = `${row.code}`;
 		string += `\t${row.name}`;

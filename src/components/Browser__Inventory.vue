@@ -52,9 +52,10 @@ const pfix = computed(() => {
 });
 
 const colorClass = computed(() => {
-	let color = 'blue';
+	let color = '';
 	if (iPcsDiff.value >= 1) color = 'green';
 	if (iPcsDiff.value <= -1) color = 'red';
+	if (1 > iPcsDiff.value && iPcsDiff.value > -1) color = 'blue';
 	if (summary.value === 0) color = '';
 	return color;
 });
