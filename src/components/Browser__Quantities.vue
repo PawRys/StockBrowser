@@ -12,23 +12,48 @@ const aPcs = calcQuant(props.size, props.aviable, 'm3', 'szt');
 
 <template>
 	<div class="product__tCub">
-		{{ tCub.toFixed(3) }}<small>m<sup>3</sup></small>
+		<i class="bi bi-cart4 product__icon"></i>
+		<span>{{ tCub.toFixed(3) }}</span>
+		<small>m<sup>3</sup></small>
 	</div>
 	<div class="product__tSqr">
-		{{ tSqr.toFixed(2) }}<small>m<sup>2</sup></small>
+		<!-- <i class="bi bi-cart4 product__icon"></i> -->
+		<span>{{ tSqr.toFixed(2) }}</span>
+		<small>m<sup>2</sup></small>
 	</div>
-	<div class="product__tPcs">{{ tPcs.toFixed(1) }}<small>szt</small></div>
+	<div class="product__tPcs">
+		<!-- <i class="bi bi-cart4 product__icon"></i> -->
+		<span>{{ tPcs.toFixed(1) }}</span>
+		<small>szt</small>
+	</div>
 
 	<div class="product__aCub">
-		{{ aCub.toFixed(3) }}<small>m<sup>3</sup></small>
+		<i class="bi bi-cart2 product__icon"></i>
+		<span>{{ aCub.toFixed(3) }}</span>
+		<small>m<sup>3</sup></small>
 	</div>
 	<div class="product__aSqr">
-		{{ aSqr.toFixed(2) }}<small>m<sup>2</sup></small>
+		<!-- <i class="bi bi-cart2 product__icon"></i> -->
+		<span>{{ aSqr.toFixed(2) }}</span>
+		<small>m<sup>2</sup></small>
 	</div>
-	<div class="product__aPcs">{{ aPcs.toFixed(1) }}<small>szt</small></div>
+	<div class="product__aPcs">
+		<!-- <i class="bi bi-cart2 product__icon"></i> -->
+		<span>{{ aPcs.toFixed(1) }}</span>
+		<small>szt</small>
+	</div>
 </template>
 
 <style scoped>
+[class*='product__'] {
+	display: flex;
+	align-items: baseline;
+	justify-content: flex-end;
+	gap: 0.5ex;
+}
+.product__icon {
+	margin-right: auto;
+}
 .product__tCub {
 	grid-area: tCub;
 }

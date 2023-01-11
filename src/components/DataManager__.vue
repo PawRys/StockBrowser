@@ -3,6 +3,9 @@ import { ref } from 'vue';
 import { calcQuant, evalMath } from '../utils/functions.js';
 import { db as idb } from '../utils/dexiedb.js';
 
+const exportInventoryField = ref();
+const exportInventoryMessage = ref();
+
 async function exportInventory() {
 	const productsDB = await idb.products.toArray();
 	let result = 'Kod';
@@ -64,7 +67,43 @@ async function exportInventory() {
 		string += `\n`;
 		result += string;
 	}
-	console.log(result);
+
+	// const permission = await navigator.permissions.query({ name: 'clipboardWrite' });
+
+	// if (permission.state == 'denied') {
+	// 	alert(`Uprawnienia do schowka dla tej witryny zostały wyłączone. Ask Google for help.`);
+	// 	return;
+	// } else {
+	await navigator.clipboard
+		.writeText(result)
+		.then(() => {
+			exportInventoryMessage.value = 'Skopiowano do schowka';
+		})
+		.catch(reason => console.error(reason));
+	// }
+
+	// console.log(result);
+	exportInventoryField.value = result;
+}
+
+// myFunction();
+function myFunction() {
+	if ((navigator.userAgent.indexOf('Opera') || navigator.userAgent.indexOf('OPR')) != -1) {
+		alert('Opera');
+	} else if (navigator.userAgent.indexOf('Edg') != -1) {
+		alert('Edge');
+	} else if (navigator.userAgent.indexOf('Chrome') != -1) {
+		alert('Chrome');
+	} else if (navigator.userAgent.indexOf('Safari') != -1) {
+		alert('Safari');
+	} else if (navigator.userAgent.indexOf('Firefox') != -1) {
+		alert('Firefox');
+	} else if (navigator.userAgent.indexOf('MSIE') != -1 || !!document.documentMode == true) {
+		//IF IE > 10
+		alert('IE');
+	} else {
+		alert('unknown');
+	}
 }
 </script>
 
@@ -76,9 +115,18 @@ async function exportInventory() {
 	</section>
 
 	<section>
-		<h3>Export do pliku inwentaryzacji</h3>
+		<h3>Export inwentaryzacji</h3>
 
 		<button class="accent" @click="exportInventory">Eksport inwentaryzacji</button>
+		<span class="exportInventory__message">{{ exportInventoryMessage }}</span>
+
+		<textarea
+			v-model="exportInventoryField"
+			name="exportInventory"
+			id="exportInventory"
+			class="exportInventory"
+			cols="30"
+			rows="10"></textarea>
 
 		<h3>Wymazywanie</h3>
 		<p>- całej bazy danych</p>
@@ -86,4 +134,8 @@ async function exportInventory() {
 	</section>
 </template>
 
-<style scoped></style>
+<style scoped>
+.exportInventory {
+	width: 100%;
+}
+</style>

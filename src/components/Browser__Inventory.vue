@@ -56,7 +56,7 @@ const colorClass = computed(() => {
 	if (iPcsDiff.value >= 1) color = 'green';
 	if (iPcsDiff.value <= -1) color = 'red';
 	if (1 > iPcsDiff.value && iPcsDiff.value > -1) color = 'blue';
-	if (summary.value === 0) color = '';
+	if (summary.value === 0) color = 'grey';
 	return color;
 });
 </script>
@@ -94,6 +94,9 @@ const colorClass = computed(() => {
 }
 .blue {
 	color: dodgerblue;
+}
+.grey {
+	color: grey;
 }
 
 .product__iCub {

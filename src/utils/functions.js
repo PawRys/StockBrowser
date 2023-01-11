@@ -19,9 +19,8 @@ export function calcQuant(size, value, from, to, precission) {
 		if (to === 'm3') value = value * a * b * c;
 		if (to === 'm2') value = value * b * c;
 	}
-
-	if (precission) return Math.round(value * 10 ** precission) / 10 ** precission;
-	else return value * 1;
+	if (precission === undefined) return value * 1;
+	else return Math.round(value * 10 ** precission) / 10 ** precission;
 }
 
 export function calcPrice(size, value, from, to) {

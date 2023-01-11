@@ -126,7 +126,7 @@ label {
 	grid-auto-flow: column;
 	align-items: center;
 	justify-content: space-around;
-	/* gap: 0.8ex; */
+	gap: 0.8ex;
 
 	margin: 0.2ch;
 	padding: 1ch 2ch;
@@ -142,9 +142,9 @@ label {
 	transition-property: background-color, box-shadow;
 	transition-duration: var(--transition-duration);
 }
-:is(.button, button):has(* + *) {
-	gap: 0.8ex;
-}
+/* :is(.button, button):where(:not(:only-child)) { */
+/* gap: 0.8ex; */
+/* } */
 
 :is(.button, button):is(.small) {
 	padding: 0.5ch 1ch;
