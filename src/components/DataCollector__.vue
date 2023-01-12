@@ -28,7 +28,12 @@ function textareaClear() {
 }
 
 async function textareaPaste(e) {
-	const permission = await navigator.permissions.query({ name: 'clipboard-read' });
+	const permission = await navigator.permissions
+		.query({ name: 'clipboard-read' })
+		.catch(err => {
+			messageBox.value = `🥺 Funkcja wklejania ze schowka jest zablokowana. Wklej dane w pole tekstowe ręcznie.`;
+			console.error('PERMISSION ERROR', err);
+		});
 	if (permission.state == 'denied') {
 		alert(`Uprawnienia do schowka dla tej witryny zostały wyłączone. Ask Google for help.`);
 		return;

@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import { db as idb } from '../utils/dexiedb.js';
 import { calcQuant, calcPrice } from '../utils/functions.js';
 import { openDialog } from 'vue3-promise-dialog';
-import ConfirmDialog from '../utils/Dialog_MergeFetchedData.vue';
+import Dialog_MergeFetchedData from '../utils/Dialog_MergeFetchedData.vue';
 
 export function defineDataType(input) {
 	let dataType, message;
@@ -292,7 +292,7 @@ export async function localDataMerge(newData, dataType) {
 	let localData = await idb.products.toArray();
 	const isNewInventory = checkInventory(newData);
 	if (isNewInventory) {
-		answer = await openDialog(ConfirmDialog);
+		answer = await openDialog(Dialog_MergeFetchedData);
 		// if (answer === 'merge') data = await mergeInventory(data);
 		if (answer === 'local') newData = await clearInventory(newData);
 		if (answer === 'cloud') localData = await clearInventory(localData);

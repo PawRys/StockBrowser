@@ -1,89 +1,68 @@
 <script setup>
-import { ref } from 'vue';
-import { calcQuant, evalMath } from '../utils/functions.js';
-import { db as idb } from '../utils/dexiedb.js';
+import { ref, inject } from 'vue';
 
+import { calcQuant, evalMath } from '../utils/functions.js';
+import Dexie from 'dexie';
+import { db as idb } from '../utils/dexiedb.js';
+import { spreadsheetHeader, spreadsheetRow } from './DataManager__.js';
+import { openDialog } from 'vue3-promise-dialog';
+import Dialog_Confirm from '../utils/Dialog_Confirm.vue';
+
+const globalEvent = inject('GlobalEvents');
 const exportInventoryField = ref();
 const exportInventoryMessage = ref();
 
 async function exportInventory() {
 	const productsDB = await idb.products.toArray();
-	let result = 'Kod';
-	result += '\tNazwa';
-	result += '\tStatus';
-	result += '\tRóżnica m3';
-	result += '\tRóżnica m2';
-	result += '\tRóżnica szt';
-	result += '\tMagazyn m3';
-	result += '\tMagazyn m2';
-	result += '\tMagazyn szt';
-	result += '\tSymfonia m3';
-	result += '\tSymfonia m2';
-	result += '\tSymfonia szt';
-	result += '\n';
+	let textFile = spreadsheetHeader();
 
 	for (const row of productsDB) {
-		const size = row.size;
-		let iCub = row.iCub;
-		let iSqr = row.iSqr;
-		let iPcs = row.iPcs;
-		let tCub = calcQuant(size, row.tCub, 'm3', 'm3', 3);
-		let tSqr = calcQuant(size, row.tCub, 'm3', 'm2', 4);
-		let tPcs = calcQuant(size, row.tCub, 'm3', 'szt', 1);
-		let iSum = 0;
-
-		iCub = evalMath(iCub);
-		iSqr = evalMath(iSqr);
-		iPcs = evalMath(iPcs);
-		iCub = calcQuant(size, iCub, 'm3', 'm3');
-		iSqr = calcQuant(size, iSqr, 'm2', 'm3');
-		iPcs = calcQuant(size, iPcs, 'szt', 'm3');
-		iSum = iCub + iSqr + iPcs;
-		iCub = calcQuant(size, iSum, 'm3', 'm3', 3);
-		iSqr = calcQuant(size, iSum, 'm3', 'm2', 4);
-		iPcs = calcQuant(size, iSum, 'm3', 'szt', 1);
-		let dCub = iCub - tCub;
-		let dSqr = iSqr - tSqr;
-		let dPcs = iPcs - tPcs;
-
-		let status = 'pusty';
-		if (dPcs <= -1) status = 'MANKO';
-		if (dPcs >= 1) status = 'NADMIAR';
-		if (1 > dPcs && dPcs > -1 && tPcs >= 1) status = 'OK';
-		if (1 > tPcs && tPcs > 0 && iPcs < 1) status = 'ZERO';
-
-		let string = `${row.code}`;
-		string += `\t${row.name}`;
-		string += `\t${status}`;
-		string += `\t${dCub.toFixed(3)}`;
-		string += `\t${dSqr.toFixed(4)}`;
-		string += `\t${dPcs.toFixed(1)}`;
-		string += `\t${iCub.toFixed(3)}`;
-		string += `\t${iSqr.toFixed(4)}`;
-		string += `\t${iPcs.toFixed(1)}`;
-		string += `\t${tCub.toFixed(3)}`;
-		string += `\t${tSqr.toFixed(4)}`;
-		string += `\t${tPcs.toFixed(1)}`;
-		string += `\n`;
-		result += string;
+		let string = spreadsheetRow(row);
+		textFile += string;
 	}
 
-	// const permission = await navigator.permissions.query({ name: 'clipboardWrite' });
-
-	// if (permission.state == 'denied') {
-	// 	alert(`Uprawnienia do schowka dla tej witryny zostały wyłączone. Ask Google for help.`);
-	// 	return;
-	// } else {
 	await navigator.clipboard
-		.writeText(result)
+		.writeText(textFile)
 		.then(() => {
-			exportInventoryMessage.value = 'Skopiowano do schowka';
+			exportInventoryMessage.value = '🙂 Skopiowano do schowka';
 		})
 		.catch(reason => console.error(reason));
-	// }
+	exportInventoryField.value = textFile;
+}
 
-	// console.log(result);
-	exportInventoryField.value = result;
+async function purgeInventory() {
+	console.time('purgeInventory');
+	let text = '<h4>Usuwasz inwentaryzację</h4>';
+	text += '<p>Akcja jest nieodwracalna. Czy jesteś pewien?</p>';
+	let answer = false || (await openDialog(Dialog_Confirm, { text }));
+	if (answer === false) return;
+
+	idb.transaction('rw', idb.products, async () => {
+		await idb.products.toCollection().modify(row => {
+			delete row.iCub;
+			delete row.iSqr;
+			delete row.iPcs;
+		});
+	})
+		.catch(Dexie.ModifyError, error => {
+			console.error(error.failures.length + ' items failed to modify');
+		})
+		.catch(error => {
+			console.error('Generic error: ' + error);
+		});
+	console.timeEnd('purgeInventory');
+}
+
+async function purgeProducts() {
+	console.time('purgeProducts');
+	let text = '<h4>Usuwasz wszystkie dane sklejki</h4>';
+	text += '<p>Akcja jest nieodwracalna. Czy jesteś pewien?</p>';
+	let answer = false || (await openDialog(Dialog_Confirm, { text }));
+	if (answer === false) return;
+	await idb.products.clear();
+	await idb.timestamps.clear();
+	globalEvent.value = 'timestamps removed';
+	console.timeEnd('purgeProducts');
 }
 
 // myFunction();
@@ -114,28 +93,40 @@ function myFunction() {
 		<h3>Import z pliku</h3>
 	</section>
 
-	<section>
+	<section class="exportInventory">
 		<h3>Export inwentaryzacji</h3>
+		<!-- <p>Dane można wkleić do arkusza kalkulacyjnego.</p> -->
 
-		<button class="accent" @click="exportInventory">Eksport inwentaryzacji</button>
+		<button class="exportInventory__button accent" @click="exportInventory">
+			Eksport inwentaryzacji
+		</button>
 		<span class="exportInventory__message">{{ exportInventoryMessage }}</span>
 
 		<textarea
+			v-if="exportInventoryField"
 			v-model="exportInventoryField"
 			name="exportInventory"
 			id="exportInventory"
-			class="exportInventory"
+			class="exportInventory__textarea"
 			cols="30"
 			rows="10"></textarea>
+	</section>
 
-		<h3>Wymazywanie</h3>
-		<p>- całej bazy danych</p>
-		<p>- inwentaryzacji</p>
+	<section>
+		<h3>Wymazywanie danych</h3>
+		<button class="accent2" @click="purgeInventory">
+			<i class="bi bi-calculator-fill"></i>
+			<span>Wyzeruj inwentaryzację</span>
+		</button>
+		<button class="accent2" @click="purgeProducts">
+			<i class="bi bi-cart4"></i>
+			<span>Wyzeruj produkty</span>
+		</button>
 	</section>
 </template>
 
 <style scoped>
-.exportInventory {
+.exportInventory__textarea {
 	width: 100%;
 }
 </style>
