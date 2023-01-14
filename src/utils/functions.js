@@ -96,3 +96,21 @@ export function evalMath(expression) {
 		return /\*/.test(exp) ? a * b : a / b;
 	}
 }
+
+export function stringToCode(string) {
+	string = toBinary(string || '');
+	return btoa(string);
+}
+
+function toBinary(string) {
+	const codeUnits = Uint16Array.from({ length: string.length }, (element, index) =>
+		string.charCodeAt(index)
+	);
+	const charCodes = new Uint8Array(codeUnits.buffer);
+
+	let result = '';
+	charCodes.forEach(char => {
+		result += String.fromCharCode(char);
+	});
+	return result;
+}

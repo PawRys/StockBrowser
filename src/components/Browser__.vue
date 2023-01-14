@@ -57,9 +57,7 @@ function openListSettings() {
 <template>
 	<h2>Lista produktów</h2>
 
-	<section id="search">
-		<Filters />
-	</section>
+	<Filters />
 
 	<section class="browser" :class="dataMode" id="results">
 		<ListSettings class="browser__settings" />

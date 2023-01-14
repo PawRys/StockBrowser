@@ -7,11 +7,13 @@ import {
 	convertStringToRegexp,
 } from './Browser__Filters.js';
 
+import { stringToCode } from '../utils/functions.js';
+
 const unfilteredData = inject('unfilteredData_global');
 const filteredData = inject('filteredData_global');
 
 const textFilter = ref('');
-const selectedFilters = ref({
+const selectedTagsCollection = ref({
 	group: [],
 	thick: [],
 	sizeA: [],
@@ -20,7 +22,7 @@ const selectedFilters = ref({
 	words: [],
 });
 
-const filteredDataTags = computed(() => {
+const tagsCollection = computed(() => {
 	const data = filteredData.value;
 	let group = new Set();
 	let thick = new Set();
@@ -66,7 +68,7 @@ const filteredDataTags = computed(() => {
 });
 
 const tagFilter = computed(() => {
-	const inputs = selectedFilters.value;
+	const inputs = selectedTagsCollection.value;
 	const x = inputs.thick.length || inputs.sizeA.length || inputs.sizeB.length ? 'x' : '';
 	let group = inputs.group.join('|');
 	let thick = inputs.thick.join('|');
@@ -82,6 +84,7 @@ const tagFilter = computed(() => {
 	return `${group}${dimension}${grade}${words}`.trim();
 });
 
+// APPLY FILTERING
 watch([textFilter, tagFilter, unfilteredData], () => {
 	let data = unfilteredData.value;
 	if (!data) return;
@@ -99,7 +102,7 @@ watch([textFilter, tagFilter, unfilteredData], () => {
 });
 
 function getAllSelectedFilters(groupID, tag) {
-	const form = document.querySelector('#tags-selector');
+	const form = document.querySelector('#tagFilter');
 	const formData = new FormData(form);
 	let checkedFilters = {
 		group: formData.getAll('group'),
@@ -113,18 +116,18 @@ function getAllSelectedFilters(groupID, tag) {
 	if (groupID && tag) {
 		checkedFilters[groupID].push(tag);
 	}
-	Object.assign(selectedFilters.value, checkedFilters);
+	Object.assign(selectedTagsCollection.value, checkedFilters);
 }
 
 function clearFiltersInGroup(groupName) {
-	const inputs = selectedFilters.value;
+	const inputs = selectedTagsCollection.value;
 	inputs[groupName] = [];
-	selectedFilters.value = inputs;
+	selectedTagsCollection.value = inputs;
 }
 
 function clearAllFilters() {
 	textFilter.value = '';
-	selectedFilters.value = {
+	selectedTagsCollection.value = {
 		group: [],
 		thick: [],
 		sizeA: [],
@@ -135,13 +138,13 @@ function clearAllFilters() {
 }
 
 function isChecked(colId, tag) {
-	const inputs = selectedFilters.value;
+	const inputs = selectedTagsCollection.value;
 	const test = inputs[colId].findIndex(e => e === tag) < 0 ? false : true;
 	return test;
 }
 
 function isDisabled(groupID) {
-	const data = selectedFilters.value;
+	const data = selectedTagsCollection.value;
 	return data[groupID].length ? false : true;
 }
 </script>
@@ -161,50 +164,47 @@ function isDisabled(groupID) {
 			{{ unfilteredData ? unfilteredData.length : 0 }}
 		</span> -->
 
-		<form id="tags-selector" class="tags-selector" action="javascript:void(0)">
+		<form id="tagFilter" class="tagFilter" action="javascript:void(0)">
 			<fieldset
-				class="tags-selector__group"
-				v-for="(tagsGroup, groupID) in filteredDataTags"
-				:class="[groupID]"
-				:key="groupID">
-				<header class="tags-selector__groupHeader">
-					<h3>
-						{{ columnNames[groupID] }}
-					</h3>
-				</header>
+				class="tagFilter__fieldset"
+				v-for="(tagsSet, setID) in tagsCollection"
+				:class="[setID]"
+				:key="setID">
+				<h3>
+					{{ columnNames[setID] }}
+				</h3>
 
 				<div
-					class="tags-selector__tag"
-					v-for="(tag, tagIndex) in tagsGroup"
-					:key="`${groupID}-${tag}`">
+					class="tagFilter__tag"
+					v-for="(tag, tagIndex) in tagsSet"
+					:key="stringToCode(`${setID}-${tag}`)">
 					<input
 						type="checkbox"
-						:checked="isChecked(groupID, tag)"
-						:name="groupID"
-						:id="`${groupID}-${tagIndex}`"
+						:checked="isChecked(setID, tag)"
+						:name="setID"
+						:id="stringToCode(`${setID}-${tagIndex}`)"
 						:value="tag" />
 
 					<label
 						class="button inline"
-						:for="`${groupID}-${tagIndex}`"
-						@click.prevent="getAllSelectedFilters(groupID, tag)">
+						:for="stringToCode(`${setID}-${tagIndex}`)"
+						@click.prevent="getAllSelectedFilters(setID, tag)">
 						{{ tag }}
 					</label>
 				</div>
 
-				<footer class="tags-selector__groupFooter">
-					<button class="button" @click="getAllSelectedFilters">
-						<span>Filtruj</span>
-						<i class="bi bi-funnel"></i>
-					</button>
-					<button
-						class="button delete"
-						:class="{ disabled: isDisabled(groupID) }"
-						@click="clearFiltersInGroup(groupID)">
-						<span>Usuń</span>
-						<i class="bi bi-trash3"></i>
-					</button>
-				</footer>
+				<button class="button small" @click="getAllSelectedFilters">
+					<i class="bi bi-funnel"></i>
+					<span>Filtruj</span>
+				</button>
+
+				<button
+					class="button small delete"
+					:class="{ disabled: isDisabled(setID) }"
+					@click="clearFiltersInGroup(setID)">
+					<i class="bi bi-trash3"></i>
+					<span>Usuń</span>
+				</button>
 			</fieldset>
 		</form>
 
@@ -231,20 +231,23 @@ function isDisabled(groupID) {
 	width: 100%;
 }
 
-.tags-selector {
+.tagFilter {
 	display: flex;
 	overflow-x: auto;
+	justify-content: center;
 }
 
-.tags-selector__group {
+.tagFilter__fieldset {
 	display: flex;
 	flex-direction: column;
 	scroll-snap-align: center;
+	padding: 1ex;
+	margin: 0;
 	border: none;
 }
 
-.tags-selector__tag {
-	min-width: max-content;
+.tagFilter__tag {
+	padding-block: 0.2ex;
 }
 
 .filters__footer {
