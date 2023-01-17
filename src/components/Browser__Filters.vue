@@ -7,11 +7,12 @@ import {
 	convertStringToRegexp,
 } from './Browser__Filters.js';
 
-import { stringToCode } from '../utils/functions.js';
+import { stringToCode, switchClass } from '../utils/functions.js';
 
 const unfilteredData = inject('unfilteredData_global');
 const filteredData = inject('filteredData_global');
 
+const showFilters = ref(false);
 const textFilter = ref('');
 const selectedTagsCollection = ref({
 	group: [],
@@ -88,16 +89,13 @@ const tagFilter = computed(() => {
 watch([textFilter, tagFilter, unfilteredData], () => {
 	let data = unfilteredData.value;
 	if (!data) return;
-
 	let filterString = `${textFilter.value} ${tagFilter.value}`;
 	let fliterRegexp = convertStringToRegexp(filterString);
-	console.log(fliterRegexp);
-
+	// console.log(fliterRegexp);
 	data = data.filter(row => {
 		const str = `${row.code} ${row.group} ${row.name}`;
 		return str.match(new RegExp(fliterRegexp, 'i'));
 	});
-
 	filteredData.value = data;
 });
 
@@ -150,21 +148,20 @@ function isDisabled(groupID) {
 </script>
 
 <template>
-	<section class="filters" style="grid-area: fltr">
-		<div class="textFilter">
-			Szukaj:<input
-				class="textFilter__input"
-				type="search"
-				name="filter"
-				v-model="textFilter" />
-		</div>
+	<section class="filters" :class="{ 'filters--opened': showFilters }">
+		<header v-show="!showFilters" class="filters__header" @click="showFilters = !showFilters">
+			<h3 class="filters__heading">{{ `${tagFilter} ${textFilter}` }}</h3>
+			<i class="bi bi-search button accent"> Szukaj </i>
+		</header>
 
-		<!-- <span class="counter" style="grid-area: count">
-			Rekordów: {{ filteredData ? filteredData.length : 0 }} z
-			{{ unfilteredData ? unfilteredData.length : 0 }}
-		</span> -->
+		<input
+			v-show="showFilters"
+			class="textFilter"
+			type="search"
+			name="filter"
+			v-model="textFilter" />
 
-		<form id="tagFilter" class="tagFilter" action="javascript:void(0)">
+		<form v-show="showFilters" class="tagFilter" id="tagFilter" action="javascript:void(0)">
 			<fieldset
 				class="tagFilter__fieldset"
 				v-for="(tagsSet, setID) in tagsCollection"
@@ -182,12 +179,12 @@ function isDisabled(groupID) {
 						type="checkbox"
 						:checked="isChecked(setID, tag)"
 						:name="setID"
-						:id="stringToCode(`${setID}-${tagIndex}`)"
+						:id="stringToCode(`${setID}-${tag}`)"
 						:value="tag" />
 
 					<label
 						class="button inline"
-						:for="stringToCode(`${setID}-${tagIndex}`)"
+						:for="stringToCode(`${setID}-${tag}`)"
 						@click.prevent="getAllSelectedFilters(setID, tag)">
 						{{ tag }}
 					</label>
@@ -208,7 +205,7 @@ function isDisabled(groupID) {
 			</fieldset>
 		</form>
 
-		<footer class="filters__footer">
+		<footer v-show="showFilters" class="filters__footer">
 			<button :class="['button']" @click="clearAllFilters()">
 				<span>Usuń wszystkie</span>
 				<i class="bi bi-trash3"></i>
@@ -217,7 +214,7 @@ function isDisabled(groupID) {
 				id="show-results"
 				class="button accent"
 				@vnode-updated="addListener('click', $event.el)"
-				@click="getAllSelectedFilters">
+				@click="showFilters = !showFilters">
 				<span>Pokaż wyniki ({{ filteredData.length }})</span>
 				<!-- <i class="bi bi-check-square"></i> -->
 			</button>
@@ -225,9 +222,40 @@ function isDisabled(groupID) {
 	</section>
 </template>
 
+<style>
+body:has(.filters--opened) {
+	overflow: hidden;
+}
+</style>
+
 <style scoped>
-.textFilter__input {
-	padding: 0.4rem;
+.filters {
+	position: sticky;
+	z-index: 2;
+	top: 0;
+
+	/* display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center; */
+}
+
+.filters--opened {
+	position: fixed;
+	inset: 0;
+	margin: 0;
+	overflow: auto;
+	background-color: var(--bg-color);
+}
+
+.filters__header {
+	margin-inline: auto;
+	width: max-content;
+}
+
+/* .textFilter {
+	border: solid 1px var(--font-color);
+	padding: 0.6rem;
 	width: 100%;
 }
 
@@ -235,6 +263,7 @@ function isDisabled(groupID) {
 	display: flex;
 	overflow-x: auto;
 	justify-content: center;
+	min-width: 100%;
 }
 
 .tagFilter__fieldset {
@@ -270,5 +299,5 @@ function isDisabled(groupID) {
 
 :is(.button, button) i {
 	font-size: 1em;
-}
+} */
 </style>

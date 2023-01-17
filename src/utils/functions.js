@@ -98,19 +98,21 @@ export function evalMath(expression) {
 }
 
 export function stringToCode(string) {
-	string = toBinary(string || '');
-	return btoa(string);
+	string = string || '';
+	string = string
+		.split('')
+		.map(char => {
+			if (char.match(/\W/)) return char.charCodeAt().toString(36);
+			return char;
+		})
+		.join('');
+	return string;
 }
 
-function toBinary(string) {
-	const codeUnits = Uint16Array.from({ length: string.length }, (element, index) =>
-		string.charCodeAt(index)
-	);
-	const charCodes = new Uint8Array(codeUnits.buffer);
-
-	let result = '';
-	charCodes.forEach(char => {
-		result += String.fromCharCode(char);
-	});
-	return result;
+export function switchClass(targets, token, force) {
+	if (Array.isArray(targets) === false) targets = [targets];
+	for (const elName of targets) {
+		const element = document.querySelector(elName);
+		element.classList.toggle(token, force);
+	}
 }

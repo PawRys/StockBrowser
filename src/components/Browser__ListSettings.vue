@@ -26,8 +26,8 @@ function closeListSettings() {
 				<i class="bi bi-x-square"></i>
 			</button>
 		</div>
+		<!-- <div class="browser__settingsOverlay" @click="closeListSettings"></div> -->
 	</aside>
-	<div class="browser__settingsOverlay" @click="closeListSettings"></div>
 </template>
 
 <style>

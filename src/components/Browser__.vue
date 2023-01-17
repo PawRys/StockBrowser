@@ -91,9 +91,9 @@ function openListSettings() {
 		<p v-else class="browser__empty">Nie znaleziono produktów.</p>
 		<Pagination class="browser__pagination-bottom" />
 		<footer class="browser__stickyFooter">
-			<button class="button accent" @click="animateScrollTo('#search')">
+			<!-- <button class="button accent" @click="animateScrollTo('#search')">
 				<span>Szukaj...</span><i class="bi bi-search"></i>
-			</button>
+			</button> -->
 			<button class="button" id="browser__settingsOpenBtn" @click="openListSettings">
 				<span>Ustawienia</span><i class="bi bi-gear"></i>
 			</button>
