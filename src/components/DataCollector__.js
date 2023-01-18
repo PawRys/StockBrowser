@@ -52,102 +52,6 @@ export function defineDataType(input) {
 	return { data: dataType, message: message };
 }
 
-export function prepareBeforeUpdate(input, dataType) {
-	const linesArray = input.match(/[^\r\n]+/g);
-	const garbageWords = /\b(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/gi;
-	let output = [];
-
-	for (let line of linesArray) {
-		const row = line.match(/[^\t]+/g);
-		// Ommit garbage
-		if (!row) continue;
-		if (garbageWords.test(line)) continue;
-
-		if (dataType === 'products' && row.length !== 2) continue;
-		if (dataType === 'prices' && row.length !== 6) continue;
-		if (dataType === 'stocks' && row.length !== 7) continue;
-
-		for (let i = 3; i < row.length; i++) {
-			row[i] = row[i].replace(',', '.') * 1;
-		}
-		output.push(row);
-	}
-	return output;
-}
-
-export async function updateProducts(currentData, newData, dataType) {
-	if (dataType === 'prices') {
-		currentData.map(row => {
-			row.pCub = 0;
-		});
-	}
-
-	if (dataType === 'stocks') {
-		currentData.map(row => {
-			row.tCub = 0;
-			row.aCub = 0;
-		});
-	}
-
-	for (let newProduct of newData) {
-		const productCode = newProduct[0];
-		const productName = newProduct[1];
-		const productIndex = currentData.findIndex(row => row.code === productCode);
-		const isNewProduct = productIndex < 0 ? true : false;
-		const currentProduct = isNewProduct ? {} : currentData[productIndex];
-		const productSize = getProductSize(productName);
-		const isError = productSize === null ? 'error' : '';
-		const productGroup = getProductGroups(`${productCode} ${productName} ${isError}`);
-		let errors = [];
-
-		if (productSize === null) {
-			errors.push('Błąd: Brak prawidłowego wymiaru w opisie. Obliczenia niemożliwe.');
-		}
-
-		Object.assign(currentProduct, {
-			code: productCode,
-			name: productName,
-			size: productSize,
-			group: productGroup,
-			error: errors,
-		});
-		if (isNewProduct) {
-			Object.assign(currentProduct, {
-				pCub: 0,
-				tCub: 0,
-				aCub: 0,
-			});
-		}
-		if (dataType === 'prices') {
-			Object.assign(currentProduct, {
-				pCub: calcPrice(productSize, newProduct[4], newProduct[2], 'm3'),
-			});
-		}
-		if (dataType === 'stocks') {
-			Object.assign(currentProduct, {
-				tCub: calcQuant(productSize, newProduct[6], newProduct[2], 'm3'),
-				aCub: calcQuant(productSize, newProduct[3], newProduct[2], 'm3'),
-			});
-		}
-
-		const cursor = isNewProduct ? 0 : productIndex;
-		const replace = isNewProduct ? 0 : 1;
-		currentData.splice(cursor, replace, currentProduct);
-	}
-
-	let message = '';
-	if (dataType === 'products') {
-		message = '📜 Zaktualizowano produkty ✔';
-	}
-	if (dataType === 'prices') {
-		message = '💵 Zaktualizowano ceny ✔';
-	}
-	if (dataType === 'stocks') {
-		message = '📦 Zaktualizowano ilości ✔';
-	}
-	return { data: currentData, message: message };
-}
-
 export async function fetchProducts(fetchURL, pinCode) {
 	const URLparams = {
 		action: 'request',
@@ -217,9 +121,9 @@ export function integrateData(data, dataType) {
 		const productTCub = row?.tCub || row[6]?.replace(',', '.') * 1;
 		const productACub = row?.aCub || row[3]?.replace(',', '.') * 1;
 		const productPCub = row?.pCub || row[4]?.replace(',', '.') * 1;
-		const productICub = row?.iCub || '';
-		const productISqr = row?.iSqr || '';
-		const productIpcs = row?.iPcs || '';
+		const productICub = row?.iCub || null;
+		const productISqr = row?.iSqr || null;
+		const productIpcs = row?.iPcs || null;
 		if (productSize === null)
 			errorsList.push('Błąd: Brak prawidłowego wymiaru w opisie. Obliczenia niemożliwe.');
 		const isError = !!errorsList.length ? 'error' : '';
@@ -230,14 +134,11 @@ export function integrateData(data, dataType) {
 			name: productName,
 			size: productSize,
 			group: productGroup,
-			iCub: productICub,
-			iSqr: productISqr,
-			iPcs: productIpcs,
 			errors: errorsList,
 		});
-		// if (!!isError) {
-		// 	Object.assign(product, {});
-		// }
+		if (iCub) Object.assign(product, { iCub: productICub });
+		if (iSqr) Object.assign(product, { iSqr: productISqr });
+		if (iPcs) Object.assign(product, { iPcs: productIpcs });
 		if (dataType.match(/stocks|code/i)) {
 			Object.assign(product, {
 				tCub: calcQuant(productSize, productTCub, productUnit, 'm3'),

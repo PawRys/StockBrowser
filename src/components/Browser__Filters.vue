@@ -145,12 +145,19 @@ function isDisabled(groupID) {
 	const data = selectedTagsCollection.value;
 	return data[groupID].length ? false : true;
 }
+
+function a(params) {
+	console.log('A');
+}
+function b(params) {
+	console.log('B');
+}
 </script>
 
 <template>
 	<section class="filters" :class="{ 'filters--opened': showFilters }">
-		<header v-show="!showFilters" class="filters__header" @click="showFilters = !showFilters">
-			<h3 class="filters__heading">{{ `${tagFilter} ${textFilter}` }}</h3>
+		<header v-show="!showFilters" class="filters__header" @click="showFilters = true">
+			<h3 class="filters__heading">#{{ filteredData.length }}</h3>
 			<i class="bi bi-search button accent"> Szukaj </i>
 		</header>
 
@@ -159,35 +166,37 @@ function isDisabled(groupID) {
 			class="textFilter"
 			type="search"
 			name="filter"
+			placeholder="Szukaj"
 			v-model="textFilter" />
 
 		<form v-show="showFilters" class="tagFilter" id="tagFilter" action="javascript:void(0)">
 			<fieldset
-				class="tagFilter__fieldset"
 				v-for="(tagsSet, setID) in tagsCollection"
+				class="tagFilter__fieldset"
 				:class="[setID]"
 				:key="setID">
 				<h3>
 					{{ columnNames[setID] }}
 				</h3>
 
-				<div
-					class="tagFilter__tag"
-					v-for="(tag, tagIndex) in tagsSet"
-					:key="stringToCode(`${setID}-${tag}`)">
-					<input
-						type="checkbox"
-						:checked="isChecked(setID, tag)"
-						:name="setID"
-						:id="stringToCode(`${setID}-${tag}`)"
-						:value="tag" />
-
-					<label
-						class="button inline"
-						:for="stringToCode(`${setID}-${tag}`)"
-						@click.prevent="getAllSelectedFilters(setID, tag)">
-						{{ tag }}
-					</label>
+				<div class="tagFilter__fieldsetTrack">
+					<div
+						v-for="(tag, tagIndex) in tagsSet"
+						class="tagFilter__tag"
+						:key="stringToCode(`${setID}-${tag}`)">
+						<input
+							type="checkbox"
+							:checked="isChecked(setID, tag)"
+							:name="setID"
+							:id="stringToCode(`${setID}-${tag}`)"
+							:value="tag" />
+						<label
+							class="button inline"
+							:for="stringToCode(`${setID}-${tag}`)"
+							@click.prevent="getAllSelectedFilters(setID, tag)">
+							{{ tag }}
+						</label>
+					</div>
 				</div>
 
 				<button class="button small" @click="getAllSelectedFilters">
@@ -214,9 +223,8 @@ function isDisabled(groupID) {
 				id="show-results"
 				class="button accent"
 				@vnode-updated="addListener('click', $event.el)"
-				@click="showFilters = !showFilters">
+				@click="[getAllSelectedFilters(), (showFilters = false)]">
 				<span>Pokaż wyniki ({{ filteredData.length }})</span>
-				<!-- <i class="bi bi-check-square"></i> -->
 			</button>
 		</footer>
 	</section>
@@ -232,72 +240,81 @@ body:has(.filters--opened) {
 .filters {
 	position: sticky;
 	z-index: 2;
-	top: 0;
-
-	/* display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center; */
+	top: 0ex;
 }
 
 .filters--opened {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
 	position: fixed;
 	inset: 0;
 	margin: 0;
+	padding: 1ex;
+
 	overflow: auto;
 	background-color: var(--bg-color);
 }
 
 .filters__header {
-	margin-inline: auto;
-	width: max-content;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+
+	margin-block: 1rem;
+	max-width: 100%;
+	cursor: pointer;
+}
+.filters__heading {
+	/* display: none; */
+
+	margin: 0;
+	padding: 1ex;
+	font-weight: 700;
+	font-style: italic;
+	background-color: var(--bg-color);
 }
 
-/* .textFilter {
-	border: solid 1px var(--font-color);
-	padding: 0.6rem;
-	width: 100%;
+.textFilter {
+	display: block;
+	padding: 1ex;
+	width: min(100%, 60ch);
+	font-size: 1.2rem;
+}
+.textFilter:focus::placeholder {
+	opacity: 0;
 }
 
 .tagFilter {
 	display: flex;
 	overflow-x: auto;
-	justify-content: center;
-	min-width: 100%;
+	max-width: 100%;
 }
-
 .tagFilter__fieldset {
 	display: flex;
 	flex-direction: column;
-	scroll-snap-align: center;
-	padding: 1ex;
+	border: 0;
 	margin: 0;
-	border: none;
+	padding: 1ex;
+	/* width: max-content; */
 }
-
+.tagFilter__fieldsetTrack {
+	max-height: 100%;
+	overflow-y: auto;
+}
 .tagFilter__tag {
+	display: flex;
+	flex-wrap: nowrap;
 	padding-block: 0.2ex;
 }
 
 .filters__footer {
 	position: sticky;
-	bottom: 0.5rem;
+	z-index: 2;
+	bottom: 0;
 
 	display: flex;
-	flex-wrap: nowrap;
-	align-items: center;
-	justify-content: center;
-	gap: 0.4ch;
-
-	margin: 1rem;
-	margin-inline: auto;
-	padding: 0.3ch 0.4ch;
-	width: fit-content;
-	border-radius: 0.4rem;
-	background: var(--bg-shade);
 }
-
-:is(.button, button) i {
-	font-size: 1em;
-} */
 </style>

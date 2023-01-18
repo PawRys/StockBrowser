@@ -52,7 +52,17 @@
 *::after {
 	box-sizing: border-box;
 	position: relative;
-	/* font-weight: normal; */
+	font: inherit;
+}
+
+::-webkit-scrollbar {
+	height: 0.5ex;
+	width: 0.5ex;
+}
+
+::-webkit-scrollbar-thumb {
+	border-radius: 0.5ex;
+	background-color: var(--accent-shade);
 }
 
 :focus-within {

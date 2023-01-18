@@ -18,7 +18,7 @@ export function getProductGrades(input) {
 
 export function addListener(evName, el) {
 	// listner added to onUpdated hook because when regular 'click' happens
-	// #results.offsetTop changes height witch resulting in scrolling to wrong position.
+	// #results.offsetTop changes height what is resulting in scrolling to wrong position.
 	el.addEventListener(
 		evName,
 		() => {
