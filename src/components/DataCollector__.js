@@ -136,9 +136,9 @@ export function integrateData(data, dataType) {
 			group: productGroup,
 			errors: errorsList,
 		});
-		if (iCub) Object.assign(product, { iCub: productICub });
-		if (iSqr) Object.assign(product, { iSqr: productISqr });
-		if (iPcs) Object.assign(product, { iPcs: productIpcs });
+		if (productICub) Object.assign(product, { iCub: productICub });
+		if (productISqr) Object.assign(product, { iSqr: productISqr });
+		if (productIpcs) Object.assign(product, { iPcs: productIpcs });
 		if (dataType.match(/stocks|code/i)) {
 			Object.assign(product, {
 				tCub: calcQuant(productSize, productTCub, productUnit, 'm3'),
