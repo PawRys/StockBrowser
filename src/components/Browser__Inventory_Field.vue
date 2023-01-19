@@ -38,10 +38,6 @@ async function saveExpression(event) {
 		[props.unit]: value,
 	});
 }
-
-function test() {
-	alert();
-}
 </script>
 
 <template>
