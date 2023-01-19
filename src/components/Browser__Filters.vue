@@ -205,8 +205,8 @@ function b(params) {
 				</button>
 
 				<button
+					v-show="isDisabled(setID) === false"
 					class="button small delete"
-					:class="{ disabled: isDisabled(setID) }"
 					@click="clearFiltersInGroup(setID)">
 					<i class="bi bi-trash3"></i>
 					<span>Usuń</span>
@@ -242,7 +242,6 @@ body:has(.filters--opened) {
 	z-index: 2;
 	top: 0ex;
 }
-
 .filters--opened {
 	display: flex;
 	flex-direction: column;
@@ -268,8 +267,6 @@ body:has(.filters--opened) {
 	cursor: pointer;
 }
 .filters__heading {
-	/* display: none; */
-
 	margin: 0;
 	padding: 1ex;
 	font-weight: 700;
@@ -290,6 +287,7 @@ body:has(.filters--opened) {
 .tagFilter {
 	display: flex;
 	overflow-x: auto;
+	margin-bottom: 1ex;
 	max-width: 100%;
 }
 .tagFilter__fieldset {
@@ -298,7 +296,6 @@ body:has(.filters--opened) {
 	border: 0;
 	margin: 0;
 	padding: 1ex;
-	/* width: max-content; */
 }
 .tagFilter__fieldsetTrack {
 	max-height: 100%;
@@ -314,7 +311,6 @@ body:has(.filters--opened) {
 	position: sticky;
 	z-index: 2;
 	bottom: 0;
-
 	display: flex;
 }
 </style>

@@ -50,8 +50,9 @@
 *,
 *::before,
 *::after {
-	box-sizing: border-box;
 	position: relative;
+	box-sizing: border-box;
+	line-height: inherit;
 	font: inherit;
 }
 
@@ -74,7 +75,7 @@ html {
 }
 
 body {
-	min-height: 100vh;
+	min-height: 100%;
 	background-color: var(--bg-color);
 	color: var(--font-color);
 	font-family: 'Rajdhani', sans-serif;
@@ -103,7 +104,12 @@ body {
 	margin-top: 1.5em;
 	margin-bottom: 0.5em;
 	line-height: 1.1;
+	font-weight: 600;
 	font-variation-settings: 'YOPQ' 100, 'GRAD' 50;
+}
+:where(h1, h2, h3, h4, h5) + :is(h2, h3, h4, h5, h6) {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
 }
 
 h1 {
@@ -119,7 +125,7 @@ h3 {
 }
 
 :is(h4, h5, h6) {
-	font-size: 1.1rem;
+	font-size: 1.2rem;
 }
 
 /* LABELS */
