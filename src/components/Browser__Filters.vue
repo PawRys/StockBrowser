@@ -141,24 +141,28 @@ function isChecked(colId, tag) {
 	return test;
 }
 
-function isDisabled(groupID) {
+function isFilterApplied(groupID) {
 	const data = selectedTagsCollection.value;
-	return data[groupID].length ? false : true;
-}
-
-function a(params) {
-	console.log('A');
-}
-function b(params) {
-	console.log('B');
+	groupID = groupID === 'any' ? undefined : groupID;
+	if (groupID) {
+		return data[groupID].length ? true : false;
+	} else {
+		for (const groupId in data) {
+			if (data[groupId].length > 0) return true;
+		}
+		return false;
+	}
 }
 </script>
 
 <template>
 	<section class="filters" :class="{ 'filters--opened': showFilters }">
-		<header v-show="!showFilters" class="filters__header" @click="showFilters = true">
-			<h3 class="filters__heading">#{{ filteredData.length }}</h3>
-			<i class="bi bi-search button accent"> Szukaj </i>
+		<header v-show="!showFilters" class="filters__header">
+			<i @click="showFilters = true" class="bi bi-search button accent"> Filtry </i>
+			<span class="filters__heading">#{{ filteredData.length }}</span>
+			<i v-show="isFilterApplied('any') === true" @click="clearAllFilters()" class="button">
+				Pokaż wszystkie
+			</i>
 		</header>
 
 		<input
@@ -199,26 +203,19 @@ function b(params) {
 					</div>
 				</div>
 
-				<button class="button small" @click="getAllSelectedFilters">
-					<i class="bi bi-funnel"></i>
-					<span>Filtruj</span>
-				</button>
+				<i @click="getAllSelectedFilters" class="button small bi bi-funnel"> Filtruj </i>
 
-				<button
-					v-show="isDisabled(setID) === false"
-					class="button small delete"
-					@click="clearFiltersInGroup(setID)">
-					<i class="bi bi-trash3"></i>
-					<span>Usuń</span>
-				</button>
+				<i
+					v-show="isFilterApplied(setID) === true"
+					@click="clearFiltersInGroup(setID)"
+					class="button small delete bi bi-trash3">
+					Usuń
+				</i>
 			</fieldset>
 		</form>
 
 		<footer v-show="showFilters" class="filters__footer">
-			<button :class="['button']" @click="clearAllFilters()">
-				<span>Usuń wszystkie</span>
-				<i class="bi bi-trash3"></i>
-			</button>
+			<i @click="clearAllFilters()" class="button bi bi-trash3"> Usuń wszystkie </i>
 			<button
 				id="show-results"
 				class="button accent"
@@ -227,6 +224,11 @@ function b(params) {
 				<span>Pokaż wyniki ({{ filteredData.length }})</span>
 			</button>
 		</footer>
+
+		<i
+			v-show="showFilters"
+			@click="showFilters = false"
+			class="filters__closeButton button bi bi-x-square"></i>
 	</section>
 </template>
 
@@ -238,15 +240,15 @@ body:has(.filters--opened) {
 
 <style scoped>
 .filters {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
 	position: sticky;
 	z-index: 2;
 	top: 0ex;
 }
 .filters--opened {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-
 	position: fixed;
 	inset: 0;
 	margin: 0;
@@ -264,7 +266,7 @@ body:has(.filters--opened) {
 
 	margin-block: 1rem;
 	max-width: 100%;
-	cursor: pointer;
+	/* cursor: pointer; */
 }
 .filters__heading {
 	margin: 0;
@@ -312,5 +314,11 @@ body:has(.filters--opened) {
 	z-index: 2;
 	bottom: 0;
 	display: flex;
+}
+
+.filters__closeButton {
+	position: fixed;
+	top: 1ex;
+	right: 1ex;
 }
 </style>
