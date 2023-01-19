@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps } from 'vue';
+// import { defineProps } from 'vue';
 import { closeDialog } from 'vue3-promise-dialog';
 const props = defineProps({ text: String });
 </script>

@@ -143,7 +143,6 @@ function isChecked(colId, tag) {
 
 function isFilterApplied(groupID) {
 	const tagFilters = selectedTagsCollection.value;
-	const textFilterRef = textFilter.value;
 	groupID = groupID === 'any' ? undefined : groupID;
 	if (groupID) {
 		return tagFilters[groupID].length ? true : false;
