@@ -318,6 +318,7 @@ body:has(.filters--opened) {
 	padding: 1ex;
 }
 .tagFilter__fieldsetTrack {
+	margin-bottom: 1ex;
 	max-height: 100%;
 	overflow-y: auto;
 }

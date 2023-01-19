@@ -39,8 +39,8 @@ function setNextPage() {
 </script>
 
 <template>
-	<section class="pagination">
-		<div class="page-selector" v-if="pageCount_global > 1">
+	<section class="pagination" v-if="pageCount_global > 1">
+		<div class="page-selector">
 			<span>Pokaż: </span>
 			<select name="pageSize" v-model="pageSize_global">
 				<template v-for="val in pageSizes">

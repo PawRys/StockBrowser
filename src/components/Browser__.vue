@@ -154,6 +154,7 @@ function openListSettings() {
 		gap: 0.8rem;
 
 		grid-template-columns: 8fr minmax(max-content, 3fr);
+		grid-template-rows: 0fr 1fr;
 		grid-template-areas:
 			'page-top        settings     '
 			'browser         settings     '
