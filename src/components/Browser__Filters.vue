@@ -175,15 +175,15 @@ function isFilterApplied(groupID) {
 			placeholder="Szukaj"
 			v-model="textFilter" />
 		<div v-show="showFilters" class="textFilter__quickFilters">
-			<button class="small" @click="textFilter += '=x1525x1525'">Kwadraty</button>
+			<button class="small" @click="textFilter = ' =x1525x1525'">Kwadraty</button>
 			<button
 				class="small"
-				@click="textFilter += 'x1220|1250|2440|2500x1220|1250|2440|2500'">
+				@click="textFilter = ' x1220|1250|2440|2500x1220|1250|2440|2500'">
 				4x8'
 			</button>
-			<button class="small" @click="textFilter += '=x1500|1525x2440|2500'">5x8'</button>
-			<button class="small" @click="textFilter += '=x1500|1525x3000|3050'">5x10'</button>
-			<button class="small" @click="textFilter += '=x2150x3050|3340|3850|4000 '">
+			<button class="small" @click="textFilter = ' =x1500|1525x2440|2500'">5x8'</button>
+			<button class="small" @click="textFilter = ' =x1500|1525x3000|3050'">5x10'</button>
+			<button class="small" @click="textFilter = ' =x2150x3050|3340|3850|4000'">
 				Verems
 			</button>
 		</div>

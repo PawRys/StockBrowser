@@ -49,9 +49,10 @@ function test() {
 		<span
 			v-if="isEdited === false"
 			class="inventory__result"
+			:class="{ 'inventory__result--filled': expression.length > 0 }"
 			contenteditable="true"
 			@focus="[(isEdited = true)]">
-			{{ evalMath(expression).toFixed(zerofix) }}
+			<slot>{{ evalMath(expression).toFixed(zerofix) }}</slot>
 			<small v-html="sfix"></small>
 		</span>
 		<label
@@ -82,6 +83,14 @@ function test() {
 	display: flow-root;
 	overflow: hidden;
 	text-overflow: clip;
+}
+.inventory__result--filled::before {
+	content: '\F72E';
+	content: '\F72D';
+	position: absolute;
+	left: 0.5ex;
+	font-family: 'bootstrap-icons';
+	color: var(--accent-shade);
 }
 .inventory__label {
 	display: flex;

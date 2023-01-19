@@ -45,7 +45,7 @@ export function convertStringToRegexp(str) {
 
 			filter = filter.replace('=', '');
 			filter = filter.replace(trimPipes, '');
-			filter = filter.replace(/([^a-zA-Z0-9\|])/g, '\\$1');
+			filter = filter.replace(/([^\w\d\|])/g, '\\$1');
 			if (isDimension) {
 				filter = filter
 					.split('x')

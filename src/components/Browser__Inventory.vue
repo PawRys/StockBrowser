@@ -30,19 +30,27 @@ const iCubDiff = computed(() => {
 	let result = summary.value - props.total;
 	return result;
 });
-
 const iSqrDiff = computed(() => {
 	const sqrQuantity = calcQuant(props.size, props.total, 'm3', 'm2');
 	const sqrSummary = calcQuant(props.size, summary.value, 'm3', 'm2');
 	let result = sqrSummary - sqrQuantity;
 	return result;
 });
-
 const iPcsDiff = computed(() => {
 	const pcsQuantity = calcQuant(props.size, props.total, 'm3', 'szt');
 	const pcsSummary = calcQuant(props.size, summary.value, 'm3', 'szt');
 	let result = pcsSummary - pcsQuantity;
 	return result;
+});
+
+const iCub = computed(() => {
+	return calcQuant(props.size, summary.value, 'm3', 'm3');
+});
+const iSqr = computed(() => {
+	return calcQuant(props.size, summary.value, 'm3', 'm2');
+});
+const iPcs = computed(() => {
+	return calcQuant(props.size, summary.value, 'm3', 'szt');
 });
 
 const pfix = computed(() => {
@@ -70,9 +78,9 @@ const colorClass = computed(() => {
 	</div>
 	<div class="product__tPcs">{{ tPcs.toFixed(1) }}<small>szt</small></div>
 
-	<Field class="product__iCub" :code="props.code" :unit="'iCub'" />
-	<Field class="product__iSqr" :code="props.code" :unit="'iSqr'" />
-	<Field class="product__iPcs" :code="props.code" :unit="'iPcs'" />
+	<Field class="product__iCub" :code="props.code" :unit="'iCub'">{{ iCub.toFixed(3) }}</Field>
+	<Field class="product__iSqr" :code="props.code" :unit="'iSqr'">{{ iSqr.toFixed(2) }}</Field>
+	<Field class="product__iPcs" :code="props.code" :unit="'iPcs'">{{ iPcs.toFixed(1) }}</Field>
 
 	<div class="product__sCub" :class="colorClass">
 		{{ pfix }}{{ iCubDiff.toFixed(3) }}<small>m<sup>3</sup></small>
