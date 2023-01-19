@@ -61,8 +61,9 @@ body:has(.browser__settings--opened) {
 
 .browser__settings--opened {
 	box-shadow: 0 0 2rem var(--accent-shade);
-	top: 0;
+	z-index: 102;
 	bottom: 0;
+	top: 0;
 }
 .browser__settings--opened .sticker {
 	height: 100%;
@@ -74,7 +75,7 @@ body:has(.browser__settings--opened) {
 .browser__settingsOverlay--opened {
 	display: block;
 	position: fixed;
-	z-index: 1;
+	z-index: 100;
 	inset: 0;
 	background-color: var(--accent-shade);
 	opacity: 0.5;

@@ -34,12 +34,18 @@ export function convertStringToRegexp(str) {
 		.map(filter => {
 			const trimPipes = /^\|+|\|+$/g;
 			const isDimension = /\d*x[\d\|]*x\d*/i.test(filter);
-			const wholeWordsOnly = /=/.test(filter) ? '\\b' : '';
+			const wholeWordsOnly = /=/.test(filter);
 			let subQuery = '';
+			let lookahead = '';
+			let lookbehind = '';
+			if (wholeWordsOnly) {
+				lookahead = `(?!\\S)\\b`;
+				lookbehind = `\\b(?<!\\S)`;
+			}
 
 			filter = filter.replace('=', '');
 			filter = filter.replace(trimPipes, '');
-			filter = filter.replace(/(\?)/g, '\\$1');
+			filter = filter.replace(/([^a-zA-Z0-9\|])/g, '\\$1');
 			if (isDimension) {
 				filter = filter
 					.split('x')
@@ -50,7 +56,7 @@ export function convertStringToRegexp(str) {
 					.join('x');
 				filter = `(?<!,)${filter}(mm)?`;
 			}
-			subQuery = `(?=.*${wholeWordsOnly}(${filter})${wholeWordsOnly})`;
+			subQuery = `(?=.*${lookbehind}(${filter})${lookahead})`;
 			return subQuery;
 		})
 		.join('');

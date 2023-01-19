@@ -140,14 +140,15 @@ label {
 :is(.button, button) {
 	display: inline-grid;
 	grid-auto-flow: column;
-	align-items: center;
 	justify-content: space-around;
+	align-items: center;
 	gap: 0.8ex;
 
 	margin: 0.2ch;
 	padding: 1ch 2ch;
 	border-radius: 4px;
 	border: none;
+	width: fit-content;
 	background-color: var(--bg-color);
 	color: var(--font-color);
 

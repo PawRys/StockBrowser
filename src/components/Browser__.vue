@@ -183,7 +183,6 @@ function openListSettings() {
 
 	.browser__settings {
 		position: fixed;
-		z-index: 2;
 		right: 0;
 		top: 0;
 		transform: translateX(100%);

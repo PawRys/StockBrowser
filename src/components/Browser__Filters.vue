@@ -91,7 +91,7 @@ watch([textFilter, tagFilter, unfilteredData], () => {
 	if (!data) return;
 	let filterString = `${textFilter.value} ${tagFilter.value}`;
 	let fliterRegexp = convertStringToRegexp(filterString);
-	// console.log(fliterRegexp);
+	console.log(fliterRegexp);
 	data = data.filter(row => {
 		const str = `${row.code} ${row.group} ${row.name}`;
 		return str.match(new RegExp(fliterRegexp, 'i'));
@@ -142,13 +142,15 @@ function isChecked(colId, tag) {
 }
 
 function isFilterApplied(groupID) {
-	const data = selectedTagsCollection.value;
+	const tagFilters = selectedTagsCollection.value;
+	const textFilterRef = textFilter.value;
 	groupID = groupID === 'any' ? undefined : groupID;
 	if (groupID) {
-		return data[groupID].length ? true : false;
+		return tagFilters[groupID].length ? true : false;
 	} else {
-		for (const groupId in data) {
-			if (data[groupId].length > 0) return true;
+		if (textFilter.value.length > 0) return true;
+		for (const groupId in tagFilters) {
+			if (tagFilters[groupId].length > 0) return true;
 		}
 		return false;
 	}
@@ -158,11 +160,11 @@ function isFilterApplied(groupID) {
 <template>
 	<section class="filters" :class="{ 'filters--opened': showFilters }">
 		<header v-show="!showFilters" class="filters__header">
-			<i @click="showFilters = true" class="bi bi-search button accent"> Filtry </i>
-			<span class="filters__heading">#{{ filteredData.length }}</span>
+			<span class="filters__heading">Wyników: {{ filteredData.length }}</span>
 			<i v-show="isFilterApplied('any') === true" @click="clearAllFilters()" class="button">
 				Pokaż wszystkie
 			</i>
+			<i @click="showFilters = true" class="bi bi-search button accent"> Filtry </i>
 		</header>
 
 		<input
@@ -172,6 +174,19 @@ function isFilterApplied(groupID) {
 			name="filter"
 			placeholder="Szukaj"
 			v-model="textFilter" />
+		<div v-show="showFilters" class="textFilter__quickFilters">
+			<button class="small" @click="textFilter += '=x1525x1525'">Kwadraty</button>
+			<button
+				class="small"
+				@click="textFilter += 'x1220|1250|2440|2500x1220|1250|2440|2500'">
+				4x8'
+			</button>
+			<button class="small" @click="textFilter += '=x1500|1525x2440|2500'">5x8'</button>
+			<button class="small" @click="textFilter += '=x1500|1525x3000|3050'">5x10'</button>
+			<button class="small" @click="textFilter += '=x2150x3050|3340|3850|4000 '">
+				Verems
+			</button>
+		</div>
 
 		<form v-show="showFilters" class="tagFilter" id="tagFilter" action="javascript:void(0)">
 			<fieldset
@@ -272,7 +287,7 @@ body:has(.filters--opened) {
 	margin: 0;
 	padding: 1ex;
 	font-weight: 700;
-	font-style: italic;
+	/* font-style: italic; */
 	background-color: var(--bg-color);
 }
 
@@ -284,6 +299,10 @@ body:has(.filters--opened) {
 }
 .textFilter:focus::placeholder {
 	opacity: 0;
+}
+.textFilter__quickFilters {
+	margin-block: 0.5ex;
+	font-size: 1.2rem;
 }
 
 .tagFilter {
