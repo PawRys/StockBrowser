@@ -33,7 +33,7 @@ export function convertStringToRegexp(str) {
 		.split(' ')
 		.map(filter => {
 			const trimPipes = /^\|+|\|+$/g;
-			const isDimension = /\d*x[\d\|]*x\d*/i.test(filter);
+			const isPlywoodSize = /\d*x[\d\|]*x\d*/i.test(filter);
 			const wholeWordsOnly = /=/.test(filter);
 			let subQuery = '';
 			let lookahead = '';
@@ -46,12 +46,12 @@ export function convertStringToRegexp(str) {
 			filter = filter.replace('=', '');
 			filter = filter.replace(trimPipes, '');
 			filter = filter.replace(/([\?])/g, '\\$1');
-			if (isDimension) {
+			if (isPlywoodSize) {
 				filter = filter
 					.split('x')
-					.map(subFilter => {
-						subFilter = subFilter.replace(trimPipes, '');
-						return subFilter.length > 0 ? `(${subFilter})` : '(\\d+(,\\d+)?)';
+					.map(sizeFilter => {
+						sizeFilter = sizeFilter.replace(trimPipes, '');
+						return sizeFilter.length > 0 ? `(${sizeFilter})` : '(\\d+(,\\d+)?)';
 					})
 					.join('x');
 				filter = `${filter}(mm)?`;
