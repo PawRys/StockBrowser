@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, inject } from 'vue';
-import { evalMath } from '../utils/functions.js';
+import { evalMath, stringToCode } from '../utils/functions.js';
 import { db as idb } from '../utils/dexiedb.js';
 
 const props = defineProps(['unit', 'code']);
@@ -45,28 +45,34 @@ async function saveExpression(event) {
 		<span
 			v-if="isEdited === false"
 			class="inventory__result"
-			:class="{ 'inventory__result--filled': expression.length > 0 }"
+			:class="{
+				'inventory__result--filled': expression.length > 0,
+				'inventory__result--isEdited': isEdited === true,
+			}"
 			contenteditable="true"
-			@focus="[(isEdited = true)]">
+			@focus="isEdited = true">
 			<slot>{{ evalMath(expression).toFixed(zerofix) }}</slot>
 			<small v-html="sfix"></small>
 		</span>
+		<!-- <Teleport to=".expression-teleport"> -->
 		<label
-			v-else
+			v-if="isEdited === true"
 			class="inventory__label"
-			:for="`${props.code.replace(' ', '_')}-${props.unit}`">
+			:for="`_${stringToCode(props.code)}-${props.unit}`">
 			<input
 				type="text"
 				class="inventory__input"
-				:id="`${props.code.replace(' ', '_')}-${props.unit}`"
+				:id="`_${stringToCode(props.code)}-${props.unit}`"
 				:value="expression"
 				@input="[(expression = $event.target.value), saveExpression($event)]"
 				@blur="isEdited = false"
 				@keydown.esc="$event.target.blur()"
 				@vnode-mounted="({ el }) => el.focus()" />
-			<span class="inventory__sfix" v-html="sfix"></span>
+			<span>{{ ` = ${evalMath(expression).toFixed(zerofix)}` }}</span>
+			<small class="inventory__sfix" v-html="sfix"></small>
 			<i class="bi bi-x-square"></i>
 		</label>
+		<!-- </Teleport> -->
 	</div>
 </template>
 
@@ -80,6 +86,10 @@ async function saveExpression(event) {
 	overflow: hidden;
 	text-overflow: clip;
 }
+.inventory__result--isEdited {
+	box-shadow: inset 0px 0px 0px 1px var(--accent2-shade);
+	/* font-weight: 700; */
+}
 .inventory__result--filled::before {
 	content: '\F72E';
 	content: '\F72D';
@@ -90,16 +100,22 @@ async function saveExpression(event) {
 }
 .inventory__label {
 	display: flex;
+	align-items: baseline;
 	flex-direction: row;
 	flex-wrap: nowrap;
 	margin: 0;
 	background-color: var(--bg-color);
 	box-shadow: 0 0 0 3px var(--bg-color);
 }
+/* .inventory__label {
+	position: absolute;
+	bottom: 0;
+	translate: 0 100%;
+} */
 .inventory__sfix {
-	font-weight: 700;
+	/* font-weight: 700; */
 	background-color: var(--bg-color);
-	padding-inline: 1ex;
+	padding-right: 1ex;
 }
 .inventory__input {
 	flex-grow: 1;
@@ -113,6 +129,7 @@ async function saveExpression(event) {
 	grid-area: aCub / aCub / aPcs / aPcs;
 	z-index: 1;
 }
+
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {

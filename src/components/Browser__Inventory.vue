@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, inject, watchEffect } from 'vue';
-import { calcQuant, evalMath } from '../utils/functions.js';
+import { calcQuant, evalMath, stringToCode } from '../utils/functions.js';
 import Field from './Browser__Inventory_Field.vue';
 
 const props = defineProps(['total', 'size', 'code']);
@@ -91,6 +91,8 @@ const colorClass = computed(() => {
 	<div class="product__sPcs" :class="colorClass">
 		{{ pfix }}{{ iPcsDiff.toFixed(1) }}<small>szt</small>
 	</div>
+
+	<!-- <div class="expression-teleport"></div> -->
 </template>
 
 <style scoped>
@@ -124,6 +126,10 @@ const colorClass = computed(() => {
 }
 .product__sPcs {
 	grid-area: pPcs;
+}
+.expression-teleport {
+	grid-area: pCub / pCub / pPcs / pPcs;
+	z-index: 1;
 }
 
 [class*='product__'] {
