@@ -159,11 +159,14 @@ function isFilterApplied(groupID) {
 <template>
 	<section class="filters" :class="{ 'filters--opened': showFilters }">
 		<header v-show="!showFilters" class="filters__header">
-			<span class="filters__heading">Wyników: {{ filteredData.length }}</span>
-			<i v-show="isFilterApplied('any') === true" @click="clearAllFilters()" class="button">
-				Pokaż wszystkie
-			</i>
 			<i @click="showFilters = true" class="bi bi-search button accent"> Filtry </i>
+			<span class="filters__heading">Wyników: {{ filteredData.length }}</span>
+			<i
+				v-show="isFilterApplied('any') === true"
+				@click="clearAllFilters()"
+				class="button bi bi-backspace">
+				<!-- Pokaż wszystkie -->
+			</i>
 		</header>
 
 		<input
@@ -185,6 +188,7 @@ function isFilterApplied(groupID) {
 			<button class="small" @click="textFilter = ' =x2150x3050|3340|3850|4000'">
 				Verems
 			</button>
+			<i class="button small bi bi-backspace" @click="textFilter = ''"></i>
 		</div>
 
 		<form v-show="showFilters" class="tagFilter" id="tagFilter" action="javascript:void(0)">
@@ -300,6 +304,8 @@ body:has(.filters--opened) {
 	opacity: 0;
 }
 .textFilter__quickFilters {
+	display: flex;
+	flex-wrap: wrap;
 	margin-block: 0.5ex;
 	font-size: 1.2rem;
 }
