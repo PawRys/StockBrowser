@@ -154,41 +154,62 @@ function isFilterApplied(groupID) {
 		return false;
 	}
 }
+
+function openListSettings() {
+	const optionsEl = document.querySelector('.browser__settings');
+	const overlayEl = document.querySelector('.browser__settingsOverlay');
+	optionsEl.classList.add('browser__settings--opened');
+	overlayEl.classList.add('browser__settingsOverlay--opened');
+}
 </script>
 
 <template>
 	<section class="filters" :class="{ 'filters--opened': showFilters }">
 		<header v-show="!showFilters" class="filters__header">
-			<i @click="showFilters = true" class="bi bi-search button accent"> Filtry </i>
-			<span class="filters__heading">Wyników: {{ filteredData.length }}</span>
-			<i
+			<button @click="showFilters = true" class="bi bi-search button accent">Filtry</button>
+			<button
 				v-show="isFilterApplied('any') === true"
 				@click="clearAllFilters()"
-				class="button bi bi-backspace">
-				<!-- Pokaż wszystkie -->
-			</i>
+				class="button bi bi-trash3"
+				title="Usuń filtry"></button>
+			<span class="filters__counter">Wyników: {{ filteredData.length }}</span>
+			<button
+				class="bi bi-gear"
+				id="browser__settingsOpenBtn"
+				@click="openListSettings"
+				title="Ustawienia"></button>
 		</header>
 
-		<input
-			v-show="showFilters"
-			class="textFilter"
-			type="search"
-			name="filter"
-			placeholder="Szukaj"
-			v-model="textFilter" />
+		<div v-show="showFilters" class="filters__topBar">
+			<input
+				class="textFilter"
+				type="search"
+				name="filter"
+				placeholder="Szukaj"
+				v-model="textFilter" />
+			<button
+				class="button small bi bi-eraser"
+				@click="textFilter = ''"
+				title="Wyczyść"></button>
+			<button
+				class="button small bi bi-x-square"
+				@click="showFilters = false"
+				title="Zamknij"></button>
+		</div>
+
 		<div v-show="showFilters" class="textFilter__quickFilters">
-			<button class="small" @click="textFilter = ' =x1525x1525'">Kwadraty</button>
+			<button class="small" @click="textFilter = '=x1525x1525'">Kwadraty</button>
 			<button
 				class="small"
-				@click="textFilter = ' x1220|1250|2440|2500x1220|1250|2440|2500'">
+				@click="textFilter = '=x1220|1250|2440|2500x1220|1250|2440|2500'">
 				4x8'
 			</button>
-			<button class="small" @click="textFilter = ' =x1500|1525x2440|2500'">5x8'</button>
-			<button class="small" @click="textFilter = ' =x1500|1525x3000|3050'">5x10'</button>
-			<button class="small" @click="textFilter = ' =x2150x3050|3340|3850|4000'">
+			<button class="small" @click="textFilter = '=x1500|1525x2440|2500'">5x8'</button>
+			<button class="small" @click="textFilter = '=x1500|1525x3000|3050'">5x10'</button>
+			<button class="small" @click="textFilter = '=x2150x3050|3340|3850|4000'">
 				Verems
 			</button>
-			<i class="button small bi bi-backspace" @click="textFilter = ''"></i>
+			<button class="small" @click="textFilter = '/26|/65|/69|/106'">Mini Verems</button>
 		</div>
 
 		<form v-show="showFilters" class="tagFilter" id="tagFilter" action="javascript:void(0)">
@@ -242,11 +263,6 @@ function isFilterApplied(groupID) {
 				<span>Pokaż wyniki ({{ filteredData.length }})</span>
 			</button>
 		</footer>
-
-		<i
-			v-show="showFilters"
-			@click="showFilters = false"
-			class="filters__closeButton button bi bi-x-square"></i>
 	</section>
 </template>
 
@@ -269,11 +285,15 @@ body:has(.filters--opened) {
 .filters--opened {
 	position: fixed;
 	inset: 0;
-	margin: 0;
+
+	margin: auto;
 	padding: 1ex;
+	max-width: fit-content;
+
+	background-color: var(--bg-color);
+	box-shadow: 0 0 0 100vw var(--bg-color);
 
 	overflow: auto;
-	background-color: var(--bg-color);
 }
 
 .filters__header {
@@ -284,17 +304,21 @@ body:has(.filters--opened) {
 
 	margin-block: 1rem;
 	max-width: 100%;
-	/* cursor: pointer; */
 }
-.filters__heading {
+.filters__counter {
 	margin: 0;
 	padding: 1ex;
 	font-weight: 700;
-	/* font-style: italic; */
 	background-color: var(--bg-color);
 }
 
+.filters__topBar {
+	display: flex;
+	width: 100%;
+}
+
 .textFilter {
+	flex-grow: 1;
 	display: block;
 	padding: 1ex;
 	width: min(100%, 60ch);
@@ -339,11 +363,5 @@ body:has(.filters--opened) {
 	z-index: 2;
 	bottom: 0;
 	display: flex;
-}
-
-.filters__closeButton {
-	position: fixed;
-	top: 1ex;
-	right: 1ex;
 }
 </style>

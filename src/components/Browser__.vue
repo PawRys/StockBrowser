@@ -45,13 +45,6 @@ provide('vat', vat);
 function wrapText(text) {
 	return text.replace(/(\d+(,\d+)?x\d+x\d+)/gi, '<b>$1</b>');
 }
-
-function openListSettings() {
-	const optionsEl = document.querySelector('.browser__settings');
-	const overlayEl = document.querySelector('.browser__settingsOverlay');
-	optionsEl.classList.add('browser__settings--opened');
-	overlayEl.classList.add('browser__settingsOverlay--opened');
-}
 </script>
 
 <template>
@@ -94,9 +87,6 @@ function openListSettings() {
 			<!-- <button class="button accent" @click="animateScrollTo('#search')">
 				<span>Szukaj...</span><i class="bi bi-search"></i>
 			</button> -->
-			<button class="button" id="browser__settingsOpenBtn" @click="openListSettings">
-				<span>Ustawienia</span><i class="bi bi-gear"></i>
-			</button>
 		</footer>
 	</section>
 </template>

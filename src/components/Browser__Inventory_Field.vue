@@ -91,10 +91,9 @@ async function saveExpression(event) {
 	/* font-weight: 700; */
 }
 .inventory__result--filled::before {
-	content: '\F72E';
 	content: '\F72D';
 	position: absolute;
-	left: 0.5ex;
+	left: 0.2ex;
 	font-family: 'bootstrap-icons';
 	color: var(--accent-shade);
 }

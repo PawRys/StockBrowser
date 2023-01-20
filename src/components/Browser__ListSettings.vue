@@ -42,7 +42,7 @@ function closeListSettings() {
 
 	padding: 0.5rem;
 	overflow-y: auto;
-	background-color: var(--bg-shade);
+	background-color: var(--bg-color);
 }
 .sticker__footer {
 	margin-top: auto;
