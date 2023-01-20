@@ -45,7 +45,7 @@ export function convertStringToRegexp(str) {
 
 			filter = filter.replace('=', '');
 			filter = filter.replace(trimPipes, '');
-			filter = filter.replace(/([^\w\d\|])/g, '\\$1');
+			filter = filter.replace(/([\?])/g, '\\$1');
 			if (isDimension) {
 				filter = filter
 					.split('x')
@@ -54,7 +54,8 @@ export function convertStringToRegexp(str) {
 						return subFilter.length > 0 ? `(${subFilter})` : '(\\d+(,\\d+)?)';
 					})
 					.join('x');
-				filter = `(?<!,)${filter}(mm)?`;
+				filter = `${filter}(mm)?`;
+				// filter = `(?<!,)${filter}(mm)?`;
 			}
 			subQuery = `(?=.*${lookbehind}(${filter})${lookahead})`;
 			return subQuery;
