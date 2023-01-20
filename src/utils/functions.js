@@ -49,10 +49,14 @@ export function calcPrice(size, value, from, to) {
 	return value * 1;
 }
 
-export function animateScrollTo(element) {
+export function animateScrollTo(element, offset) {
+	offset = offset || 0;
 	const el = document.querySelector(element);
+	const rect = el.getBoundingClientRect();
+	const { scrollX, scrollY } = window;
 	window.scrollTo({
-		top: el.offsetTop,
+		// top: el.offsetTop,
+		top: scrollY + rect.top + offset,
 		behavior: 'smooth',
 	});
 }

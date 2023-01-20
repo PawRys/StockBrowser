@@ -48,7 +48,9 @@ function setNextPage() {
 				</template>
 			</select>
 
-			<button class="button small" @click="[setPrevPage(), animateScrollTo('#results')]">
+			<button
+				class="button small"
+				@click="[setPrevPage(), animateScrollTo('#results', -50)]">
 				<i class="bi bi-chevron-left"></i>
 			</button>
 
@@ -56,7 +58,7 @@ function setNextPage() {
 				name="pagenum"
 				class="select-pagenum"
 				v-model="pageNumber_global"
-				@input="animateScrollTo('#results')">
+				@input="animateScrollTo('#results', -50)">
 				<template v-for="n in pageCount_global">
 					<option :value="n || 1">
 						{{ n }}
@@ -65,7 +67,9 @@ function setNextPage() {
 			</select>
 			<span class="page-count"> z {{ pageCount_global }}</span>
 
-			<button class="button small" @click="[setNextPage(), animateScrollTo('#results')]">
+			<button
+				class="button small"
+				@click="[setNextPage(), animateScrollTo('#results', -50)]">
 				<i class="bi bi-chevron-right"></i>
 			</button>
 		</div>

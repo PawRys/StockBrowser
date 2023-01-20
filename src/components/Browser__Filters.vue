@@ -302,14 +302,17 @@ body:has(.filters--opened) {
 	align-items: center;
 	justify-content: center;
 
-	margin-block: 1rem;
+	margin-block: 1ex;
+	padding: 0.5ex;
+	border-radius: 0.5ex;
 	max-width: 100%;
+	background-color: var(--bg-shade);
 }
 .filters__counter {
 	margin: 0;
 	padding: 1ex;
 	font-weight: 700;
-	background-color: var(--bg-color);
+	/* background-color: var(--bg-color); */
 }
 
 .filters__topBar {

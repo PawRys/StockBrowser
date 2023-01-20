@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, inject } from 'vue';
-import { evalMath, stringToCode } from '../utils/functions.js';
+import { evalMath, stringToCode, animateScrollTo } from '../utils/functions.js';
 import { db as idb } from '../utils/dexiedb.js';
 
 const props = defineProps(['unit', 'code']);
@@ -41,7 +41,7 @@ async function saveExpression(event) {
 </script>
 
 <template>
-	<div :class="{ isExpanded: isEdited }">
+	<div :class="{ isExpanded: isEdited }" :id="`div${stringToCode(props.code)}-${props.unit}`">
 		<span
 			v-if="isEdited === false"
 			class="inventory__result"
