@@ -22,7 +22,7 @@ export function addListener(evName, el) {
 	el.addEventListener(
 		evName,
 		() => {
-			animateScrollTo('#results');
+			animateScrollTo('#results', -100);
 		},
 		{ once: true }
 	);
@@ -33,7 +33,7 @@ export function convertStringToRegexp(str) {
 		.split(' ')
 		.map(filter => {
 			const trimPipes = /^\|+|\|+$/g;
-			const isPlywoodSize = /\d*x[\d\|]*x\d*/i.test(filter);
+			const isPlywoodSize = /\d*x[\d\|\.]*x\d*/i.test(filter);
 			const wholeWordsOnly = /=/.test(filter);
 			let subQuery = '';
 			let lookahead = '';
@@ -46,6 +46,7 @@ export function convertStringToRegexp(str) {
 			filter = filter.replace('=', '');
 			filter = filter.replace(trimPipes, '');
 			filter = filter.replace(/([\?])/g, '\\$1');
+			// console.log(filter);
 			if (isPlywoodSize) {
 				filter = filter
 					.split('x')

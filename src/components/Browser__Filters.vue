@@ -61,9 +61,9 @@ const tagsCollection = computed(() => {
 	return {
 		group: Array.from(group).sort(collator),
 		thick: Array.from(thick).sort(collator),
+		grade: Array.from(grade).sort(collator),
 		sizeA: Array.from(sizeA).sort(collator),
 		sizeB: Array.from(sizeB).sort(collator),
-		grade: Array.from(grade).sort(collator),
 		words: Array.from(words).sort(collator),
 	};
 });
@@ -188,7 +188,7 @@ function openListSettings() {
 				placeholder="Szukaj"
 				v-model="textFilter" />
 			<button
-				class="button small bi bi-eraser"
+				class="button small bi bi-trash3"
 				@click="textFilter = ''"
 				title="Wyczyść"></button>
 			<button
@@ -198,17 +198,13 @@ function openListSettings() {
 		</div>
 
 		<div v-show="showFilters" class="textFilter__quickFilters">
-			<button class="small" @click="textFilter = '=x1525x1525'">Kwadraty</button>
-			<button
-				class="small"
-				@click="textFilter = '=x1220|1250|2440|2500x1220|1250|2440|2500'">
+			<button class="small" @click="textFilter = '=x14..|15..x14..|15..'">Kwadraty</button>
+			<button class="small" @click="textFilter = '=x12..|24..|25..x12..|24..|25..'">
 				4x8'
 			</button>
-			<button class="small" @click="textFilter = '=x1500|1525x2440|2500'">5x8'</button>
-			<button class="small" @click="textFilter = '=x1500|1525x3000|3050'">5x10'</button>
-			<button class="small" @click="textFilter = '=x2150x3050|3340|3850|4000'">
-				Verems
-			</button>
+			<button class="small" @click="textFilter = '=x15..x24..|25..'">5x8'</button>
+			<button class="small" @click="textFilter = '=x15..x30..'">5x10'</button>
+			<button class="small" @click="textFilter = '=x21..x3...|40..'">Verems</button>
 			<button class="small" @click="textFilter = '/26|/65|/69|/106'">Mini Verems</button>
 		</div>
 
