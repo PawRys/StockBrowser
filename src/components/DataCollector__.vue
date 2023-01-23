@@ -131,6 +131,8 @@ async function generateTimestamp(dataType) {
 
 	<section class="data-collector__manual">
 		<h3>Instrukcja wprowadzania danych magazynowych z Symfonii</h3>
+		<input class="openclose__input" type="checkbox" id="manual-symfonia" />
+		<label class="openclose__label" for="manual-symfonia"></label>
 		<ol>
 			<li>
 				Wyszukaj kolejno: <b>Kartoteki</b> > <b>Towary</b> > <b>Zestawienia</b>
@@ -147,7 +149,7 @@ async function generateTimestamp(dataType) {
 					<li>
 						<b>Zestawienie dla magazynu: </b><i>dowolny magazyn</i><br />
 						Uwaga. Jeśli wybierzesz <i>wszystkie</i> będziesz widział stany wszystkich
-						magazynów, do których masz uprawnienia.
+						magazynów, do których masz uprawnienia w Symfonii.
 					</li>
 					<li><b>Podsumowanie co: </b> <i>brak</i></li>
 					<li>
@@ -171,6 +173,8 @@ async function generateTimestamp(dataType) {
 		</ol>
 
 		<h3>Instrukcja wymiany danych za pomocą chmury</h3>
+		<input class="openclose__input" type="checkbox" id="manual-chmura" />
+		<label class="openclose__label" for="manual-chmura"></label>
 		<ul>
 			<li>Wpisz 4-cyfrowy kod w <a href="#datainsert">pole tekstowe</a>.</li>
 			<li>
@@ -203,5 +207,24 @@ async function generateTimestamp(dataType) {
 .messageBox.visible {
 	height: 2.5ch;
 	scale: 1 1;
+}
+
+.openclose__input {
+	display: none;
+}
+.openclose__label {
+	color: var(--accent-color);
+}
+.openclose__input + *::after {
+	content: 'rozwiń';
+}
+.openclose__input:checked + *::after {
+	content: 'zwiń';
+}
+.openclose__input + * + * {
+	display: none;
+}
+.openclose__input:checked + * + * {
+	display: block;
 }
 </style>

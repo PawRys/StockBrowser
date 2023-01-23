@@ -60,6 +60,8 @@ async function shareData() {
 	</section>
 	<section class="share-tab__manual">
 		<h3>Instrukcja udostępniania danych w chmurze</h3>
+		<input class="openclose__input" type="checkbox" id="manual-share" />
+		<label class="openclose__label" for="manual-share"></label>
 		<ul>
 			<li>Kliknij [Generuj kod], aby wygenerować kod wymiany danych</li>
 			<li>Kod wymiany danych jest jednorazowy i ważny przez dwie minuty od wygenerowania</li>
@@ -84,5 +86,24 @@ async function shareData() {
 .share-tab__share-code {
 	font-size: 3rem;
 	font-weight: 600;
+}
+
+.openclose__input {
+	display: none;
+}
+.openclose__label {
+	color: var(--accent-color);
+}
+.openclose__input + *::after {
+	content: 'rozwiń';
+}
+.openclose__input:checked + *::after {
+	content: 'zwiń';
+}
+.openclose__input + * + * {
+	display: none;
+}
+.openclose__input:checked + * + * {
+	display: block;
 }
 </style>
