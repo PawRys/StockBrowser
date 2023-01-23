@@ -70,7 +70,7 @@ async function saveExpression(event) {
 				@vnode-mounted="({ el }) => el.focus()" />
 			<span>{{ ` = ${evalMath(expression).toFixed(zerofix)}` }}</span>
 			<small class="inventory__sfix" v-html="sfix"></small>
-			<i class="bi bi-x-square"></i>
+			<!-- <i class="bi bi-x-square"></i> -->
 		</label>
 		<!-- </Teleport> -->
 	</div>
