@@ -199,12 +199,14 @@ function openListSettings() {
 
 		<div v-show="showFilters" class="textFilter__quickFilters">
 			<button class="small" @click="textFilter = '=x14..|15..x14..|15..'">Kwadraty</button>
-			<button class="small" @click="textFilter = '=x12..|24..|25..x12..|24..|25..'">
+			<button
+				class="small"
+				@click="textFilter = '=x12..|13..|24..|25..x12..|13..|24..|25..'">
 				4x8'
 			</button>
 			<button class="small" @click="textFilter = '=x15..x24..|25..'">5x8'</button>
 			<button class="small" @click="textFilter = '=x15..x30..'">5x10'</button>
-			<button class="small" @click="textFilter = '=x21..x3...|40..'">Verems</button>
+			<button class="small" @click="textFilter = '=x2...x3...|4...'">Verems</button>
 			<button class="small" @click="textFilter = '/26|/65|/69|/106'">Mini Verems</button>
 		</div>
 
