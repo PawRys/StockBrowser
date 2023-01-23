@@ -10,8 +10,9 @@ export const columnNames = {
 };
 
 export function getProductGrades(input) {
-	const className = 'KILO|BB|B|CP|CC|C|WGE|WG|PQF|PQ|PF|F|WH|W|M';
-	const pattern = `\\b(${className}){1}(\/(${className})){0,1}(?!\\.)\\b`;
+	const className = `KILO|BB|B|CP|CC|C|WGE|WG|PQF|PQ|PF|F|WH\\+|WH|W|M`;
+	// const pattern = `\\b(${className}){1}(\/(${className})){0,1}(?!\\S)\\b`;
+	const pattern = `(?<!\\S)(${className}){1}(\/(${className})){0,1}(?!\\S)`;
 	const grade = input.toUpperCase().match(new RegExp(pattern, 'gi'));
 	return grade;
 }
@@ -39,13 +40,15 @@ export function convertStringToRegexp(str) {
 			let lookahead = '';
 			let lookbehind = '';
 			if (wholeWordsOnly) {
-				lookahead = `(?!\\S)\\b`;
-				lookbehind = `\\b(?<!\\S)`;
+				// lookahead = `(?!\\S)\\b`;
+				lookahead = `(?!\\S)`;
+				// lookbehind = `\\b(?<!\\S)`;
+				lookbehind = `(?<!\\S)`;
 			}
 
 			filter = filter.replace('=', '');
 			filter = filter.replace(trimPipes, '');
-			filter = filter.replace(/([\?])/g, '\\$1');
+			filter = filter.replace(/([\?\+])/g, '\\$1');
 			// console.log(filter);
 			if (isPlywoodSize) {
 				filter = filter
