@@ -4,8 +4,10 @@ import { db as idb } from '../utils/dexiedb.js';
 import {
 	defineDataType,
 	fetchProducts,
-	structurizeData,
-	integrateData,
+	formatToArray,
+	removeGarbage,
+	formatToAssocArray,
+	findProductErrors,
 	localDataMerge,
 } from './DataCollector__.js';
 import ExampleData from './DataCollector__ExampleData.vue';
@@ -50,25 +52,30 @@ async function importData() {
 	console.time('importData()');
 	const importedDataRef = importedData.value;
 	const importedDataTypeRef = importedDataType.value;
-	let result, message;
+	let data, message, server_msg;
 	messageBox.value = 'Loading... ⏳';
 
+	// IMPORT FROM CLOUD
 	if (importedDataTypeRef.match(/code/i)) {
-		// const fetchURL = 'http://localhost:3000/stock_browser_server/index.php';
 		const fetchURL = 'https://bossman.hekko24.pl/stock_browser_server/index.php';
-		result = await fetchProducts(fetchURL, importedDataRef);
+		const response = await fetchProducts(fetchURL, importedDataRef);
+		data = response.data;
+		server_msg = response.message;
+		if (server_msg === 'positive') server_msg = '📜 Pobrano dane z chmury ✔';
+		if (server_msg === 'negative') server_msg = 'Podany kod jest nieaktualny. ❌';
 	}
 
+	// IMPORT LOCAL
 	if (importedDataTypeRef.match(/stocks|prices/i)) {
-		result = structurizeData(importedDataRef, importedDataTypeRef);
+		data = importedDataRef;
+		data = formatToArray(data);
+		data = removeGarbage(data, importedDataTypeRef);
+		data = formatToAssocArray(data, importedDataTypeRef);
 	}
-
-	let { data, message: server_msg } = result;
-	if (server_msg === 'positive') server_msg = '📜 Pobrano dane z chmury ✔';
-	if (server_msg === 'negative') server_msg = 'Podany kod jest nieaktualny. ❌';
 
 	if (data) {
-		data = integrateData(data, importedDataTypeRef);
+		data = findProductErrors(data);
+		// console.log(data);
 		message = await localDataMerge(data, importedDataTypeRef);
 		generateTimestamp(importedDataTypeRef);
 	}
@@ -185,7 +192,7 @@ async function generateTimestamp(dataType) {
 		</ul>
 	</section>
 
-	<!-- <example-data /> -->
+	<example-data />
 </template>
 
 <style scoped>

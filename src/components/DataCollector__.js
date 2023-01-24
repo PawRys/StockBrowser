@@ -60,9 +60,7 @@ export async function fetchProducts(fetchURL, pinCode) {
 
 	const fetchSettings = {
 		method: 'POST',
-		headers: {
-			'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-		},
+		headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
 		body: new URLSearchParams(URLparams).toString(),
 	};
 
@@ -75,89 +73,95 @@ export async function fetchProducts(fetchURL, pinCode) {
 	}
 }
 
-export function structurizeData(data, dataType) {
-	data = formatToArray(data);
-	data = removeGarbage(data, dataType);
-	// data = integrateData(data, dataType);
-	return { data: data };
-}
-
-function formatToArray(data) {
+export function formatToArray(data) {
 	const lines = data.match(/[^\r\n]+/g);
 	let result = [];
 	for (let line of lines) {
-		const row = line.match(/[^\t]+/g);
+		// const row = line.match(/[^\t]+/g);
+		const row = line.split(/\t/);
 		result.push(row);
 	}
 	return result;
 }
 
-function removeGarbage(data, dataType) {
-	const garbageWords = /(kod|podsumowanie|dostawa|transport|usługa|zamówienie)/gi;
+export function removeGarbage(data, dataType) {
+	const forbidden = /(stany|kod|podsumowanie|dostawa|transport|usługa|zamówienie)/gi;
 	let result = [];
 
 	for (let row of data) {
-		// Ommit garbage
-		if (!row.length) continue;
-		if (!!row.find(el => el.match(garbageWords))) continue;
-		if (dataType === 'prices' && row.length !== 6) continue;
-		if (dataType === 'stocks' && row.length !== 7) continue;
-		if (dataType === 'products' && row.length !== 2) continue;
+		if (row.length === 0) continue;
+		if (!!row.find(rowItem => rowItem.match(forbidden))) continue;
+		// if (dataType === 'prices' && row.length !== 6) continue;
+		// if (dataType === 'stocks' && row.length !== 7) continue;
+		// if (dataType === 'products' && row.length !== 2) continue;
 		result.push(row);
 	}
 	return result;
 }
 
-export function integrateData(data, dataType) {
+export function formatToAssocArray(data, dataType) {
 	let result = [];
 	for (const row of data) {
 		let product = {};
-		let errorsList = [];
-
-		const productCode = row?.code || row[0];
-		const productName = row?.name || row[1];
-		const productSize = row?.size || getProductSize(productName);
-		const productUnit = row[2] || 'm3';
-		const productTCub = row?.tCub || row[6]?.replace(',', '.') * 1;
-		const productACub = row?.aCub || row[3]?.replace(',', '.') * 1;
-		const productPCub = row?.pCub || row[4]?.replace(',', '.') * 1;
-		const productICub = row?.iCub || null;
-		const productISqr = row?.iSqr || null;
-		const productIpcs = row?.iPcs || null;
-		if (productSize === null)
-			errorsList.push('Błąd: Brak prawidłowego wymiaru w opisie. Obliczenia niemożliwe.');
-		const isError = !!errorsList.length ? 'error' : '';
-		const productGroup = getProductGroup(`${productCode} ${productName} ${isError}`);
+		const productCode = row[0] || null;
+		const productName = row[2] || 'Brak opisu towaru';
+		const productUnit = row[4] || null;
+		const productPrice = row[6]?.replace(',', '.');
+		const productAvabl = row[7]?.replace(',', '.');
+		const productTotal = row[10]?.replace(',', '.');
+		const productSize = getProductSize(productName);
+		const productGroup = getProductGroup(`${productCode} ${productName}`);
 
 		Object.assign(product, {
 			code: productCode,
 			name: productName,
 			size: productSize,
+			unit: productUnit,
 			group: productGroup,
-			errors: errorsList,
 		});
-		if (productICub) Object.assign(product, { iCub: productICub });
-		if (productISqr) Object.assign(product, { iSqr: productISqr });
-		if (productIpcs) Object.assign(product, { iPcs: productIpcs });
 		if (dataType.match(/stocks|code/i)) {
 			Object.assign(product, {
-				tCub: calcQuant(productSize, productTCub, productUnit, 'm3'),
-				aCub: calcQuant(productSize, productACub, productUnit, 'm3'),
+				tCub: calcQuant(productSize, productTotal, productUnit, 'm3'),
+				aCub: calcQuant(productSize, productAvabl, productUnit, 'm3'),
 			});
 		}
 		if (dataType.match(/prices|code/i)) {
 			Object.assign(product, {
-				pCub: calcPrice(productSize, productPCub, productUnit, 'm3'),
+				pCub: calcPrice(productSize, productPrice, productUnit, 'm3'),
 			});
 		}
 		result.push(product);
 	}
+	return result;
+}
 
+export function findProductErrors(data) {
+	let result = [];
+	for (let product of data) {
+		let errors = [];
+		if (!product.unit.match(/m3|m2|szt/i)) {
+			errors.push(`Nieznana jednostka miary "${product.unit}". Obliczenia niemożliwe.`);
+		}
+		if (!product.unit) {
+			errors.push(`Nie znaleziono jednostki miary. Obliczenia niemożliwe.`);
+		}
+		if (!product.size) {
+			errors.push('Brak prawidłowego wymiaru w opisie. Obliczenia niemożliwe.');
+		}
+
+		if (!!errors.length) {
+			const error = product.group + ' ERROR';
+			Object.assign(product, { errors: errors, group: error });
+		} else {
+			delete product.errors;
+		}
+		result.push(product);
+	}
 	return result;
 }
 
 function getProductSize(line) {
-	const fullSizeB = line.match(/\d+[,\.]?\d*x\d+x\d+/i);
+	const fullSizeB = line?.match(/\d+[,\.]?\d*x\d+x\d+/i);
 	return fullSizeB ? fullSizeB[0].replace(',', '.') : null;
 }
 
@@ -165,20 +169,20 @@ function getProductGroup(input) {
 	let group = [];
 
 	if (/error/i.test(input)) group.push('ERROR');
-	if (/ppl/i.test(input)) group.push('PPL');
-	if (/hpl/i.test(input)) group.push('HPL');
+	// if (/ppl/i.test(input)) group.push('PPL');
+	// if (/hpl/i.test(input)) group.push('HPL');
 	if (/osb/i.test(input)) group.push('OSB');
 	if (/topol/i.test(input)) group.push('China');
-	if (/honey/i.test(input)) group.push('Honey');
-	if (/PF|poli/i.test(input)) group.push('Poliform');
+	// if (/honey/i.test(input)) group.push('Honey');
+	// if (/PF|poli/i.test(input)) group.push('Poliform');
 	if (/RP|radiata/i.test(input)) group.push('RP');
 	if (/EUK|eukaliptus/i.test(input)) group.push('EUK');
 	if (/wodo|wd|ext|\bE\b/i.test(input)) group.push('WD');
 	if (/such|mr|int/i.test(input)) group.push('MR');
 	if (/mel|\bM\/M\b/i.test(input)) group.push('MM');
-	if (/heksa|F\/WH/i.test(input)) group.push('Heksa');
-	if (/less|transpa/i.test(input)) group.push('C.less');
-	if (/folio|\bF\/F\b/i.test(input)) group.push('FF');
+	// if (/heksa|F\/WH/i.test(input)) group.push('Heksa');
+	// if (/less|transpa/i.test(input)) group.push('C.less');
+	if (/folio|lamino|\bF\/F\b/i.test(input)) group.push('FF');
 	if (/anty|\bF\/W\b|\bW\/W\b/i.test(input)) group.push('FW');
 	if (!group.length) group.push('??');
 
@@ -188,22 +192,22 @@ function getProductGroup(input) {
 }
 
 export async function localDataMerge(newData, dataType) {
-	let message = 'Coś poszło nie tak ❗';
+	let message = 'Zapisuję...';
 	let answer = false;
 	let localData = await idb.products.toArray();
-	const isNewInventory = checkInventory(newData);
-	if (isNewInventory) {
+	const hasNewInventory = hasInventory(newData);
+	if (hasNewInventory) {
 		answer = await openDialog(Dialog_MergeFetchedData);
 		// if (answer === 'merge') data = await mergeInventory(data);
-		if (answer === 'local') newData = await clearInventory(newData);
-		if (answer === 'cloud') localData = await clearInventory(localData);
+		if (answer === 'local') newData = await clearAllInventory(newData);
+		if (answer === 'cloud') localData = await clearAllInventory(localData);
 	}
 
 	if (dataType.match(/stocks|code/i)) {
-		clearStocks(localData);
+		clearAllStocks(localData);
 	}
 	if (dataType.match(/prices|code/i)) {
-		clearPrices(localData);
+		clearAllPrices(localData);
 	}
 
 	for (const importedProduct of newData) {
@@ -238,23 +242,24 @@ export async function localDataMerge(newData, dataType) {
 		if (dataType === 'code') message = '📜 Pobrano dane z chmury ✔';
 	} catch (err) {
 		console.error(err);
+		message = 'Coś poszło nie tak ❗';
 	}
 
 	return message;
 }
 
-function clearStocks(data) {
+function clearAllStocks(data) {
 	for (const row of data) {
 		row.tCub = 0;
 		row.aCub = 0;
 	}
 }
-function clearPrices(data) {
+function clearAllPrices(data) {
 	for (const row of data) {
 		row.pCub = 0;
 	}
 }
-async function clearInventory(data) {
+async function clearAllInventory(data) {
 	return new Promise((resolve, reject) => {
 		for (const row of data) {
 			delete row.iCub;
@@ -264,7 +269,7 @@ async function clearInventory(data) {
 		resolve(data);
 	});
 }
-function checkInventory(data) {
+function hasInventory(data) {
 	if (!data) return;
 	let result = false;
 	for (const row of data) {
