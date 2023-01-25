@@ -139,7 +139,7 @@ export function findProductErrors(data) {
 	let result = [];
 	for (let product of data) {
 		let errors = [];
-		if (!product.unit.match(/m3|m2|szt/i)) {
+		if (!product.unit?.match(/m3|m2|szt/i)) {
 			errors.push(`Nieznana jednostka miary "${product.unit}". Obliczenia niemożliwe.`);
 		}
 		if (!product.unit) {
