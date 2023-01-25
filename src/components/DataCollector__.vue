@@ -192,7 +192,7 @@ async function generateTimestamp(dataType) {
 		</ul>
 	</section>
 
-	<example-data />
+	<!-- <example-data /> -->
 </template>
 
 <style scoped>

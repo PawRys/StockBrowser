@@ -106,9 +106,9 @@ export function formatToAssocArray(data, dataType) {
 		const productCode = row[0] || null;
 		const productName = row[2] || 'Brak opisu towaru';
 		const productUnit = row[4] || null;
-		const productPrice = row[6]?.replace(',', '.');
-		const productAvabl = row[7]?.replace(',', '.');
-		const productTotal = row[10]?.replace(',', '.');
+		const productPrice = row[7]?.replace(',', '.') * 1;
+		const productAvabl = row[6]?.replace(',', '.') * 1;
+		const productTotal = row[10]?.replace(',', '.') * 1;
 		const productSize = getProductSize(productName);
 		const productGroup = getProductGroup(`${productCode} ${productName}`);
 
@@ -119,13 +119,13 @@ export function formatToAssocArray(data, dataType) {
 			unit: productUnit,
 			group: productGroup,
 		});
-		if (dataType.match(/stocks|code/i)) {
+		if (dataType.match(/stocks/i)) {
 			Object.assign(product, {
 				tCub: calcQuant(productSize, productTotal, productUnit, 'm3'),
 				aCub: calcQuant(productSize, productAvabl, productUnit, 'm3'),
 			});
 		}
-		if (dataType.match(/prices|code/i)) {
+		if (dataType.match(/prices/i)) {
 			Object.assign(product, {
 				pCub: calcPrice(productSize, productPrice, productUnit, 'm3'),
 			});
