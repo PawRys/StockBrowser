@@ -103,30 +103,33 @@ export function formatToAssocArray(data, dataType) {
 	let result = [];
 	for (const row of data) {
 		let product = {};
-		const productCode = row[0] || null;
-		const productName = row[2] || 'Brak opisu towaru';
-		const productUnit = row[4] || null;
-		const productPrice = row[7]?.replace(',', '.') * 1;
-		const productAvabl = row[6]?.replace(',', '.') * 1;
-		const productTotal = row[10]?.replace(',', '.') * 1;
+		const productCode = row?.code || row[0] || null;
+		const productName = row?.name || row[2] || 'Brak opisu towaru';
+		const productUnit = (row?.unit ? 'm3' : null) || row[4] || null;
 		const productSize = getProductSize(productName);
 		const productGroup = getProductGroup(`${productCode} ${productName}`);
-
+		const productSizeGroup = getproductSizeGroup(productSize);
 		Object.assign(product, {
 			code: productCode,
 			name: productName,
 			size: productSize,
 			unit: productUnit,
 			group: productGroup,
+			sizeGroup: productSizeGroup,
 		});
-		if (dataType.match(/stocks/i)) {
+		if (dataType.match(/stocks|code/i)) {
+			const productTotal = (row?.tCub || row[10]?.replace(',', '.')) * 1;
+			const productAvabl = (row?.aCub || row[6]?.replace(',', '.')) * 1;
 			Object.assign(product, {
 				tCub: calcQuant(productSize, productTotal, productUnit, 'm3'),
 				aCub: calcQuant(productSize, productAvabl, productUnit, 'm3'),
 			});
 		}
-		if (dataType.match(/prices/i)) {
+		if (dataType.match(/prices|code/i)) {
+			const productTotal = (row?.tCub || row[6]?.replace(',', '.')) * 1;
+			const productPrice = (row?.pCub || row[7]?.replace(',', '.')) * 1;
 			Object.assign(product, {
+				tCub: calcQuant(productSize, productTotal, productUnit, 'm3'),
 				pCub: calcPrice(productSize, productPrice, productUnit, 'm3'),
 			});
 		}
@@ -149,11 +152,15 @@ export function findProductErrors(data) {
 			errors.push('Brak prawidłowego wymiaru w opisie. Obliczenia niemożliwe.');
 		}
 
+		console.log(errors);
+
 		if (!!errors.length) {
-			const error = product.group + ' ERROR';
-			Object.assign(product, { errors: errors, group: error });
+			const appendRrror = product.group + ' ERROR';
+			Object.assign(product, { errors: errors, group: appendRrror });
 		} else {
-			delete product.errors;
+			Object.assign(product, { errors: [] });
+			// delete product.error;
+			// delete product.errors;
 		}
 		result.push(product);
 	}
@@ -163,6 +170,12 @@ export function findProductErrors(data) {
 function getProductSize(line) {
 	const fullSizeB = line?.match(/\d+[,\.]?\d*x\d+x\d+/i);
 	return fullSizeB ? fullSizeB[0].replace(',', '.') : null;
+}
+
+function getproductSizeGroup(size) {
+	if (!size) return;
+	let num = size.split('x');
+	return `${Math.round(num[1] / 305)}x${Math.round(num[2] / 305)}'`;
 }
 
 function getProductGroup(input) {

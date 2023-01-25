@@ -15,7 +15,7 @@ const items = {
 		label: 'Stany całkowite',
 		count: await idb.products.where('tCub').above(0).count(),
 	},
-	'dataset-aviable': {
+	'dataset-available': {
 		label: 'Stany handlowe',
 		count: await idb.products.where('aCub').above(0).count(),
 	},
@@ -30,7 +30,7 @@ watchEffect(async () => {
 	if (dataSet.value === 'dataset-total') {
 		unfilteredData.value = await idb.products.where('tCub').above(0).toArray();
 	}
-	if (dataSet.value === 'dataset-aviable') {
+	if (dataSet.value === 'dataset-available') {
 		unfilteredData.value = await idb.products.where('aCub').above(0).toArray();
 	}
 	console.timeEnd('change-dataset');

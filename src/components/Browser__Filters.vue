@@ -1,7 +1,7 @@
 <script setup>
 import { ref, inject, watch, computed } from 'vue';
 import {
-	columnNames,
+	filterNames,
 	addListener,
 	getProductGrades,
 	convertStringToRegexp,
@@ -16,6 +16,7 @@ const showFilters = ref(false);
 const textFilter = ref('');
 const selectedTagsCollection = ref({
 	group: [],
+	sizeG: [],
 	thick: [],
 	sizeA: [],
 	sizeB: [],
@@ -29,6 +30,7 @@ const tagsCollection = computed(() => {
 	let thick = new Set();
 	let sizeA = new Set();
 	let sizeB = new Set();
+	let sizeG = new Set();
 	let grade = new Set();
 	let words = new Set();
 	const collator = (a, b) => {
@@ -56,12 +58,16 @@ const tagsCollection = computed(() => {
 			if (chunk.length < 3) continue;
 			words.add(chunk.toLowerCase().replace(/[\.,]$/gi, ''));
 		}
+		if (row.sizeGroup) {
+			sizeG.add(row.sizeGroup);
+		}
 	}
 
 	return {
 		group: Array.from(group).sort(collator),
 		thick: Array.from(thick).sort(collator),
 		grade: Array.from(grade).sort(collator),
+		// sizeG: Array.from(sizeG).sort(collator),
 		sizeA: Array.from(sizeA).sort(collator),
 		sizeB: Array.from(sizeB).sort(collator),
 		words: Array.from(words).sort(collator),
@@ -75,14 +81,16 @@ const tagFilter = computed(() => {
 	let thick = inputs.thick.join('|');
 	let sizeA = inputs.sizeA.join('|');
 	let sizeB = inputs.sizeB.join('|');
+	let sizeG = inputs.sizeG.join('|');
 	let dimension = '';
 	let grade = inputs.grade.join('|');
 	let words = inputs.words.join('|');
 	if (group) group = `${group} `;
 	if (grade) grade = `=${grade} `;
+	if (sizeG) sizeG = `=${sizeG} `;
 	if (x.length) dimension = `=${thick}${x}${sizeA}${x}${sizeB} `;
 
-	return `${group}${dimension}${grade}${words}`.trim();
+	return `${group}${grade}${sizeG}${dimension}${words}`.trim();
 });
 
 // APPLY FILTERING
@@ -94,7 +102,7 @@ watch([textFilter, tagFilter, unfilteredData], () => {
 	let fliterRegexp = convertStringToRegexp(filterString);
 	console.log(fliterRegexp);
 	data = data.filter(row => {
-		const str = `${row.code} ${row.group} ${row.name}`;
+		const str = `${row.code} ${row.group} ${row.sizeGroup} ${row.name}`;
 		return str.match(new RegExp(fliterRegexp, 'i'));
 	});
 	filteredData.value = data;
@@ -109,6 +117,7 @@ function getAllSelectedFilters(groupID, tag) {
 		thick: formData.getAll('thick'),
 		sizeA: formData.getAll('sizeA'),
 		sizeB: formData.getAll('sizeB'),
+		sizeG: formData.getAll('sizeG'),
 		grade: formData.getAll('grade'),
 		words: formData.getAll('words'),
 	};
@@ -127,14 +136,13 @@ function clearFiltersInGroup(groupName) {
 
 function clearAllFilters() {
 	textFilter.value = '';
-	selectedTagsCollection.value = {
-		group: [],
-		thick: [],
-		sizeA: [],
-		sizeB: [],
-		grade: [],
-		words: [],
-	};
+	const object = selectedTagsCollection.value;
+	for (const key in object) {
+		if (Object.hasOwnProperty.call(object, key)) {
+			object[key] = [];
+		}
+	}
+	selectedTagsCollection.value = object;
 }
 
 function isChecked(colId, tag) {
@@ -200,16 +208,12 @@ function openListSettings() {
 		</div>
 
 		<div v-show="showFilters" class="textFilter__quickFilters">
-			<button class="small" @click="textFilter = '=x14..|15..x14..|15..'">Kwadraty</button>
-			<button
-				class="small"
-				@click="textFilter = '=x12..|13..|24..|25..x12..|13..|24..|25..'">
-				4x8'
-			</button>
-			<button class="small" @click="textFilter = '=x15..x24..|25..'">5x8'</button>
-			<button class="small" @click="textFilter = '=x15..x30..'">5x10'</button>
-			<button class="small" @click="textFilter = '=x2...x3...|4...'">Verems</button>
-			<button class="small" @click="textFilter = '/26|/65|/69|/106'">Mini Verems</button>
+			<button class="small" @click="textFilter = `=5x5'|4x4'`">Kwadraty</button>
+			<button class="small" @click="textFilter = `=4x8'|8x4'`">4x8'</button>
+			<button class="small" @click="textFilter = `=5x8'|8x5'`">5x8'</button>
+			<button class="small" @click="textFilter = `=5x10'`">5x10'</button>
+			<button class="small" @click="textFilter = `=7x1.'|8x1.'`">Verems</button>
+			<button class="small" @click="textFilter = `=5x7'|7x5'`">Mini Verems</button>
 		</div>
 
 		<form v-show="showFilters" class="tagFilter" id="tagFilter" action="javascript:void(0)">
@@ -219,7 +223,7 @@ function openListSettings() {
 				:class="[setID]"
 				:key="setID">
 				<h3>
-					{{ columnNames[setID] }}
+					{{ filterNames[setID] }}
 				</h3>
 
 				<div class="tagFilter__fieldsetTrack">

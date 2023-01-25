@@ -70,10 +70,10 @@ async function importData() {
 		data = importedDataRef;
 		data = formatToArray(data);
 		data = removeGarbage(data, importedDataTypeRef);
-		data = formatToAssocArray(data, importedDataTypeRef);
 	}
 
 	if (data) {
+		data = formatToAssocArray(data, importedDataTypeRef);
 		data = findProductErrors(data);
 		// console.log(data);
 		message = await localDataMerge(data, importedDataTypeRef);
@@ -136,6 +136,8 @@ async function generateTimestamp(dataType) {
 		</p>
 	</section>
 
+	<example-data />
+
 	<section class="data-collector__manual">
 		<h3>Instrukcja wprowadzania danych magazynowych z Symfonii</h3>
 		<input class="openclose__input" type="checkbox" id="manual-symfonia" />
@@ -191,8 +193,6 @@ async function generateTimestamp(dataType) {
 			<li>Kod jest jednorazowy i ważny przez 2 minuty od wygenerowania.</li>
 		</ul>
 	</section>
-
-	<!-- <example-data /> -->
 </template>
 
 <style scoped>

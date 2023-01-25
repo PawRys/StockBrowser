@@ -1,8 +1,8 @@
 export function calcQuant(size, value, from, to, precission) {
 	if (!size) return 0;
 	if (!value) return 0;
-	if (!from) return 0;
-	if (!to) return 0;
+	if (!from.match(/m3|m2|szt/)) return 0;
+	if (!to.match(/m3|m2|szt/)) return 0;
 	size = size.split('x');
 	const a = size[0] / 1000;
 	const b = size[1] / 1000;
@@ -26,8 +26,8 @@ export function calcQuant(size, value, from, to, precission) {
 export function calcPrice(size, value, from, to) {
 	if (!size) return 0;
 	if (!value) return 0;
-	if (!from) return 0;
-	if (!to) return 0;
+	if (!from.match(/m3|m2|szt/)) return 0;
+	if (!to.match(/m3|m2|szt/)) return 0;
 	size = size.split('x');
 	const a = size[0] / 1000;
 	const b = size[1] / 1000;

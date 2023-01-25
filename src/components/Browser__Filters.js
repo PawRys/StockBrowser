@@ -1,7 +1,8 @@
 import { animateScrollTo } from '../utils/functions.js';
 
-export const columnNames = {
+export const filterNames = {
 	group: 'Grupa',
+	sizeG: 'Grupa wymiarowa',
 	thick: 'Grubość',
 	sizeA: 'Wymiar A',
 	sizeB: 'Wymiar B',

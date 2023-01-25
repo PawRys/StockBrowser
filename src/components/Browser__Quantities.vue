@@ -1,13 +1,13 @@
 <script setup>
 import { calcQuant } from '../utils/functions.js';
 
-const props = defineProps(['total', 'aviable', 'size']);
-const tCub = props.total;
+const props = defineProps(['total', 'available', 'size']);
+const tCub = calcQuant(props.size, props.total, 'm3', 'm3');
 const tSqr = calcQuant(props.size, props.total, 'm3', 'm2');
 const tPcs = calcQuant(props.size, props.total, 'm3', 'szt');
-const aCub = props.aviable;
-const aSqr = calcQuant(props.size, props.aviable, 'm3', 'm2');
-const aPcs = calcQuant(props.size, props.aviable, 'm3', 'szt');
+const aCub = calcQuant(props.size, props.available, 'm3', 'm3');
+const aSqr = calcQuant(props.size, props.available, 'm3', 'm2');
+const aPcs = calcQuant(props.size, props.available, 'm3', 'szt');
 </script>
 
 <template>

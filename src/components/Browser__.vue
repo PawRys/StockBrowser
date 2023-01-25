@@ -58,7 +58,7 @@ function wrapText(text) {
 		<ul class="browser__list" v-if="pagedData_global && pagedData_global.length">
 			<li class="browser__product" v-for="ply in pagedData_global" :key="ply.code">
 				<div class="product__code">
-					<b>{{ ply.code }}</b> - {{ ply.group }}
+					<b>{{ ply.code }}</b> - {{ ply.group }} - {{ ply.sizeGroup }}
 				</div>
 				<div class="product__name" v-html="wrapText(ply.name)"></div>
 				<div class="product__error" v-if="ply.errors?.length">
@@ -74,7 +74,7 @@ function wrapText(text) {
 					v-if="dataMode === 'dataMode__trade'"
 					:size="ply.size"
 					:total="ply.tCub"
-					:aviable="ply.aCub" />
+					:available="ply.aCub" />
 				<Prices
 					v-if="dataMode === 'dataMode__trade'"
 					:plySize="ply.size"
