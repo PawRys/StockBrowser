@@ -75,7 +75,7 @@ body:has(.browser__settings--opened) {
 .browser__settingsOverlay--opened {
 	display: block;
 	position: fixed;
-	z-index: 100;
+	z-index: var(--layer-overlay);
 	inset: 0;
 	background-color: var(--accent-shade);
 	opacity: 0.5;

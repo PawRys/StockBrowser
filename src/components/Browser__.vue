@@ -51,7 +51,6 @@ function wrapText(text) {
 	<h2>Lista produktów</h2>
 
 	<Filters />
-
 	<section class="browser" :class="dataMode" id="results">
 		<ListSettings class="browser__settings" />
 		<Pagination class="browser__pagination-top" />
@@ -146,10 +145,10 @@ function wrapText(text) {
 		grid-template-columns: 8fr minmax(max-content, 3fr);
 		grid-template-rows: 0fr 1fr;
 		grid-template-areas:
-			'page-top        settings     '
-			'browser         settings     '
-			'page-bottom     settings     '
-			'sticky-footer   sticky-footer';
+			'pagination-top     settings     '
+			'browser            settings     '
+			'pagination-bottom  settings     '
+			'sticky-footer      sticky-footer';
 	}
 	#browser__settingsOpenBtn,
 	#browser__settingsCloseBtn {
@@ -160,11 +159,11 @@ function wrapText(text) {
 	.browser {
 		grid-template-columns: 1fr;
 		grid-template-areas:
-			'settings     '
-			'page-top     '
-			'browser      '
-			'page-bottom  '
-			'sticky-footer';
+			'settings         '
+			'pagination-top   '
+			'browser          '
+			'pagination-bottom'
+			'sticky-footer    ';
 	}
 
 	#browser__settingsOpenBtn,
@@ -176,11 +175,13 @@ function wrapText(text) {
 		position: fixed;
 		right: 0;
 		top: 0;
-		transform: translateX(100%);
-		transition: var(--transition-duration) all;
+		display: none;
+		/* transform: translateX(100%); */
+		/* transition: var(--transition-duration) all; */
 	}
 	.browser__settings--opened {
-		transform: translateX(0%);
+		/* transform: translateX(0%); */
+		display: block;
 	}
 }
 
@@ -223,10 +224,10 @@ function wrapText(text) {
 	grid-area: settings;
 }
 .browser__pagination-top {
-	grid-area: page-top;
+	grid-area: pagination-top;
 }
 .browser__pagination-bottom {
-	grid-area: page-bottom;
+	grid-area: pagination-bottom;
 }
 .browser__stickyFooter {
 	grid-area: sticky-footer;

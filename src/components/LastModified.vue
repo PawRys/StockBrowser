@@ -41,11 +41,13 @@ function inHuman(diff) {
 	<aside class="lastModified">
 		<h3>Data modyfikacji</h3>
 		<div class="lastModified__type" :class="{ red: pricesModTime.diff > 1 }">
+			<i class="bi bi-coin"></i>
 			<span class="lastModified__label">Ceny:</span>
 			<span class="lastModified__date">{{ pricesModTime.date }}</span>
 			<span class="lastModified__diff">{{ inHuman(pricesModTime.diff) }}</span>
 		</div>
 		<div class="lastModified__type" :class="{ red: stocksModTime.diff > 1 }">
+			<i class="bi bi-calculator-fill"></i>
 			<span class="lastModified__label">Stany:</span>
 			<span class="lastModified__date">{{ stocksModTime.date }}</span>
 			<span class="lastModified__diff">{{ inHuman(stocksModTime.diff) }}</span>
@@ -59,8 +61,9 @@ function inHuman(diff) {
 }
 .lastModified__type {
 	display: grid;
+	grid-auto-flow: column;
 	gap: 1ex;
-	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-columns: auto 1fr 1fr;
 	width: fit-content;
 }
 .lastModified__type > * {

@@ -29,6 +29,9 @@
 	--link-shade: hsl(220, 30%, 60%);
 
 	--transition-duration: 200ms;
+	--layer-overlay: 100;
+	--layer-filters: 99;
+	--layer-settings: 102;
 }
 
 @media (prefers-color-scheme: dark) {

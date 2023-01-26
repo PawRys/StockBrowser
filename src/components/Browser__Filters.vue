@@ -193,7 +193,7 @@ function openListSettings() {
 		<div v-show="showFilters" class="filters__topBar">
 			<input
 				class="textFilter"
-				type="search"
+				type="text"
 				name="filter"
 				placeholder="Szukaj"
 				v-model="textFilter" />
@@ -283,7 +283,7 @@ body:has(.filters--opened) {
 	align-items: center;
 
 	position: sticky;
-	z-index: 2;
+	z-index: var(--layer-filters);
 	top: 0ex;
 }
 .filters--opened {
