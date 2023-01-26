@@ -102,7 +102,7 @@ export function removeGarbage(data, dataType) {
 export function formatToAssocArray(data, dataType) {
 	let result = [];
 	for (const row of data) {
-		let product = {};
+		let product = Array.isArray(row) ? {} : row;
 		const productCode = row?.code || row[0] || null;
 		const productName = row?.name || row[2] || 'Brak opisu towaru';
 		const productUnit = (row?.unit ? 'm3' : null) || row[4] || null;
@@ -152,7 +152,7 @@ export function findProductErrors(data) {
 			errors.push('Brak prawidłowego wymiaru w opisie. Obliczenia niemożliwe.');
 		}
 
-		console.log(errors);
+		// console.log(errors);
 
 		if (!!errors.length) {
 			const appendRrror = product.group + ' ERROR';
@@ -283,10 +283,11 @@ async function clearAllInventory(data) {
 	});
 }
 function hasInventory(data) {
+	// console.log(data);
 	if (!data) return;
 	let result = false;
 	for (const row of data) {
-		if (!!row?.iCub || !!row?.iSqr || !!row?.iPcs) {
+		if (row?.iCub || row?.iSqr || row?.iPcs) {
 			result = true;
 			break;
 		}
