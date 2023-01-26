@@ -198,7 +198,7 @@ function openListSettings() {
 				placeholder="Szukaj"
 				v-model="textFilter" />
 			<button
-				class="button small bi bi-trash3"
+				class="button small bi bi-backspace"
 				@click="textFilter = ''"
 				title="Wyczyść"></button>
 			<button
@@ -208,12 +208,12 @@ function openListSettings() {
 		</div>
 
 		<div v-show="showFilters" class="textFilter__quickFilters">
-			<button class="small" @click="textFilter = `=5x5'|4x4'`">Kwadraty</button>
+			<button class="small" @click="textFilter = `=5x5'|4x4'`">5x5'</button>
 			<button class="small" @click="textFilter = `=4x8'|8x4'`">4x8'</button>
 			<button class="small" @click="textFilter = `=5x8'|8x5'`">5x8'</button>
 			<button class="small" @click="textFilter = `=5x10'`">5x10'</button>
 			<button class="small" @click="textFilter = `=7x1.'|8x1.'`">Verems</button>
-			<button class="small" @click="textFilter = `=5x7'|7x5'`">Mini Verems</button>
+			<button class="small" @click="textFilter = `=5x7'|7x5'|6x4'`">Mini Verems</button>
 		</div>
 
 		<form v-show="showFilters" class="tagFilter" id="tagFilter" action="javascript:void(0)">

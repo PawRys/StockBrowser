@@ -82,11 +82,6 @@ function wrapText(text) {
 		</ul>
 		<p v-else class="browser__empty">Nie znaleziono produktów.</p>
 		<Pagination class="browser__pagination-bottom" />
-		<footer class="browser__stickyFooter">
-			<!-- <button class="button accent" @click="animateScrollTo('#search')">
-				<span>Szukaj...</span><i class="bi bi-search"></i>
-			</button> -->
-		</footer>
 	</section>
 </template>
 
@@ -136,24 +131,18 @@ function wrapText(text) {
 
 /* @MEDIA DEPENDENT */
 /********/ /********/ /********/ /********/ /********/
-@media (max-width: 100vw) {
-	.browser {
-		display: grid;
-		justify-items: center;
-		gap: 0.8rem;
+.browser {
+	display: grid;
+	justify-items: center;
+	gap: 0.8rem;
 
-		grid-template-columns: 8fr minmax(max-content, 3fr);
-		grid-template-rows: 0fr 1fr;
-		grid-template-areas:
-			'pagination-top     settings     '
-			'browser            settings     '
-			'pagination-bottom  settings     '
-			'sticky-footer      sticky-footer';
-	}
-	#browser__settingsOpenBtn,
-	#browser__settingsCloseBtn {
-		display: none;
-	}
+	grid-template-columns: 8fr minmax(max-content, 3fr);
+	grid-template-rows: 0fr 1fr;
+	grid-template-areas:
+		'pagination-top     settings     '
+		'browser            settings     '
+		'pagination-bottom  settings     '
+		'sticky-footer      sticky-footer';
 }
 @media (max-width: 1080px) {
 	.browser {
@@ -165,40 +154,20 @@ function wrapText(text) {
 			'pagination-bottom'
 			'sticky-footer    ';
 	}
-
-	#browser__settingsOpenBtn,
-	#browser__settingsCloseBtn {
-		display: inline-grid;
-	}
-
-	.browser__settings {
-		position: fixed;
-		right: 0;
-		top: 0;
-		display: none;
-		/* transform: translateX(100%); */
-		/* transition: var(--transition-duration) all; */
-	}
-	.browser__settings--opened {
-		/* transform: translateX(0%); */
-		display: block;
-	}
 }
 
-@media (max-width: 100vw) {
-	.browser__product {
-		display: grid;
-		align-items: baseline;
-		justify-content: space-evenly;
-		gap: 0.5ch;
+.browser__product {
+	display: grid;
+	align-items: baseline;
+	justify-content: space-evenly;
+	gap: 0.5ch;
 
-		grid-template-columns: repeat(6, minmax(auto, 14ch));
-		grid-template-areas:
-			'code code code tCub tSqr tPcs'
-			'name name name aCub aSqr aPcs'
-			'name name name pCub pSqr pPcs'
-			'erro erro erro buyp marg perc';
-	}
+	grid-template-columns: repeat(6, minmax(auto, 14ch));
+	grid-template-areas:
+		'code code code tCub tSqr tPcs'
+		'name name name aCub aSqr aPcs'
+		'name name name pCub pSqr pPcs'
+		'erro erro erro buyp marg perc';
 }
 @media (max-width: 720px) {
 	.browser__product {

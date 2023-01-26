@@ -80,4 +80,24 @@ body:has(.browser__settings--opened) {
 	background-color: var(--accent-shade);
 	opacity: 0.5;
 }
+#browser__settingsOpenBtn,
+#browser__settingsCloseBtn {
+	display: none;
+}
+@media (max-width: 1080px) {
+	#browser__settingsOpenBtn,
+	#browser__settingsCloseBtn {
+		display: inline-grid;
+	}
+
+	.browser__settings {
+		position: fixed;
+		right: 0;
+		top: 0;
+		display: none;
+	}
+	.browser__settings--opened {
+		display: block;
+	}
+}
 </style>
