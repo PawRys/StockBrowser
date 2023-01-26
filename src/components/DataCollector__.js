@@ -173,7 +173,7 @@ function getProductSize(line) {
 }
 
 function getproductSizeGroup(size) {
-	if (!size) return;
+	if (!size) return 0;
 	let num = size.split('x');
 	return `${Math.round(num[1] / 305)}x${Math.round(num[2] / 305)}'`;
 }

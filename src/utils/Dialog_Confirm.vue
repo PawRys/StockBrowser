@@ -7,7 +7,7 @@ const props = defineProps({ text: String });
 <template>
 	<dialog class="dialog">
 		<div class="dialog__center">
-			<h3 class="dialog__heading">Potwierdź akcję</h3>
+			<!-- <h3 class="dialog__heading">Potwierdź akcję</h3> -->
 
 			<article class="dialog__text" v-html="props.text"></article>
 

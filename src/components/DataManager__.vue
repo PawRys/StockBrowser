@@ -32,7 +32,8 @@ async function exportInventory() {
 
 async function purgeInventory() {
 	console.time('purgeInventory');
-	let text = '<h4>Usuwasz inwentaryzację</h4>';
+	let text = '<h3>Usuwasz inwentaryzację</h3>';
+	text += '<p>Zostaną wyzerowane tylko dane ze zlicznia towaru.</p>';
 	text += '<p>Akcja jest nieodwracalna. Czy jesteś pewien?</p>';
 	let answer = false || (await openDialog(Dialog_Confirm, { text }));
 	if (answer === false) return;
@@ -55,7 +56,8 @@ async function purgeInventory() {
 
 async function purgeProducts() {
 	console.time('purgeProducts');
-	let text = '<h4>Usuwasz wszystkie dane sklejki</h4>';
+	let text = '<h3>Usuwasz bazę danych sklejki</h3>';
+	text += '<p>Cała baza danych z tego urządzenia zostanie usunięta.</p>';
 	text += '<p>Akcja jest nieodwracalna. Czy jesteś pewien?</p>';
 	let answer = false || (await openDialog(Dialog_Confirm, { text }));
 	if (answer === false) return;
@@ -120,7 +122,7 @@ function myFunction() {
 		</button>
 		<button class="accent2" @click="purgeProducts">
 			<i class="bi bi-cart4"></i>
-			<span>Wyzeruj produkty</span>
+			<span>Wyczyść bazę danych</span>
 		</button>
 	</section>
 </template>

@@ -3,6 +3,11 @@ import { calcQuant, evalMath } from '../utils/functions.js';
 export function spreadsheetHeader() {
 	let result = 'Kod';
 	result += '\tNazwa';
+	result += '\tH';
+	result += '\tKlasa';
+	result += '\tGrupa wymiarowa';
+	result += '\tA';
+	result += '\tB';
 	result += '\tStatus';
 	result += '\tRóżnica m3';
 	result += '\tRóżnica m2';
@@ -19,6 +24,7 @@ export function spreadsheetHeader() {
 
 export function spreadsheetRow(row) {
 	const size = row.size;
+	const [thick, sizeA, sizeB] = size?.split('x') || [0, 0, 0];
 	let iCub = row.iCub;
 	let iSqr = row.iSqr;
 	let iPcs = row.iPcs;
@@ -49,6 +55,11 @@ export function spreadsheetRow(row) {
 
 	let string = `${row.code}`;
 	string += `\t${row.name}`;
+	string += `\t${thick || 0}`;
+	string += `\t${row.group}`;
+	string += `\t${row.sizeGroup}`;
+	string += `\t${sizeA || 0}`;
+	string += `\t${sizeB || 0}`;
 	string += `\t${status}`;
 	string += `\t${dCub.toFixed(3)}`;
 	string += `\t${dSqr.toFixed(4)}`;

@@ -67,7 +67,7 @@ watchEffect(async () => {
 	display: flex;
 	gap: 1ch;
 	flex-wrap: wrap;
-	justify-content: flex-start;
+	justify-content: center;
 }
 .tab-switch .button > i {
 	font-size: 1.1em;
