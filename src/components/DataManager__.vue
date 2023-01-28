@@ -9,25 +9,22 @@ import { openDialog } from 'vue3-promise-dialog';
 import Dialog_Confirm from '../utils/Dialog_Confirm.vue';
 
 const globalEvent = inject('GlobalEvents');
-const exportInventoryField = ref();
-const exportInventoryMessage = ref();
 
 async function exportInventory() {
 	const productsDB = await idb.products.toArray();
-	let textFile = spreadsheetHeader();
+	let tableHead = spreadsheetHeader();
+	let tableBody = '';
+	let table = '';
 
 	for (const row of productsDB) {
-		let string = spreadsheetRow(row);
-		textFile += string;
+		tableBody += spreadsheetRow(row);
 	}
-
-	await navigator.clipboard
-		.writeText(textFile)
-		.then(() => {
-			exportInventoryMessage.value = '🙂 Skopiowano do schowka';
-		})
-		.catch(reason => console.error(reason));
-	exportInventoryField.value = textFile;
+	tableHead = tableHead.replace(/\t?([^\t\n]+)\t?/g, '<th>$1</th>');
+	tableHead = tableHead.replace(/^(.+)$/gm, '<tr>$1</tr>');
+	tableBody = tableBody.replace(/\t?([^\t\n]+)\t?/g, '<td>$1</td>');
+	tableBody = tableBody.replace(/^(.+)$/gm, '<tr>$1</tr>');
+	table = `<table><thead>${tableHead}</thead><tbody>${tableBody}</tbody></table>`;
+	return table;
 }
 
 async function purgeInventory() {
@@ -54,7 +51,7 @@ async function purgeInventory() {
 	console.timeEnd('purgeInventory');
 }
 
-async function purgeProducts() {
+async function purgeDataBase() {
 	console.time('purgeProducts');
 	let text = '<h3>Usuwasz bazę danych sklejki</h3>';
 	text += '<p>Cała baza danych z tego urządzenia zostanie usunięta.</p>';
@@ -68,7 +65,7 @@ async function purgeProducts() {
 }
 
 // myFunction();
-function myFunction() {
+function userAgentName() {
 	if ((navigator.userAgent.indexOf('Opera') || navigator.userAgent.indexOf('OPR')) != -1) {
 		alert('Opera');
 	} else if (navigator.userAgent.indexOf('Edg') != -1) {
@@ -86,32 +83,39 @@ function myFunction() {
 		alert('unknown');
 	}
 }
+
+async function downloadInventory() {
+	const fileName = `Inwentaryzacja-${new Date().toJSON().split('T')[0]}.xls`;
+	const content = await exportInventory();
+	const type = 'application/vnd.ms-excel; charset=UTF-8';
+	const blob = new Blob([content], { type: type });
+	const blobUrl = URL.createObjectURL(blob);
+	const link = document.createElement('a');
+	link.href = blobUrl;
+	link.download = fileName;
+	document.body.appendChild(link);
+	link.dispatchEvent(
+		new MouseEvent('click', {
+			bubbles: true,
+			cancelable: true,
+			view: window,
+		})
+	);
+	document.body.removeChild(link);
+}
 </script>
 
 <template>
 	<h2>Zarządzanie bazą danych</h2>
 	<section>
-		<h3>Export do pliku (kopia zapasowa)</h3>
-		<h3>Import z pliku</h3>
+		<h3>TEST</h3>
 	</section>
 
 	<section class="exportInventory">
 		<h3>Export inwentaryzacji</h3>
-		<!-- <p>Dane można wkleić do arkusza kalkulacyjnego.</p> -->
-
-		<button class="exportInventory__button accent" @click="exportInventory">
-			Eksport inwentaryzacji
+		<button class="exportInventory__button button accent" @click.once="downloadInventory()">
+			Eksportuj plik .xls
 		</button>
-		<span class="exportInventory__message">{{ exportInventoryMessage }}</span>
-
-		<textarea
-			v-if="exportInventoryField"
-			v-model="exportInventoryField"
-			name="exportInventory"
-			id="exportInventory"
-			class="exportInventory__textarea"
-			cols="30"
-			rows="10"></textarea>
 	</section>
 
 	<section>
@@ -120,7 +124,7 @@ function myFunction() {
 			<i class="bi bi-calculator-fill"></i>
 			<span>Wyzeruj inwentaryzację</span>
 		</button>
-		<button class="accent2" @click="purgeProducts">
+		<button class="accent2" @click="purgeDataBase">
 			<i class="bi bi-cart4"></i>
 			<span>Wyczyść bazę danych</span>
 		</button>

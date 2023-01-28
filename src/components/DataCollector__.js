@@ -99,16 +99,29 @@ export function removeGarbage(data, dataType) {
 	return result;
 }
 
-export function formatToAssocArray(data, dataType) {
+console.log(/^(m3|m2|szt)$/i.test('m2') || 'lolek');
+export function formatToNamedArray(data, dataType) {
 	let result = [];
 	for (const row of data) {
-		let product = Array.isArray(row) ? {} : row;
-		const productCode = row?.code || row[0] || null;
-		const productName = row?.name || row[2] || 'Brak opisu towaru';
-		const productUnit = (row?.unit ? 'm3' : null) || row[4] || null;
+		// Try assign object
+		let product = row;
+		let productCode = row?.code;
+		let productName = row?.name;
+		let productUnit = row?.unit ? 'm3' : null;
+		let productTotal = row?.tCub;
+		let productAvabl = row?.aCub;
+		let productPrice = row?.pCub;
+
+		// else try assign array
+		product ??= {};
+		productCode ??= row[0] || null;
+		productName ??= row[2] || 'Brak opisu towaru';
+		productUnit ??= /^(m3|m2|szt)$/.test(row[4]) ? row[4] : null;
 		const productSize = getProductSize(productName);
 		const productGroup = getProductGroup(`${productCode} ${productName}`);
 		const productSizeGroup = getproductSizeGroup(productSize);
+
+		// Overwrite object to refresh product info
 		Object.assign(product, {
 			code: productCode,
 			name: productName,
@@ -118,16 +131,16 @@ export function formatToAssocArray(data, dataType) {
 			sizeGroup: productSizeGroup,
 		});
 		if (dataType.match(/stocks|code/i)) {
-			const productTotal = (row?.tCub || row[10]?.replace(',', '.')) * 1;
-			const productAvabl = (row?.aCub || row[6]?.replace(',', '.')) * 1;
+			productTotal ??= row[10]?.replace(',', '.') * 1;
+			productAvabl ??= row[6]?.replace(',', '.') * 1;
 			Object.assign(product, {
 				tCub: calcQuant(productSize, productTotal, productUnit, 'm3'),
 				aCub: calcQuant(productSize, productAvabl, productUnit, 'm3'),
 			});
 		}
 		if (dataType.match(/prices|code/i)) {
-			const productTotal = (row?.tCub || row[6]?.replace(',', '.')) * 1;
-			const productPrice = (row?.pCub || row[7]?.replace(',', '.')) * 1;
+			productTotal ??= row[6]?.replace(',', '.') * 1;
+			productPrice ??= row[7]?.replace(',', '.') * 1;
 			Object.assign(product, {
 				tCub: calcQuant(productSize, productTotal, productUnit, 'm3'),
 				pCub: calcPrice(productSize, productPrice, productUnit, 'm3'),

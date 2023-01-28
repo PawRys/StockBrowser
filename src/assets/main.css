@@ -94,10 +94,10 @@ body {
 
 /* LINKS */
 /********/ /********/ /********/ /********/ /********/
-:is(#fakeid, a) {
+:is(.fakeid, a) {
 	color: var(--link-color);
 }
-:is(#fakeid, a):hover {
+:is(.fakeid, a):hover {
 	color: var(--link-shade);
 }
 

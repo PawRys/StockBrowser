@@ -6,7 +6,7 @@ import {
 	fetchProducts,
 	formatToArray,
 	removeGarbage,
-	formatToAssocArray,
+	formatToNamedArray,
 	findProductErrors,
 	localDataMerge,
 } from './DataCollector__.js';
@@ -73,7 +73,7 @@ async function importData() {
 	}
 
 	if (data) {
-		data = formatToAssocArray(data, importedDataTypeRef);
+		data = formatToNamedArray(data, importedDataTypeRef);
 		data = findProductErrors(data);
 		// console.log(data);
 		message = await localDataMerge(data, importedDataTypeRef);
@@ -136,7 +136,7 @@ async function generateTimestamp(dataType) {
 		</p>
 	</section>
 
-	<!-- <example-data /> -->
+	<example-data />
 
 	<section class="data-collector__manual">
 		<h3>Instrukcja wprowadzania danych magazynowych z Symfonii</h3>

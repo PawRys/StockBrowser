@@ -40,17 +40,21 @@ function inHuman(diff) {
 <template>
 	<aside class="lastModified">
 		<h3>Data modyfikacji</h3>
-		<div class="lastModified__type" :class="{ red: pricesModTime.diff > 1 }">
+		<div class="lastModified__type">
 			<i class="bi bi-coin"></i>
 			<span class="lastModified__label">Ceny:</span>
 			<span class="lastModified__date">{{ pricesModTime.date }}</span>
-			<span class="lastModified__diff">{{ inHuman(pricesModTime.diff) }}</span>
+			<span class="lastModified__diff" :class="{ red: pricesModTime.diff > 1 }">{{
+				inHuman(pricesModTime.diff)
+			}}</span>
 		</div>
-		<div class="lastModified__type" :class="{ red: stocksModTime.diff > 1 }">
+		<div class="lastModified__type">
 			<i class="bi bi-calculator-fill"></i>
 			<span class="lastModified__label">Stany:</span>
 			<span class="lastModified__date">{{ stocksModTime.date }}</span>
-			<span class="lastModified__diff">{{ inHuman(stocksModTime.diff) }}</span>
+			<span class="lastModified__diff" :class="{ red: pricesModTime.diff > 1 }">{{
+				inHuman(stocksModTime.diff)
+			}}</span>
 		</div>
 	</aside>
 </template>
