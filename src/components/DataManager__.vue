@@ -116,15 +116,6 @@ function createDownloadFile(file, data, type) {
   document.body.removeChild(link);
   URL.revokeObjectURL(blob);
 }
-
-function yes() {
-  console.log('yes');
-}
-function no() {
-  console.log('no');
-}
-
-2 > 3 ? yes() : no();
 </script>
 
 <template>
