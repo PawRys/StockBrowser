@@ -134,7 +134,7 @@ async function generateTimestamp(dataType) {
     </p>
   </section>
 
-  <!-- <example-data /> -->
+  <example-data />
 
   <section class="data-collector__manual">
     <h3>Instrukcja wprowadzania danych magazynowych z Symfonii</h3>

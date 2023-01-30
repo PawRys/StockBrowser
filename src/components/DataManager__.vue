@@ -86,34 +86,25 @@ function userAgentName() {
 }
 
 async function downloadInventory() {
-  const fileName = `Inwentaryzacja-${new Date().toJSON().split('T')[0]}.xls`;
-  const content = await exportInventory();
+  const file = `Inwentaryzacja-${new Date().toJSON().split('T')[0]}.xls`;
+  const data = await exportInventory();
   const type = 'application/vnd.ms-excel; charset=UTF-8';
-  const blob = new Blob([content], { type: type });
-  const blobUrl = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = blobUrl;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.dispatchEvent(
-    new MouseEvent('click', {
-      bubbles: true,
-      cancelable: true,
-      view: window,
-    })
-  );
-  document.body.removeChild(link);
+  createDownloadFile(file, data, type);
 }
 
 async function downloadBackup() {
-  const fileName = `StanyBackup-${new Date().toJSON().split('T')[0]}.json`;
-  const content = JSON.stringify(await idb.products.toArray());
+  const file = `StanyBackup-${new Date().toJSON().split('T')[0]}.json`;
+  const data = JSON.stringify(await idb.products.toArray());
   const type = 'application/json; charset=UTF-8';
-  const blob = new Blob([content], { type: type });
+  createDownloadFile(file, data, type);
+}
+
+function createDownloadFile(file, data, type) {
+  const blob = new Blob([data], { type: type });
   const blobUrl = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = blobUrl;
-  link.download = fileName;
+  link.download = file;
   document.body.appendChild(link);
   link.dispatchEvent(
     new MouseEvent('click', {
@@ -123,22 +114,32 @@ async function downloadBackup() {
     })
   );
   document.body.removeChild(link);
+  URL.revokeObjectURL(blob);
 }
+
+function yes() {
+  console.log('yes');
+}
+function no() {
+  console.log('no');
+}
+
+2 > 3 ? yes() : no();
 </script>
 
 <template>
   <h2>Zarządzanie bazą danych</h2>
   <section>
     <h3>Backup bazy danych</h3>
-    <button class="exportBackup__button button accent" @click.once="downloadBackup()">
-      Eksportuj plik .json
+    <button class="exportBackup__button button accent" @click="downloadBackup()">
+      Eksportuj backup
     </button>
   </section>
 
   <section class="exportInventory">
     <h3>Export inwentaryzacji</h3>
-    <button class="exportInventory__button button accent" @click.once="downloadInventory()">
-      Eksportuj plik .xls
+    <button class="exportInventory__button button accent" @click="downloadInventory()">
+      Eksportuj do Excela
     </button>
   </section>
 

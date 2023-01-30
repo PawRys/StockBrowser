@@ -266,9 +266,14 @@ export async function mergeWithLocalData(importedData, dataType) {
 
     // Merge inventory data
     if (isNewProduct === false && answer === 'merge') {
-      importedProduct.iCub = `${localProduct.iCub}+(${importedProduct.iCub})`;
-      importedProduct.iSqr = `${localProduct.iSqr}+(${importedProduct.iSqr})`;
-      importedProduct.iPcs = `${localProduct.iPcs}+(${importedProduct.iPcs})`;
+      if (!!importedProduct.iCub)
+        importedProduct.iCub = `${localProduct.iCub || '0'} + ${importedProduct.iCub || '0'}`;
+
+      if (!!importedProduct.iSqr)
+        importedProduct.iSqr = `${localProduct.iSqr || '0'} + ${importedProduct.iSqr || '0'}`;
+
+      if (!!importedProduct.iPcs)
+        importedProduct.iPcs = `${localProduct.iPcs || '0'} + ${importedProduct.iPcs || '0'}`;
     }
 
     // Update with imported data
