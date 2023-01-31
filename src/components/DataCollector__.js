@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { inject } from 'vue';
 import { db as idb } from '../utils/dexiedb.js';
 import { calcQuant, calcPrice } from '../utils/functions.js';
 import { openDialog } from 'vue3-promise-dialog';
@@ -299,6 +299,21 @@ export async function mergeWithLocalData(importedData, dataType) {
   }
 
   return message;
+}
+
+export async function generateTimestamp(dataType) {
+  if (dataType.match(/stocks|code/i)) {
+    await idb.timestamps.put({
+      id: 'stocks',
+      timestamp: new Date(),
+    });
+  }
+  if (dataType.match(/prices|code/i)) {
+    await idb.timestamps.put({
+      id: 'prices',
+      timestamp: new Date(),
+    });
+  }
 }
 
 function clearAllStocks(data) {

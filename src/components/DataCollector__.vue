@@ -7,8 +7,7 @@ import {
   formatToArray,
   removeGarbage,
   formatToNamedArray,
-  jettisonUnusedProperties,
-  findProductErrors,
+  generateTimestamp,
   mergeWithLocalData,
 } from './DataCollector__.js';
 import ExampleData from './DataCollector__ExampleData.vue';
@@ -76,27 +75,11 @@ async function importData() {
   if (data) {
     message = await mergeWithLocalData(data, importedDataTypeRef);
     generateTimestamp(importedDataTypeRef);
+    globalEvent.value = 'timestamp updated';
   }
 
   messageBox.value = server_msg || message;
   console.timeEnd('importData()');
-}
-
-async function generateTimestamp(dataType) {
-  if (dataType.match(/stocks|code/i)) {
-    await idb.timestamps.put({
-      id: 'stocks',
-      timestamp: new Date(),
-    });
-    globalEvent.value = 'stocks updated';
-  }
-  if (dataType.match(/prices|code/i)) {
-    await idb.timestamps.put({
-      id: 'prices',
-      timestamp: new Date(),
-    });
-    globalEvent.value = 'prices updated';
-  }
 }
 </script>
 

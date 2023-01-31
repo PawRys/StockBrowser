@@ -4,13 +4,15 @@ import { ref, inject } from 'vue';
 import { calcQuant, evalMath } from '../utils/functions.js';
 import Dexie from 'dexie';
 import { db as idb } from '../utils/dexiedb.js';
+import { generateTimestamp } from './DataCollector__.js';
 import { spreadsheetHeader, spreadsheetRow } from './DataManager__.js';
 import { openDialog } from 'vue3-promise-dialog';
 import Dialog_Confirm from '../utils/Dialog_Confirm.vue';
 
 const globalEvent = inject('GlobalEvents');
+const messageBox__database = ref('');
 
-async function exportInventory() {
+async function createInventorySpreadsheet() {
   const productsDB = await idb.products.toArray();
   let tableHead = spreadsheetHeader();
   let tableBody = '';
@@ -31,7 +33,7 @@ async function purgeInventory() {
   console.time('purgeInventory');
   let text = '<h3>Usuwasz inwentaryzację</h3>';
   text += '<p>Zostaną wyzerowane tylko dane ze zlicznia towaru.</p>';
-  text += '<p>Akcja jest nieodwracalna. Czy jesteś pewien?</p>';
+  text += '<p>Akcja jest nieodwracalna. Czy usunąć?</p>';
   let answer = false || (await openDialog(Dialog_Confirm, { text }));
   if (answer === false) return;
 
@@ -56,7 +58,7 @@ async function purgeDataBase() {
   console.time('purgeProducts');
   let text = '<h3>Usuwasz bazę danych sklejki</h3>';
   text += '<p>Cała baza danych z tego urządzenia zostanie usunięta.</p>';
-  text += '<p>Akcja jest nieodwracalna. Czy jesteś pewien?</p>';
+  text += '<p>Akcja jest nieodwracalna. Czy usunąć?</p>';
   let answer = false || (await openDialog(Dialog_Confirm, { text }));
   if (answer === false) return;
   await idb.products.clear();
@@ -85,14 +87,14 @@ function userAgentName() {
   }
 }
 
-async function downloadInventory() {
+async function exportInventory() {
   const file = `Inwentaryzacja-${new Date().toJSON().split('T')[0]}.xls`;
-  const data = await exportInventory();
+  const data = await createInventorySpreadsheet();
   const type = 'application/vnd.ms-excel; charset=UTF-8';
   createDownloadFile(file, data, type);
 }
 
-async function downloadBackup() {
+async function exportBackup() {
   const file = `StanyBackup-${new Date().toJSON().split('T')[0]}.json`;
   const data = JSON.stringify(await idb.products.toArray());
   const type = 'application/json; charset=UTF-8';
@@ -116,39 +118,81 @@ function createDownloadFile(file, data, type) {
   document.body.removeChild(link);
   URL.revokeObjectURL(blob);
 }
+
+function importBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async evt => {
+    try {
+      const result = JSON.parse(evt.target.result);
+      await idb.products.clear();
+      await idb.products.bulkAdd(result);
+      generateTimestamp('code');
+      globalEvent.value = 'timestamp updated';
+      messageBox__database.value = `Baza danych z pliku ${file.name} przywrócona pomyślnie.`;
+    } catch (error) {
+      console.error('**importBackup()**', error);
+      messageBox__database.value = `Błąd podczas przywracania danych.`;
+    }
+  };
+  reader.readAsText(file);
+}
+
+function passClick(query) {
+  const element = document.querySelector(query);
+  element.click();
+}
 </script>
 
 <template>
-  <h2>Zarządzanie bazą danych</h2>
   <section>
-    <h3>Backup bazy danych</h3>
-    <button class="exportBackup__button button accent" @click="downloadBackup()">
-      Eksportuj backup
-    </button>
+    <h2>Zarządzanie bazą danych</h2>
+    <p>
+      <button class="exportBackup__button button accent" @click="exportBackup()">
+        <i class="bi bi-file-earmark-arrow-down"></i>
+        <span>Backup bazy danych</span>
+      </button>
+    </p>
+
+    <p>
+      <button for="backupImport" class="button" @click="passClick('#backupImport')">
+        <i class="bi bi-file-arrow-up"></i>
+        <span>Wczytaj backup</span>
+      </button>
+      <input type="file" name="backupImport" id="backupImport" @change="importBackup($event)" />
+    </p>
+
+    <p>
+      <button class="accent2" @click="purgeDataBase">
+        <i class="bi bi-file-earmark-x"></i>
+        <span>Wyczyść bazę danych</span>
+      </button>
+    </p>
+    <p class="messageBox__database">{{ messageBox__database }}</p>
   </section>
 
   <section class="exportInventory">
-    <h3>Export inwentaryzacji</h3>
-    <button class="exportInventory__button button accent" @click="downloadInventory()">
-      Eksportuj do Excela
-    </button>
-  </section>
-
-  <section>
-    <h3>Wymazywanie danych</h3>
-    <button class="accent2" @click="purgeInventory">
-      <i class="bi bi-calculator-fill"></i>
-      <span>Wyzeruj inwentaryzację</span>
-    </button>
-    <button class="accent2" @click="purgeDataBase">
-      <i class="bi bi-cart4"></i>
-      <span>Wyczyść bazę danych</span>
-    </button>
+    <h2>Inwentaryzacja</h2>
+    <p>
+      <button class="exportInventory__button button accent" @click="exportInventory()">
+        <i class="bi bi-file-earmark-spreadsheet"></i>
+        <span>Eksport inwentaryzacji</span>
+      </button>
+      Eksportuj inwentaryzację do pliku .xls (Excel)
+    </p>
+    <p>
+      <button class="accent2" @click="purgeInventory">
+        <i class="bi bi-file-earmark-minus"></i>
+        <span>Wyczyść inwentaryzację</span>
+      </button>
+      Usuń dane ze zlicznia towaru.
+    </p>
   </section>
 </template>
 
 <style scoped>
-.exportInventory__textarea {
-  width: 100%;
+#backupImport {
+  display: none;
 }
 </style>
