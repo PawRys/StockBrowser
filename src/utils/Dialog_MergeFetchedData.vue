@@ -5,42 +5,39 @@ import { closeDialog } from 'vue3-promise-dialog';
 <template>
 	<dialog class="dialog">
 		<div class="center">
-			<h3>Wykryto dane inwentaryzacyjne</h3>
+			<h3>Wybierz, które dane zapisać</h3>
 
 			<p>
 				W danych, które importujesz istnieje spis z natury (inwentaryzacja).<br />
 				Wybierz, które dane zapisać na urządzeniu:
 			</p>
+
 			<p>
-				<b>Lokalne</b> - pozostaw dane lokalne <i class="bi bi-database"></i>, ignoruj dane
-				z chmury <i class="bi bi-cloud-slash-fill"></i>
+				<button @click="closeDialog('local')" class="btn">
+					<span>Lokalne</span>
+					<span><i class="bi bi-database"></i></span>
+				</button>
+				- pozostaw dane lokalne <i class="bi bi-database"></i>, ignoruj dane z chmury
+				<i class="bi bi-cloud-slash-fill"></i>
 			</p>
+
 			<p>
-				<b>Chmura</b> - usuń dane lokalne <i class="bi bi-database-fill-slash"></i>, zastąp
-				danymi z chmury <i class="bi bi-cloud"></i>
-			</p>
-			<p>
-				<b>Sumuj</b> - sumuj dane lokalne <i class="bi bi-database"></i> i dane z chmury
+				<button @click="closeDialog('cloud')" class="btn">
+					<span>Chmura</span>
+					<span><i class="bi bi-cloud"></i></span>
+				</button>
+				- usuń dane lokalne <i class="bi bi-database-fill-slash"></i>, zapisz dane z chmury
 				<i class="bi bi-cloud"></i>
 			</p>
 
-			<button @click="closeDialog('local')" class="btn">
-				<span>Lokalne</span>
-				<span><i class="bi bi-database"></i></span>
-				<!-- <span><i class="bi bi-x-square"></i></span> -->
-			</button>
-
-			<button @click="closeDialog('cloud')" class="btn">
-				<span>Chmura</span>
-				<span><i class="bi bi-cloud"></i></span>
-				<!-- <span><i class="bi bi-arrow-repeat"></i></span> -->
-			</button>
-
-			<button @click="closeDialog('merge')" class="btn">
-				<span>Sumuj</span>
-				<span><i class="bi bi-database"></i> + <i class="bi bi-cloud"></i></span>
-				<!-- <span><i class="bi bi-plus-circle"></i></span> -->
-			</button>
+			<p>
+				<button @click="closeDialog('merge')" class="btn">
+					<span>Sumuj</span>
+					<span><i class="bi bi-database"></i> + <i class="bi bi-cloud"></i></span>
+				</button>
+				- sumuj dane lokalne <i class="bi bi-database"></i> i dane z chmury
+				<i class="bi bi-cloud"></i>
+			</p>
 		</div>
 	</dialog>
 </template>

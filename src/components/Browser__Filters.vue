@@ -284,7 +284,7 @@ body:has(.filters--opened) {
 
 	position: sticky;
 	z-index: var(--layer-filters);
-	top: 0ex;
+	top: -1rem;
 }
 .filters--opened {
 	position: fixed;

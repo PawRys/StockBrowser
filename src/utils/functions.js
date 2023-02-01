@@ -120,3 +120,25 @@ export function switchClass(targets, token, force) {
 		element.classList.toggle(token, force);
 	}
 }
+
+userAgentName();
+function userAgentName() {
+	if ((navigator.userAgent.indexOf('Opera') || navigator.userAgent.indexOf('OPR')) != -1) {
+		// alert('Opera');
+	} else if (navigator.userAgent.indexOf('Edg') != -1) {
+		// alert('Edge');
+	} else if (navigator.userAgent.indexOf('Chrome') != -1) {
+		// alert('Chrome');
+	} else if (navigator.userAgent.indexOf('Safari') != -1) {
+		alert(
+			'Przeglądarka Safari nie pozwala na poprawne fukcjonowanie programu. Zalecana jest przeglądarka z grupy Chromium (Chrome, Opera, Edge)'
+		);
+	} else if (navigator.userAgent.indexOf('Firefox') != -1) {
+		// alert('Firefox');
+	} else if (navigator.userAgent.indexOf('MSIE') != -1 || !!document.documentMode == true) {
+		//IF IE > 10
+		// alert('IE');
+	} else {
+		// alert('unknown');
+	}
+}

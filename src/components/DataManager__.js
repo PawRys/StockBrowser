@@ -9,15 +9,15 @@ export function spreadsheetHeader() {
 	result += '\tFormat A';
 	result += '\tFormat B';
 	result += '\tStatus';
-	result += '\tRóżnica m3';
-	result += '\tRóżnica m2';
-	result += '\tRóżnica szt';
-	result += '\tMagazyn m3';
-	result += '\tMagazyn m2';
-	result += '\tMagazyn szt';
-	result += '\tSymfonia m3';
-	result += '\tSymfonia m2';
-	result += '\tSymfonia szt';
+	result += '\t[m3] Różnica ';
+	result += '\t[m2] Różnica ';
+	result += '\t[szt] Różnica ';
+	result += '\t[m3] Magazyn ';
+	result += '\t[m2] Magazyn ';
+	result += '\t[szt] Magazyn ';
+	result += '\t[m3] Symfonia ';
+	result += '\t[m2] Symfonia ';
+	result += '\t[szt] Symfonia ';
 	result += '\n';
 	return result;
 }
