@@ -74,7 +74,7 @@ async function importData() {
 	if (data) {
 		message = await mergeWithLocalData(data, importedDataTypeRef);
 		generateTimestamp(importedDataTypeRef);
-		globalEvent.value = 'timestamp updated';
+		globalEvent.value = `timestamp ${importedDataTypeRef} updated`;
 	}
 
 	messageBox.value = server_msg || message;

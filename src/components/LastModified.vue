@@ -52,7 +52,7 @@ function inHuman(diff) {
 			<i class="bi bi-calculator-fill"></i>
 			<span class="lastModified__label">Stany:</span>
 			<span class="lastModified__date">{{ stocksModTime.date }}</span>
-			<span class="lastModified__diff" :class="{ red: pricesModTime.diff > 1 }">{{
+			<span class="lastModified__diff" :class="{ red: stocksModTime.diff > 1 }">{{
 				inHuman(stocksModTime.diff)
 			}}</span>
 		</div>
