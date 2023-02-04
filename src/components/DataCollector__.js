@@ -99,7 +99,7 @@ export function removeGarbage(data, dataType) {
 	return result;
 }
 
-export function jettisonUnusedProperties(data) {
+function deleteUnusedProperties(data) {
 	const excludes = [
 		'code',
 		'name',
@@ -240,9 +240,9 @@ export async function mergeWithLocalData(importedData, dataType) {
 	let answer = false;
 	let localData = await idb.products.toArray();
 	localData = findProductErrors(localData);
-	localData = jettisonUnusedProperties(localData);
+	localData = deleteUnusedProperties(localData);
 	importedData = findProductErrors(importedData);
-	importedData = jettisonUnusedProperties(importedData);
+	importedData = deleteUnusedProperties(importedData);
 
 	const hasNewInventory = hasInventory(importedData);
 	if (hasNewInventory) {

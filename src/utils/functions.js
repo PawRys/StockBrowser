@@ -131,7 +131,7 @@ function userAgentName() {
 		// alert('Chrome');
 	} else if (navigator.userAgent.indexOf('Safari') != -1) {
 		alert(
-			'Przeglądarka Safari nie pozwala na poprawne fukcjonowanie programu. Zalecana jest przeglądarka z grupy Chromium (Chrome, Opera, Edge)'
+			'Przeglądarka Safari nie pozwala na poprawne fukcjonowanie programu. Zalecana jest przeglądarka Chrome.'
 		);
 	} else if (navigator.userAgent.indexOf('Firefox') != -1) {
 		// alert('Firefox');

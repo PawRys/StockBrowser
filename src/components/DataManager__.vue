@@ -8,28 +8,42 @@ import { generateTimestamp } from './DataCollector__.js';
 import { spreadsheetHeader, spreadsheetRow } from './DataManager__.js';
 import { openDialog } from 'vue3-promise-dialog';
 import Dialog_Confirm from '../utils/Dialog_Confirm.vue';
+import CryptoJS from 'crypto-js';
 
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
+const fpPromise = FingerprintJS.load();
 const globalEvent = inject('GlobalEvents');
 const messageBox__database = ref('');
 
 async function exportIDB() {
-	const file = `StanyBackup-${new Date().toJSON().split('T')[0]}.json`;
+	const file = `StockBrowserBackup-${new Date().toJSON().split('T')[0]}.json`;
 	const data = JSON.stringify(await idb.products.toArray());
 	const type = 'application/json; charset=UTF-8';
+	const fp = await fpPromise;
+	const fpresult = await fp.get();
+	const encryptedData = CryptoJS.AES.encrypt(data, fpresult.visitorId).toString();
+
 	try {
-		downloadFile(file, data, type);
+		downloadFile(file, encryptedData, type);
 	} catch (error) {
 		console.error(`**exportIDB()**`, error);
+		messageBox__database.value = `❌ Błąd podczas zapisywania bazy danych.`;
 	}
 }
 
-function importIDB(event) {
+async function importIDB(event) {
 	const file = event.target.files[0];
 	if (!file) return;
 	const reader = new FileReader();
+
 	reader.onload = async evt => {
 		try {
-			const result = JSON.parse(evt.target.result);
+			const fp = await fpPromise;
+			const fpresult = await fp.get();
+			const decryptedData = CryptoJS.AES.decrypt(evt.target.result, fpresult.visitorId).toString(
+				CryptoJS.enc.Utf8
+			);
+			const result = JSON.parse(decryptedData);
 			await idb.products.clear();
 			await idb.products.bulkAdd(result);
 			generateTimestamp('code');
