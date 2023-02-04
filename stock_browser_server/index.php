@@ -1,5 +1,5 @@
 <?php
-header('Access-Control-Allow-Origin: https://bossman.hekko24.pl/stock_browser_server/index.php');
+header('Access-Control-Allow-Origin: https://pawrys.github.io');
 // header('Access-Control-Allow-Headers: *');
 
 // echo '{"msg":"hello PHP! 😊"}';
