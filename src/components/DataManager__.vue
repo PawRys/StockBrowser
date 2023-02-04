@@ -21,6 +21,7 @@ async function exportIDB() {
 	const type = 'application/json; charset=UTF-8';
 	const fp = await fpPromise;
 	const fpresult = await fp.get();
+	console.log(fpresult.visitorId);
 	const encryptedData = CryptoJS.AES.encrypt(data, fpresult.visitorId).toString();
 
 	try {
@@ -52,6 +53,8 @@ async function importIDB(event) {
 		} catch (error) {
 			console.error('**importBackup()**', error);
 			messageBox__database.value = `❌ Błąd podczas przywracania bazy danych.`;
+			if (error.message.match(/Malformed UTF-8 data/))
+				messageBox__database.value = `❌ Błąd. Kopia zapasowa może zostać przywrócona tylko w przeglądarce, w której została utworzona.`;
 		}
 	};
 	reader.readAsText(file);
