@@ -5,7 +5,6 @@ import { db as idb } from '../utils/dexiedb.js';
 const unfilteredData = inject('unfilteredData_global');
 const dataSet = inject('dataSet_global');
 
-console.time('count-dataset');
 const items = {
 	'dataset-full': {
 		label: 'Stany zerowe',
@@ -20,10 +19,8 @@ const items = {
 		count: await idb.products.where('aCub').above(0).count(),
 	},
 };
-console.timeEnd('count-dataset');
 
 watchEffect(async () => {
-	console.time('change-dataset');
 	if (dataSet.value === 'dataset-full') {
 		unfilteredData.value = await idb.products.toArray();
 	}
@@ -33,7 +30,6 @@ watchEffect(async () => {
 	if (dataSet.value === 'dataset-available') {
 		unfilteredData.value = await idb.products.where('aCub').above(0).toArray();
 	}
-	console.timeEnd('change-dataset');
 });
 </script>
 

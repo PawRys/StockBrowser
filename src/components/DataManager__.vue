@@ -37,11 +37,12 @@ async function importIDB(event) {
 	if (!file) return;
 	const reader = new FileReader();
 
-	reader.onload = async evt => {
+	reader.onload = async event => {
 		try {
+			const encryptedData = event.target.result;
 			const fp = await fpPromise;
 			const fpresult = await fp.get();
-			const decryptedData = CryptoJS.AES.decrypt(evt.target.result, fpresult.visitorId).toString(
+			const decryptedData = CryptoJS.AES.decrypt(encryptedData, fpresult.visitorId).toString(
 				CryptoJS.enc.Utf8
 			);
 			const result = JSON.parse(decryptedData);
@@ -51,12 +52,13 @@ async function importIDB(event) {
 			globalEvent.value = 'timestamp updated';
 			messageBox__database.value = `✅ Baza danych została przywrócona pomyślnie.`;
 		} catch (error) {
-			console.error('**importBackup()**', error);
+			console.error('**importIDB()**', error);
 			messageBox__database.value = `❌ Błąd podczas przywracania bazy danych.`;
 			if (error.message.match(/Malformed UTF-8 data/))
 				messageBox__database.value = `❌ Błąd. Kopia zapasowa może zostać przywrócona tylko w przeglądarce, w której została utworzona.`;
 		}
 	};
+	// readAsText() is triggering onload event
 	reader.readAsText(file);
 }
 

@@ -95,7 +95,6 @@ const tagFilter = computed(() => {
 
 // APPLY FILTERING
 watch([textFilter, tagFilter, unfilteredData], () => {
-	console.time('APPLY FILTERING');
 	let data = unfilteredData.value;
 	if (!data) return;
 	let filterString = `${textFilter.value} ${tagFilter.value}`;
@@ -106,7 +105,6 @@ watch([textFilter, tagFilter, unfilteredData], () => {
 		return str.match(new RegExp(fliterRegexp, 'i'));
 	});
 	filteredData.value = data;
-	console.timeEnd('APPLY FILTERING');
 });
 
 function getAllSelectedFilters(groupID, tag) {
