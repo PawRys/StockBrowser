@@ -10,8 +10,6 @@ import { openDialog } from 'vue3-promise-dialog';
 import Dialog_Confirm from '../utils/Dialog_Confirm.vue';
 import CryptoJS from 'crypto-js';
 
-import FingerprintJS from '@fingerprintjs/fingerprintjs';
-const fpPromise = FingerprintJS.load();
 const globalEvent = inject('GlobalEvents');
 const messageBox__database = ref('');
 
@@ -19,10 +17,7 @@ async function exportIDB() {
 	const file = `StockBrowserBackup-${new Date().toJSON().split('T')[0]}.json`;
 	const data = JSON.stringify(await idb.products.toArray());
 	const type = 'application/json; charset=UTF-8';
-	const fp = await fpPromise;
-	const fpresult = await fp.get();
-	console.log(fpresult.visitorId);
-	const encryptedData = CryptoJS.AES.encrypt(data, fpresult.visitorId).toString();
+	const encryptedData = CryptoJS.AES.encrypt(data, localStorage.UUID).toString();
 
 	try {
 		downloadFile(file, encryptedData, type);
@@ -40,9 +35,7 @@ async function importIDB(event) {
 	reader.onload = async event => {
 		try {
 			const encryptedData = event.target.result;
-			const fp = await fpPromise;
-			const fpresult = await fp.get();
-			const decryptedData = CryptoJS.AES.decrypt(encryptedData, fpresult.visitorId).toString(
+			const decryptedData = CryptoJS.AES.decrypt(encryptedData, localStorage.UUID).toString(
 				CryptoJS.enc.Utf8
 			);
 			const result = JSON.parse(decryptedData);

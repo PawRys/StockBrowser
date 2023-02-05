@@ -26,6 +26,14 @@ watchEffect(async () => {
 	localStorage.StockBrowser_LastUsedPanel = currentAppTab.value;
 	// await idb.settings.put({ id: 'currentAppTab', value: currentAppTab.value });
 });
+
+(function setRandomUUID() {
+	const UUID = localStorage.getItem('UUID');
+	const UUIDpattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(UUID);
+	if (UUIDpattern === false) {
+		localStorage.setItem('UUID', crypto.randomUUID());
+	}
+})();
 </script>
 
 <template>
