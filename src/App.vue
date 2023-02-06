@@ -8,7 +8,7 @@ import DataManagerTab from './components/DataManager__.vue';
 import DataBrowserTab from './components/Browser__.vue';
 import DataShareTab from './components/DataShare__.vue';
 import LastModified from './components/LastModified.vue';
-import TestTab from './components/Test.vue';
+// import TestTab from './components/Test.vue';
 
 // const lasttab = (await idb.settings.get('currentAppTab')) || DataBrowserTab;
 const lasttab = localStorage.StockBrowser_LastUsedPanel || DataBrowserTab;
