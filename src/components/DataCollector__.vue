@@ -10,7 +10,6 @@ import {
 	generateTimestamp,
 	mergeWithLocalData,
 } from './DataCollector__.js';
-import ExampleData from './DataCollector__ExampleData.vue';
 
 const importedData = ref();
 const importedDataType = ref(null);
@@ -115,8 +114,6 @@ async function importData() {
 			</button>
 		</p>
 	</section>
-
-	<!-- <example-data /> -->
 
 	<section class="data-collector__manual">
 		<h3>Instrukcja wprowadzania danych z Symfonii</h3>
