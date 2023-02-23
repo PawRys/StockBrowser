@@ -4,7 +4,7 @@ Program służy do przeglądania produktów, kalkulowania cen oraz tworzenia spi
 Celem powstania było rozszerzenie dostępu do stanów magazynowych na urządzenia mobilne,
 ponieważ główny program magazynowy nie posiadał takiej funkcji.
 
-### Co program robi niezwykłego (imho)?
+### Z czego jestem najbardziej zadowolony?
 Wszystko w tym programie zostało uszyte na miarę. Żadne z gotowych rozwiązań nie spełniało moich założeń w 100%.
 - ewaluacja stringu z zapisem matematycznym (tylko podstawowe działania z nawiasami, nie jest to po prostu eval())
 - customowo tworzone filtry
