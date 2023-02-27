@@ -16,7 +16,7 @@ const currentAppTab = ref(lasttab);
 provide('currentAppTab', currentAppTab);
 const tabs = {
 	BrowserTab: { id: DataBrowserTab, name: 'Lista produktów', icon: 'bi bi-list-ul' },
-	DataCollectorTab: { id: DataCollectorTab, name: 'Załadauj dane', icon: 'bi bi-download' },
+	DataCollectorTab: { id: DataCollectorTab, name: 'Załaduj dane', icon: 'bi bi-download' },
 	DataShareTab: { id: DataShareTab, name: 'Udostępnij dane', icon: 'bi bi-cloud-arrow-up' },
 	DataManagerTab: { id: DataManagerTab, name: 'Zarządzaj bazą danych', icon: 'bi bi-database' },
 	// TestTab: { id: TestTab, name: 'Test', icon: 'bi bi-bug-fill' },
