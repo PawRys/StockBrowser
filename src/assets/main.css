@@ -79,6 +79,7 @@ textarea {
 	font: inherit;
 	color: inherit;
 	background-color: inherit;
+	border: solid 1px var(--accent-shade);
 }
 
 body {
@@ -158,7 +159,7 @@ label {
 	gap: 0.8ex;
 
 	margin: 0.2ch;
-	padding: 1ch 2ch;
+	padding: 1ch 1.6ch;
 	border-radius: 4px;
 	border: none;
 	width: fit-content;
@@ -168,6 +169,7 @@ label {
 	/* overflow: hidden; */
 	text-decoration: none;
 	line-height: 1.15em;
+	font-style: normal;
 
 	transition-property: background-color, box-shadow;
 	transition-duration: var(--transition-duration);
