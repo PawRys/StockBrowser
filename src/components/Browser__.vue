@@ -8,6 +8,11 @@ import Pagination from './Browser__Pagination.vue';
 import Quantities from './Browser__Quantities.vue';
 import ListSettings from './Browser__ListSettings.vue';
 import { animateScrollTo } from '../utils/functions.js';
+import { stateManager } from '../utils/stateManager';
+
+watchEffect(() => {
+	console.log('// stateManager: ', stateManager);
+});
 
 const unfilteredData_global = ref([]);
 const filteredData_global = ref([]);
@@ -18,15 +23,23 @@ provide('filteredData_global', filteredData_global);
 provide('sortedData_global', sortedData_global);
 provide('pagedData_global', pagedData_global);
 
-const pageSize_global = ref(localStorage.StockBrowser_PageSize || 20);
-const pageCount_global = ref(1);
-const pageNumber_global = ref(1);
-provide('pageSize_global', pageSize_global);
-provide('pageCount_global', pageCount_global);
-provide('pageNumber_global', pageNumber_global);
-watchEffect(() => {
-	localStorage.StockBrowser_PageSize = pageSize_global.value;
+const paginationState = reactive({
+	pageSize: ref(10),
+	pageCount: ref(45),
+	pageNumber: ref(12),
 });
+
+provide('paginationState', paginationState);
+
+// const pageSize_global = ref(localStorage.StockBrowser_PageSize || 20);
+// const pageCount_global = ref(1);
+// const pageNumber_global = ref(1);
+// provide('pageSize_global', pageSize_global);
+// provide('pageCount_global', pageCount_global);
+// provide('pageNumber_global', pageNumber_global);
+// watchEffect(() => {
+// 	localStorage.StockBrowser_PageSize = pageSize_global.value;
+// });
 
 const dataSet_global = ref('dataset-total');
 provide('dataSet_global', dataSet_global);
@@ -51,9 +64,16 @@ function wrapText(text) {
 	<h2>Lista produktów</h2>
 
 	<Filters />
+	<div>PageNumber: {{ paginationState.pageNumber }}</div>
+	<div>PageCount: {{ paginationState.pageCount }}</div>
 	<section class="browser" :class="dataMode" id="results">
 		<ListSettings class="browser__settings" />
 		<Pagination class="browser__pagination-top" />
+
+		<!-- <ul v-for="n in 10">
+			<li>{{ n + 20 }}</li>
+		</ul> -->
+
 		<ul class="browser__list" v-if="pagedData_global && pagedData_global.length">
 			<li class="browser__product" v-for="ply in pagedData_global" :key="ply.code">
 				<div class="product__code">
@@ -74,10 +94,7 @@ function wrapText(text) {
 					:size="ply.size"
 					:total="ply.tCub"
 					:available="ply.aCub" />
-				<Prices
-					v-if="dataMode === 'dataMode__trade'"
-					:plySize="ply.size"
-					:buyPrice="ply.pCub" />
+				<Prices v-if="dataMode === 'dataMode__trade'" :plySize="ply.size" :buyPrice="ply.pCub" />
 			</li>
 		</ul>
 		<p v-else class="browser__empty">Nie znaleziono produktów.</p>
